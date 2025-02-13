@@ -19,6 +19,7 @@ __PVP Commands__
 __PVE Game Modes__
 **🆘 The Tutorial** - Learn Anime VS+ battle system
 **⚡ Randomize** - Select and start a Random Game Mode Below
+**🗺️ Adventure** - Enter a 2D universe to battle, loot and more
 **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
 **👺 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
 **📽️ Scenario** - Battle through unique scenarios to earn Cards and Moves
@@ -47,9 +48,10 @@ __Universe Information__
 
 CARD_LEGEND = textwrap.dedent(f"""\
 __Card Basics__
+🎴 - **Card**
 ♾️ - **Card Universe**
 🀄 - **Card Tier** *1-10*
-🔱 - **Card Level**
+🔰/🔱/⚜️ - **Card Level**
 🥋 - **Card Class**
 ❤️ - **Card Health** (HLT)
 🌀 / ⚡ - **Card Stamina** (ST)
@@ -271,6 +273,9 @@ __Game Options__
 **/difficulty** - Change the difficulty of the game
 **/autosave** - Toggle autosave on or off
 **/battlehistory** - Update battle history length
+**/battleview** - Toggle Opponent Stats in Battle
 
 [Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
+
+

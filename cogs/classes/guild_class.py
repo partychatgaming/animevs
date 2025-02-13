@@ -258,11 +258,11 @@ class Guild:
         # Implement logic to get war message
         return "War message"
 
-    async def send_guild_info(self, ctx, guild):
+    async def send_guild_info(self):
         embed_types = ["first_page", "membership", "guild_mission", "war", "activity", "explanations"]
         
         for embed_type in embed_types:
-            embed = guild.generate_embed(embed_type)
+            embed = self.generate_embed(embed_type)
             self.embed_list.append(embed)
         
         return self.embed_list

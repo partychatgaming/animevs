@@ -12,7 +12,7 @@ from interactions import ActionRow, Button, ButtonStyle, Embed
 
 
 class Player:
-    def __init__(self, auto_save, available, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history, balance, cards, titles, arms, summons, deck, card_levels, quests, destiny, gems, storage, talismans, essence, tstorage, astorage, u_preset):
+    def __init__(self, auto_save, available, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history, balance, cards, titles, arms, summons, deck, card_levels, quests, destiny, gems, storage, talismans, essence, tstorage, astorage, u_preset, rpg_levels):
         self.disname = disname
         self.is_available = available
         self.did = did
@@ -60,6 +60,7 @@ class Player:
         self.summons = summons
         self.deck = deck
         self.card_levels = card_levels
+        self.rpg_levels = rpg_levels
         self.quests = quests
         self.destiny = destiny
         self.gems = gems
@@ -174,6 +175,9 @@ class Player:
         else:
             self.rebirth_icon = '🧚‍♂️'
       
+        self.rpg_atk_boost = False
+        self.rpg_def_boost = False  
+        self.rpg_hlt_boost = False
 
 
 
@@ -221,6 +225,7 @@ class Player:
         power = (summon_bond * summon_lvl) + int(summon_ability_power)
         summon_path = summon_object['PATH']
         return summon_object
+    
     
 
     def get_new_essence_value_from_rewards(self, element, essence_value):
@@ -301,7 +306,23 @@ class Player:
             return f"\nScenario saved: {scenario}"
         else:
             return "Scenario already saved."
+        
+    
+    def save_rpg_levels(self):
+        # Add error handling later
+        loggy.info(f"Saving RPG levels for {self.disname}")
+        db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'RPG_LEVELS': self.rpg_levels}})
+        return True
+    
 
+    def inc_rpg_level(self, universe):
+        # This method is called when a player levels up in an RPG universe
+        for rpg in self.rpg_levels:
+            if rpg['UNIVERSE'] == universe:
+                rpg['LEVEL'] += 1
+                
+        # Now save the updated RPG levels
+        self.save_rpg_levels()
     
     async def set_guild_data(self):
         if self.guild != "PCG":
@@ -335,22 +356,63 @@ class Player:
             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
 
-    def save_gems(self, universe_title, amount):
-        current_gems = 0
-        if self.gems:
-            for gems in self.gems:
-                if universe_title == gems['UNIVERSE']:
-                    current_gems = gems['GEMS']
+    def combine_duplicate_universes(self):
+        # Get all universes
+        all_universes = self.gems
 
-        if current_gems:
-            update_query = {'$inc': {'GEMS.$[type].' + "GEMS": amount}}
-            filter_query = [{'type.' + "UNIVERSE": universe_title}]
-            response = db.updateUser(self.user_query, update_query, filter_query)
-            return True
+        # Create a dictionary to store combined gem counts
+        combined_universes = {}
+
+        # Iterate through all universes and combine gem counts
+        for universe in all_universes:
+            universe_title = universe['UNIVERSE']
+            if universe_title in combined_universes:
+                combined_universes[universe_title]['GEMS'] += universe['GEMS']
+                # Ensure UNIVERSE_HEART and UNIVERSE_SOUL are True if any duplicate has them as True
+                combined_universes[universe_title]['UNIVERSE_HEART'] |= universe['UNIVERSE_HEART']
+                combined_universes[universe_title]['UNIVERSE_SOUL'] |= universe['UNIVERSE_SOUL']
+            else:
+                combined_universes[universe_title] = universe.copy()
+
+        # Create a new list of universes without duplicates
+        new_universes = list(combined_universes.values())
+
+        # Update the database with the new list of universes
+        update_query = {'$set': {'GEMS': new_universes}}
+        response = db.updateUserNoFilter(self.user_query, update_query)
+
+        # Update the local gems list
+        self.gems = new_universes
+
+        return True
+    
+    def get_current_card_gems(self, universe_title):
+        for gem in self.gems:
+            if gem['UNIVERSE'] == universe_title:
+                return gem['GEMS']
+        return 0
+
+
+    def save_gems(self, universe_title, amount):
+        # Find the existing universe, if any
+        existing_universe = next((gem for gem in self.gems if gem['UNIVERSE'] == universe_title), None)
+
+        if existing_universe:
+            # Update existing universe
+            update_query = {'$inc': {'GEMS.$[elem].GEMS': amount}}
+            array_filters = [{'elem.UNIVERSE': universe_title}]
+            response = db.updateUser(self.user_query, update_query, array_filters)
         else:
-            gem_info = {'UNIVERSE': universe_title, 'GEMS' : amount, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
-            response = db.updateUserNoFilter(self.user_query, {'$addToSet' : {'GEMS': gem_info }})
-            return True
+            # Add new universe
+            gem_info = {
+                'UNIVERSE': universe_title,
+                'GEMS': amount,
+                'UNIVERSE_HEART': False,
+                'UNIVERSE_SOUL': False
+            }
+            response = db.updateUserNoFilter(self.user_query, {'$addToSet': {'GEMS': gem_info}})
+
+        return True
 
 
     def remove_gems(self, universe_title, amount):
@@ -372,34 +434,89 @@ class Player:
             return True
 
 
-    def save_card(self, card):
+    def save_card(self, card, rpg_mode =False):
         try:
-            if len(self.cards) >= 80:
+            if len(self.cards) >= 80 and not rpg_mode:
                 return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
+            if card.name in self.cards:
+                if card.card_lvl > 1:
+                    atk_def_buff = 0
+                    ap_buff = 0
+                    hlt_buff = 0
+                    if (card.card_lvl + 1) % 2 == 0:
+                        atk_def_buff = crown_utilities.level_sync["ATK_DEF"] or 2
+                    if (card.card_lvl + 1) % 3 == 0:
+                        ap_buff = crown_utilities.level_sync["AP"] or 2
+                    if (card.card_lvl + 1) % 20 == 0:
+                        hlt_buff = crown_utilities.level_sync["HLT"] or 10
 
+                    update_query = {
+                        '$set': {'CARD_LEVELS.$[type].EXP': 0},
+                        '$inc': {
+                            'CARD_LEVELS.$[type].LVL': card.card_lvl,
+                            'CARD_LEVELS.$[type].ATK': atk_def_buff,
+                            'CARD_LEVELS.$[type].DEF': atk_def_buff,
+                            'CARD_LEVELS.$[type].AP': ap_buff,
+                            'CARD_LEVELS.$[type].HLT': hlt_buff
+                        }
+                    }
+                    filter_query = [{'type.CARD': str(card.name)}]
+                    response = db.updateUser(self.user_query, update_query, filter_query)
+                return f"Gained 1 Level for {card.name}."
             code = random.randint(1000000, 9999999)
 
             # First update: Push the card name to CARDS array
             db.updateUserNoFilter(self.user_query, {'$push': {'CARDS': card.name}})
 
             # Second update: Add card details to CARD_LEVELS array
-            update_query = {
-                '$addToSet': {
-                    'CARD_LEVELS': {
-                        'CARD': card.name,
-                        'LVL': 1,
-                        'TIER': card.tier,
-                        'EXP': 0,
-                        'ATK': 0,
-                        'DEF': 0,
-                        'AP': 0,
-                        'HLT': 0,
-                        'CLASS': card.card_class,
-                        'ID': str(code)  # Convert UUID to string
+            if rpg_mode:
+                if len(self.cards) >= 80:
+                    return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
+                lower = 10
+                upper = 100
+                tier = card.tier
+                if self.difficulty == "HARD":
+                    lowewr = 100
+                    upper = 500
+                    tier = card.tier + 1
+                if self.difficulty == "EASY":
+                    lowewr = 1
+                    upper = 10
+                random_lvl = random.randint(lower, upper)
+                update_query = {
+                    '$addToSet': {
+                        'CARD_LEVELS': {
+                            'CARD': card.name,
+                            'LVL': random_lvl,
+                            'TIER': tier,
+                            'EXP': 0,
+                            'ATK': 0,
+                            'DEF': 0,
+                            'AP': 0,
+                            'HLT': 0,
+                            'CLASS': card.card_class,
+                            'ID': str(code)  # Convert UUID to string
+                        }
                     }
-                },
-                '$set': {'CARD': card.name}
-            }
+                }
+            else:
+                update_query = {
+                    '$addToSet': {
+                        'CARD_LEVELS': {
+                            'CARD': card.name,
+                            'LVL': 1,
+                            'TIER': card.tier,
+                            'EXP': 0,
+                            'ATK': 0,
+                            'DEF': 0,
+                            'AP': 0,
+                            'HLT': 0,
+                            'CLASS': card.card_class,
+                            'ID': str(code)  # Convert UUID to string
+                        }
+                    },
+                    '$set': {'CARD': self.equipped_card}
+                }
             
             result = db.updateUserNoFilter(self.user_query, update_query)
 
@@ -432,6 +549,7 @@ class Player:
             custom_logging.debug(ex)
             return False
 
+    
     def remove_card(self, card):
         try:
             if card.name in self.cards:
@@ -462,10 +580,10 @@ class Player:
             return False
 
 
-    def save_title(self, universe):
+    def save_title(self, universe, rpg_title_drop=None):
         titles = [x for x in db.queryAllTitles() if x['UNIVERSE'] == universe and x['TITLE'] not in self.titles]
         stats = db.query_stats_by_player(self.did)
-        message = None
+        message = ""
         for title in titles:
             if title['UNLOCK_METHOD'] and title['AVAILABLE']:
                 unlock_method = title['UNLOCK_METHOD']['METHOD']
@@ -484,7 +602,20 @@ class Player:
                     message += boss_title_unlock_message
                 if elemental_damage_unlock_message:
                     message += elemental_damage_unlock_message
+            if title['TITLE'] == rpg_title_drop and rpg_title_drop is not None:
+                rpg_title_unlock_message = self.adventure_title_unlock_check(title, "RPG")
+                if rpg_title_unlock_message:
+                    message += rpg_title_unlock_message
+                return message, True
 
+        return message
+    
+
+    def adventure_title_unlock_check(self, title, mode):
+        if mode == "RPG":
+            update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+            response = db.updateUserNoFilter(self.user_query, update_query)
+            message = f"🎗️ {title['TITLE']} Unlocked!\n"
         return message
 
 
@@ -592,7 +723,19 @@ class Player:
         return message
     
 
-    def save_arm(self, arm):
+    def save_arm(self, arm, rpg_mode =False):
+        
+        if rpg_mode:
+            if len(self.arms) >= 80:
+                return "You have reached the maximum amount of arms in your inventory. Please remove an arm to add a new one"
+            for a in self.arms:
+                if arm == a['ARM']:
+                    return False
+            random_number = random.randint(5, 100)
+            
+            update_query = {'$addToSet': {'ARMS': {"ARM": arm, "DUR": random_number}}}
+            response = db.updateUserNoFilter(self.user_query, update_query)
+            return random_number
         for a in self.arms:
             if arm.name == a['ARM']:
                 return False
@@ -611,7 +754,7 @@ class Player:
         #         response = db.updateUserNoFilter(self.user_query, update_query)
         # else:
         if arm.durability == 0:
-            arm.durability = 5
+            arm.durability = 25
         update_query = {'$addToSet': {'ARMS': {"ARM": arm.name, "DUR": arm.durability}}}
         response = db.updateUserNoFilter(self.user_query, update_query)
     
@@ -634,19 +777,23 @@ class Player:
             return False
 
 
-    def save_summon(self, summon):
+    def save_summon(self, summon, rpg_mode =False):
+        summon_list = []
         for s in self.summons:
             if summon.name == s['NAME']:
+                summon_list.append(s['NAME'])
                 return False
         for s in self.storage:
             if summon.name == s['NAME']:
                 return False
             
-        if len(self.summons) >= 80:
+        if len(summon_list) >= 80:
             return "You have reached the maximum amount of summons in your inventory. Please remove a summon to add a new one."
+
 
         update_query = {'$addToSet': {'PETS': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, summon.ability: summon.passive_value, "TYPE": summon.ability_type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
         response = db.updateUserNoFilter(self.user_query, update_query)
+        return True
 
 
     def remove_summon(self, summon_name):

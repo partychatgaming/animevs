@@ -12,13 +12,13 @@ else:
     # TEST
     use_database = "PCGTEST"
 
+# THIS IS SPECIFICALLY FOR TESTING
+# use_database = "PCGPROD"
+
 # TOKEN = config('MONGOTOKEN_TEST')
 MONGO = config('MONGO_LOGIN')
 mongo = MongoClient(MONGO, tlsCAFile=certifi.where())
 
-# mongo = pymongo.MongoClient(TOKEN)
-# lore_db = mongo["Lore"]
-# lore_col = lore_db["lore"]
 
 db = mongo[use_database]
 users_col = db["USERS"]
@@ -1218,6 +1218,17 @@ def querySpecificDropCards(args):
     data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}})
     return data 
 
+def queryRPGCards(args, map_level, number_of_cards):
+
+    data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}}))
+    # Shuffle the data and select 7 cards
+    if len(data) > number_of_cards:
+        selected_cards = random.sample(data, number_of_cards)
+    else:
+        selected_cards = data  # If less than 7 cards are available, return all of them
+    return selected_cards
+
+
 def queryExclusiveDropCards(args):
     data = cards_col.find({'UNIVERSE': args, 'EXCLUSIVE': True, 'AVAILABLE': True, 'HAS_COLLECTION': False, 'IS_SKIN': False, 'TIER': {'$in': acceptable}})
     return data 
@@ -1278,7 +1289,7 @@ def updateCardWithFilter(query, new_value, arrayFilters):
 
 def updateCard(query, new_value):
     try:
-        cards_col.update_one(query, new_value)
+        cards_col.update_one(query, new_value, upsert=True)
         return True
     except:
         return False
@@ -1410,7 +1421,7 @@ def createArm(arm):
 
 def updateArm(query, new_value):
     try:
-        arm_col.update_one(query, new_value)
+        arm_col.update_one(query, new_value, upsert=True)
     except:
         return False
 

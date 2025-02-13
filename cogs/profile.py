@@ -66,7 +66,7 @@ class Profile(Extension):
 
         team = db.queryTeam({'TEAM_NAME': player.guild.lower()})
 
-        msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?\nAll of your stats, purchases and other earnings will be removed from the system and can not be recovered.", components=[accept_buttons_action_row])
+        msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?", components=[accept_buttons_action_row])
 
         def check(component: Button) -> bool:
             return component.ctx.author == ctx.author
@@ -217,11 +217,13 @@ class Profile(Extension):
                     card_file = File(file_name="image.png", file=image_binary)
 
                     embed_pages = [
-                        Embed(title=f"{player_name} Build Overview", description="For details, please check the other pages.", color=0x000000)
+                        Embed(title=f"{player_name} Build Overview", description="For trait, universe passive, experience details and more, please check the other pages.", color=0x000000)
                             .add_field(name="__[🎒]My Equipment__", value=f"Title ~ 🎗️ **{t.name}**\n"
                             f"Arm ~ 🦾 **{a.name}**\n"
                             f"Summon ~ 🧬 **{player.equipped_summon}**\n"
-                            f"Talisman ~ **{player.talisman_message}**\n", inline=False)
+                            f"Talisman ~ **{player.talisman_message}**\n"
+                            f"Account Balance: {player.balance_icon}{'{:,}'.format(player.balance)}\n"
+                            f"{c.universe} Gem Balance: 💎{'{:,}'.format(player.get_current_card_gems(c.universe))}\n", inline=False)
                             .set_image(url="attachment://image.png")
                     ]
 
@@ -842,6 +844,11 @@ class Profile(Extension):
                 embed = Embed(title="🎴 Cards", description="You currently own no Cards.", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
+
+            if len(player.cards) > 80:
+                embed = Embed(title="🎴 Cards", description="You have too many cards to display. Please use the filters to narrow down list", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
             
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Cards")
             paginator.show_select_menu = True
@@ -909,7 +916,8 @@ class Profile(Extension):
     @slash_option(
         name="filtered",
         description="Filter by Universe of the card you have equipped",
-        opt_type=OptionType.BOOLEAN
+        opt_type=OptionType.BOOLEAN,
+        required=True
     )
     @slash_option(
         name="type_filter",
@@ -1013,6 +1021,7 @@ class Profile(Extension):
     @slash_option(
         name="filtered",
         description="Filter by Universe of the card you have equipped",
+        required=True,
         opt_type=OptionType.BOOLEAN
     )
     @slash_option(
@@ -1022,7 +1031,7 @@ class Profile(Extension):
         required=False,
         autocomplete=True
     )
-    async def arms(self, ctx, filtered, type_filter: str = ""):
+    async def arms(self, ctx, filtered: str = "", type_filter: str = ""):
         await ctx.defer()
         try:
             a_registered_player = await crown_utilities.player_check(ctx)
@@ -1086,6 +1095,11 @@ class Profile(Extension):
                         embed = Embed(title="🦾 Arms", description="You currently own no Arms.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
+                    
+                    if len(embed_list) > 80:
+                        embed = Embed(title="🦾 Arms", description="You have too many Arms to display. Please use the filters to narrow down your search.", color=0x7289da)
+                        await ctx.send(embed=embed, ephemeral=True)
+                        return
 
                     paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Arms")
                     paginator.show_select_menu = True
@@ -1106,6 +1120,7 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
 
+    
     @arms.autocomplete("type_filter")
     async def arms_autocomplete(self, ctx: AutocompleteContext):
         choices = []
@@ -1157,7 +1172,7 @@ class Profile(Extension):
                     else:
                         soul = "🥀"
 
-                    gem_details.append(f"{crown_utilities.crest_dict[gd['UNIVERSE']]} **{gd['UNIVERSE']}**\n💎 {'{:,}'.format(gd['GEMS'])}\nUniverse Heart {heart}\nUniverse Soul {soul}\n")
+                    gem_details.append(f"{crown_utilities.crest_dict[gd['UNIVERSE']]} **{gd['UNIVERSE']}**\n💎 {'{:,}'.format(gd['GEMS'])}")
 
                 embed_list = []
                 for i in range(0, len(gem_details), 5):
@@ -1227,7 +1242,8 @@ class Profile(Extension):
             durability_message = "UNAVAILABLE" if arm.drop_style == "Boss Drop" else f"{arm_cost:,}"
             boss_message = "Cannot Repair" if arm.drop_style == "Boss Drop" else "Dungeon eh?!" if arm.drop_style == "Dungeon Drop" else "That's Abyssal!!" if arm.universe == "Unbound" else "Nice Arm!"
 
-            balance = next((gems['GEMS'] for gems in user.gems if gems['UNIVERSE'] == card.universe), 0)
+            # balance = next((gems['GEMS'] for gems in user.gems if gems['UNIVERSE'] == card.universe), 0)
+            balance = user.get_current_card_gems(card.universe)
             icon = "💎"
 
             def get_level_icon(level):

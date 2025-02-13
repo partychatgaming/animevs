@@ -200,6 +200,7 @@ class GameState(Extension):
             # await battle_msg.delete()
             await asyncio.sleep(1)
             end_msg = await private_channel.send(embed=loss_response, components=[play_again_buttons_action_row])
+            
 
             def check(component: Button) -> bool:
                 return component.ctx.author == user1
@@ -208,6 +209,12 @@ class GameState(Extension):
                 button_ctx  = await self.bot.wait_for_component(components=play_again_buttons_action_row, timeout=300, check=check)
 
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|play_again_no":
+                    if battle_config.is_rpg:
+                        battle_config.rpg_config.adventuring = True
+                        battle_config.rpg_config.battling = False
+                        battle_config.rpg_config.encounter = False
+                        battle_config.rpg_config.previous_moves.append(f"💨You Lose! Fleeing Encounter...!")
+                        await end_msg.delete(delay=3)
                     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                         loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
                     else:
@@ -229,6 +236,17 @@ class GameState(Extension):
                     battle_config.reset_game()
                     # print(f"CURRENT OPPONENT {battle_config.current_opponent_number}")
                     battle_config.continue_fighting = True
+                    battle_config.player1_card.used_focus = False
+                    battle_config.player1_card.used_resolve = False
+                    battle_config.player1_card.resolved = False
+                    battle_config.player1_card.focused = False
+                    battle_config.player2_card.resolved = False
+                    battle_config.player2_card.focused = False
+                    battle_config.player2_card.used_focus = False
+                    battle_config.player2_card.used_resolve = False
+                    if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                        battle_config.player3.used_focus = False
+                        battle_config.player3.used_resolve = False
                     
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|player_rematch":
                     new_info = await crown_utilities.updateRetry(battle_config.player1.did, "U","DEC")
@@ -410,7 +428,7 @@ class GameState(Extension):
                     winning_message = await ai.win_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
                     losing_message = await ai.lose_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
                     
-                    win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.", description="View a summary of the rewards and match history here", color=0x1abc9c)
+                    win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
                     win_embed.set_footer(text=f"{battle_config.player1_card.name}: {winning_message}\n\n{battle_config.player2_card.name}: {losing_message}")
 
                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
@@ -508,6 +526,10 @@ class GameState(Extension):
             if battle_config.is_explore_game_mode:
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                if battle_config.is_rpg:
+                    self.combat_victory = True
+                    await rpg_win(self, battle_config, battle_msg, private_channel, user1)
+                    return
                 await explore_win(battle_config, battle_msg, private_channel, user1)
 
             if battle_config.is_raid_game_mode:
@@ -521,6 +543,8 @@ class GameState(Extension):
 
             if battle_config.is_abyss_game_mode:
                 await abyss_win(battle_config, battle_msg, private_channel, user1)
+
+            
         else:
             return
 
@@ -531,6 +555,28 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
         await battle_msg.delete(delay=2)
         await asyncio.sleep(2)
         battle_msg = await private_channel.send(embed=explore_response)
+        
+        return True
+    else:
+        return False
+    
+async def rpg_win(self, battle_config, battle_msg, private_channel, user1):
+    if battle_config.is_rpg:
+        battle_config.continue_fighting = False
+        battle_config.rpg_config.adventuring = True
+        battle_config.rpg_config.battling = False
+        battle_config.rpg_config.encounter = False
+        rpg_response =  await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
+        await battle_msg.delete(delay=2)
+        #rpg_response.delete(delay=3)
+        await asyncio.sleep(2)
+        #win, history, stats = await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
+        #battle_msg = await private_channel.send(embed=rpg_response)
+        # embed_list = [win, history, stats]
+        # paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+        # paginator.show_select_menu = True
+        # await paginator.send(private_channel)
+        # await paginator.delete(delay=5)
         return True
     else:
         return False

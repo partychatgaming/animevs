@@ -1,0 +1,219 @@
+messages:
+  language_changed: "Sprache auf Deutsch geändert."
+help:
+  choices:
+    play: "⚔️ Wie spielt man?"
+    legend: "❓ Was bedeuten diese Emojis?"
+    classes: "🥋 Was sind Kartentypen?"
+    titles: "🎗️ Was sind Titel-Effekte?"
+    arms: "🦾 Was sind Arm-Verstärkungen?"
+    enhancers: "🦠 Was sind Verstärker-Fähigkeiten?"
+    elements: "🔅 Was sind Elemente?"
+    menu: "👑 Inventar & Wirtschaft"
+    universe: "🌍 Universum-Informationen"
+    teams: "👥 Familie, Gilde, Vereinigung"
+    options: "⚙️ Optionen"
+    manual: "📔 Lese das Anime VS+ Handbuch"
+  commands:
+    crown_unlimited_games: |
+      __Konto Verwaltung__
+      **/register**: 🆕 Registriere dein Konto
+      **/deleteaccount**: Lösche dein Konto
+      **/player**: Schau dir dein Konto oder das eines Freundes an
+      **/build**: Sieh dir deinen aktuellen Build, Karten, Titel, Arme, Talismane, Beschwörungen und mehr an
+                                                                        
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+    
+    pve_modes: |
+      __PVP-Befehle__
+      **/play** - Kämpfe durch verschiedene PVE-Modi
+      **/explore** - Schalte den Erkundungsmodus ein/aus                           
+
+      __PVE-Spielmodi__
+      **🆘 Das Tutorial** - Lerne das Anime VS+ Kampfsystem
+      **⚡ Zufall** - Wähle und starte einen zufälligen Spielmodus
+      **🗺️ Abenteuer** - Betrete ein 2D-Universum, um zu kämpfen, zu plündern und mehr
+      **⚔️ Geschichten** - Normaler Kampfmodus, um Karten, Zubehör und mehr zu verdienen
+      **👺 Dungeon** - Schwieriger Kampfmodus, um Dungeon-Karten, Dungeon-Zubehör und mehr zu verdienen
+      **📽️ Szenario** - Kämpfe durch einzigartige Szenarien, um Karten und Bewegungen zu verdienen
+      **💀 Raid** - Kämpfe durch hochlevelige Szenarien, um mythische Karten und Bewegungen zu verdienen
+      **🌌 Erkunden** - Zufallsbegegnungskämpfe, um seltene Karten und große Belohnungen zu verdienen
+                                            
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    pvp_modes: |
+      __PVP-Spielmodi__
+      **/pvp** - Kämpfe gegen einen Rivalen im PVP-Modus
+      *Mehr PVP-Modi kommen bald!*
+                                  
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    universe_stuff: |
+      __Universum-Informationen__
+      **/universes** - Sieh dir alle verfügbaren Universum-Infos an, einschließlich aller verfügbaren Karten, Zubehör und Bestimmungen
+
+      **/view** - Schau dir alle verfügbaren Spielobjekte an.
+                                  
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    card_legend: |
+      __Kartengrundlagen__
+      🎴 - **Karte**
+      ♾️ - **Kartenuniversum**
+      🀄 - **Kartentier** *1-10*
+      🔰/🔱/⚜️ - **Kartenlevel**
+      🥋 - **Kartentyp**
+      ❤️ - **Kartenleben** (HLT)
+      🌀 / ⚡ - **Karten-Ausdauer** (ST)
+      🗡️ - **Kartenangriff (ATK)** Blauer Kristall 🟦
+      🛡️ - **Kartenverteidigung (DEF)** Roter Kristall 🟥
+      🏃 - **Kartenausweichung** (EVASION)
+                                  
+      __Kartenbewegungen__
+      💥 - **Kartenbasis** Angriff
+      ☄️ - **Karten-Spezial** Angriff            
+      🏵️ - **Karten-Ultimativ** Angriff
+      🦠 - **Karten-Verstärker** Fähigkeit
+                                  
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    equipment_legend: |
+      __Ausrüstung & Beschwörungen__
+      ⚠️ - Dein Titel oder Arm entspricht nicht deinem Universum
+      🎗️ - **Titel**  *Titel-Effekte werden in jedem Zug passiv angewendet.*
+      🦾 - **Arm** *Arme verleihen neue Angriffe, erhöhen Fähigkeiten oder gewähren Schutz.*
+      🧬 - **Beschwörung** *Beschwörungen nutzen Angriffe oder Schutz während des Kampfes*
+      📿 - **Talisman** *Rüste Element-Talismane aus, um die Affinitäten des Gegners zu umgehen*
+      ⚒️ - **Haltbarkeit** *Haltbarkeit deines Arms oder Talismans, verringert sich mit jeder Nutzung*
+                                  
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    currency_legend: |
+      __Währungsbefehle__
+      **/balance** - Sieh dir deinen aktuellen Kontostand und den Kontostand der Gilde an
+      **/gems** - Sieh dir deine aktuellen Edelsteine an
+      **/essence** - Sieh dir deine aktuelle Essenz an
+
+      **Währung**
+      💰 - **Münzen** *Kaufe Gegenstände auf dem Marktplatz oder durch Handel.*
+      💎 - **Edelsteine** *Erstelle Kartenlevel und Gegenstände beim Schmied*
+      🪔 - **Essenz** *Erstelle Element-Talismane*
+                                  
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    elements_legend: |
+      **🔅 Elemente**    
+      👊 Physisch - Wenn ST (Ausdauer) größer als 80, fügt zusätzlichen Schaden zu. Nach 3 Schlägen erlangst du eine Parry
+                                  
+      ⚔️ Schwert - Jeder 3. Angriff wird ein kritischer Treffer, der auch den Angriff um 40 % des verursachten Schadens erhöht
+                                  
+      🏹 Fernkampf - Wenn ST (Ausdauer) größer als 30, fügt 1.7x Schaden zu. Jeder 3. Fernkampf-Angriff erhöht die Trefferchance um 10 %
+                                  
+      🔫 Pistole - Durchdringt den Schild. Hat eine 40 % Chance, einen Doppelschlag auszuführen. Doppelschläge senken die Verteidigung des Gegners um 35 % des aktuellen Wertes
+                                  
+      ♻️ Rücksichtslos - Füge unglaublichen Bonus-Schaden zu, aber du nimmst 60 % als Rücksichtslosigkeit. Wenn Rücksichtslosigkeit dich töten würde, reduziere HP auf 1
+                                  
+      🔥 Feuer - Verursacht 50 % des Schadens des vorherigen Angriffs in den nächsten Gegner-Turns, der Brenneffekt umgeht Schilde und stapelt sich
+
+      ❄️ Eis - Nach 3 Angriffen wird der Gegner eingefroren und verliert 1 Runde, verliert Angriff und Verteidigung in Höhe von 50 % des verursachten Schadens
+
+      💧 Wasser - Jeder Schlag erhöht alle Wasserbewegungs-AP um 100. Jede 200 AP erhältst du einen Schild. Jede 400 AP schickt einen Tsunami-Schlag für echten Schaden
+
+      ⛰️ Erde - Kann nicht pariert werden. Gewährt einen Schild und erhöht die Verteidigung um 30 % AP
+                                  
+      🌿 Natur - Entzieht dem Gegner ATK und DEF für 35 % des Schadens & heilt Gesundheit und maximale Gesundheit um diesen Betrag
+
+      🌩️ Elektrisch - Fügt 10 % der verursachten DMG als Schockschaden hinzu, der zu allen Bewegungs-AP hinzugefügt wird
+
+      🌪️ Wind - Bei Verfehlung oder Kritik wird der Wind-Schaden um 60 % des verursachten Schadens erhöht
+
+      🔮 Psychisch - Durchdringt Barrieren. Reduziert den ATK und DEF des Gegners um 15 % DMG. Nach 3 Treffern erlangst du eine Barriere
+                                  
+      💤 Schlaf - Jeder 2. Angriff fügt einen Stapel von Ruhe hinzu. Bevor der Gegner sich konzentriert, muss er ruhen
+
+      ☠️ Tod - Verursacht 30 % des Schadens an der maximalen Gesundheit des Gegners. Erhalte Angriff in gleicher Höhe
+
+      ❤️‍🔥 Leben - Stehlt 30 % des verursachten Schadens in Gesundheit und maximaler Gesundheit des Gegners
+
+      🌕 Licht - Erhöht den ATK um 40 % des Schadens. 40 % des Schadens werden gespeichert und verursachen Schaden beim Gegner, wenn er sich konzentriert
+
+      🌑 Dunkelheit - Durchdringt Schilde, Barrieren und Paraden und reduziert die ST (Ausdauer) des Gegners um 15
+
+      🧪 Gift - Durchdringt Schilde, stapelt Giftschaden in Höhe von 35 % des verursachten Schadens und stackt bis zu 30 % der maximalen Gesundheit
+
+      🩻 Fäulnis - Durchdringt Schilde, stapelt Fäulnisschaden in Höhe von 15 % des verursachten Schadens und stackt bis zu 20 % der maximalen Gesundheit
+
+      🧿 Energie - Hat eine um 35 % höhere Chance auf einen Kritischen Treffer
+
+      ⌛ Zeit - Starker Block und erhöht die Rundenanzahl um 3, wenn ST (Ausdauer) < 50, konzentriere dich 1 Runde und senke die Schutz des Gegners
+
+      🅱️ Bluten - Jeder 2. Angriff verursacht (10x Rundenanzahl + 5 % Gesundheit) Schaden beim Gegner
+
+      🪐 Gravitation - Deaktiviert die Blockade des Gegners, verringert die Verteidigung des Gegners um 50 % der DMG und verringert die Rundenanzahl um 3
+
+      🐲 Drakonisch - Drakonische Angriffe können nur ULTIMATIV oder Beschworen sein, kombiniert AP und Elementaleffekte deiner BASIS- und SPEZIAL-Angriffe zu einem mächtigen Schlag!
+
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    bot_commands: |
+      __Gildenbefehle__
+      **/guild** - Gilden-Suche, Konfigurationen und Bewerbung
+      **/guildoperations** - Gildenoperationen
+      **/createguild** - Gilde erstellen
+      **/disbandguild** - Gilde löschen
+      **/recruit** - Spieler in deine Gilde rekrutieren
+      **/leaveguild** - Gilde verlassen
+      **/pay** - Sende Münzen an Gildenmitglieder
+      **/donate** - Spende Münzen an die Gildenbank
+
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    rewards_commands: |
+      __Belohnungsbefehle__
+      **/daily** - Fordere deine tägliche Belohnung an
+      **/vote** - Fordere deine Abstimmungsbelohnung an
+
+      __Gacha Gacha! ⌨️__
+      **/code** - Gib Codes ein, um In-Game Belohnungen zu erhalten!
+      **/roll** - Verbringe Gold, um Lootboxen zu öffnen!
+                                        
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+    option_commands: |
+      __Spieloptionen__
+      **/help** - Sieh dir alle Hilfekommandos und das Handbuch an
+      **/explore**  - Erkunde Modus / Universum umschalten
+      **/difficulty** - Ändere die Schwierigkeit des Spiels
+      **/autosave** - Autosave ein/aus schalten
+      **/battlehistory** - Aktualisiere die Länge der Kampfgeschichte
+      **/battleview** - Umschalte Gegner-Statistiken im Kampf
+
+      [Tritt dem Anime VS+ Support-Server bei](https://discord.gg/pcn)
+
+elements:
+  physical: "👊 Physisch - Wenn ST (Ausdauer) größer als 80, fügt zusätzlichen Schaden zu. Nach 3 Schlägen erlangst du eine Parry"
+  sword: "⚔️ Schwert - Jeder 3. Angriff wird ein kritischer Treffer, der auch den Angriff um 40 % des verursachten Schadens erhöht"
+  ranged: "🏹 Fernkampf - Wenn ST (Ausdauer) größer als 30, fügt 1.7x Schaden zu. Jeder 3. Fernkampf-Angriff erhöht die Trefferchance um 10 %"
+  gun: "🔫 Pistole - Durchdringt den Schild. Hat eine 40 % Chance, einen Doppelschlag auszuführen. Doppelschläge senken die Verteidigung des Gegners um 35 % des aktuellen Wertes"
+  reckless: "♻️ Rücksichtslos - Füge unglaublichen Bonus-Schaden zu, aber du nimmst 60 % als Rücksichtslosigkeit. Wenn Rücksichtslosigkeit dich töten würde, reduziere HP auf 1"
+  fire: "🔥 Feuer - Verursacht 50 % des Schadens des vorherigen Angriffs in den nächsten Gegner-Turns, der Brenneffekt umgeht Schilde und stapelt sich"
+  ice: "❄️ Eis - Nach 3 Angriffen wird der Gegner eingefroren und verliert 1 Runde, verliert Angriff und Verteidigung in Höhe von 50 % des verursachten Schadens"
+  water: "💧 Wasser - Jeder Schlag erhöht alle Wasserbewegungs-AP um 100. Jede 200 AP erhältst du einen Schild. Jede 400 AP schickt einen Tsunami-Schlag für echten Schaden"
+  earth: "⛰️ Erde - Kann nicht pariert werden. Gewährt einen Schild und erhöht die Verteidigung um 30 % AP"
+  nature: "🌿 Natur - Entzieht dem Gegner ATK und DEF für 35 % des Schadens & heilt Gesundheit und maximale Gesundheit um diesen Betrag"
+  electric: "🌩️ Elektrisch - Fügt 10 % der verursachten DMG als Schockschaden hinzu, der zu allen Bewegungs-AP hinzugefügt wird"
+  wind: "🌪️ Wind - Bei Verfehlung oder Kritik wird der Wind-Schaden um 60 % des verursachten Schadens erhöht"
+  psychic: "🔮 Psychisch - Durchdringt Barrieren. Reduziert den ATK und DEF des Gegners um 15 % DMG. Nach 3 Treffern erlangst du eine Barriere"
+  sleep: "💤 Schlaf - Jeder 2. Angriff fügt einen Stapel von Ruhe hinzu. Bevor der Gegner sich konzentriert, muss er ruhen"
+  death: "☠️ Tod - Verursacht 30 % des Schadens an der maximalen Gesundheit des Gegners. Erhalte Angriff in gleicher Höhe"
+  life: "❤️‍🔥 Leben - Stehlt 30 % des verursachten Schadens in Gesundheit und maximaler Gesundheit des Gegners"
+  light: "🌕 Licht - Erhöht den ATK um 40 % des Schadens. 40 % des Schadens werden gespeichert und verursachen Schaden beim Gegner, wenn er sich konzentriert"
+  dark: "🌑 Dunkelheit - Durchdringt Schilde, Barrieren und Paraden und reduziert die ST (Ausdauer) des Gegners um 15"
+  poison: "🧪 Gift - Durchdringt Schilde, stapelt Giftschaden in Höhe von 35 % des verursachten Schadens und stackt bis zu 30 % der maximalen Gesundheit"
+  rot: "🩻 Fäulnis - Durchdringt Schilde, stapelt Fäulnisschaden in Höhe von 15 % des verursachten Schadens und stackt bis zu 20 % der maximalen Gesundheit"
+  energy: "🧿 Energie - Hat eine um 35 % höhere Chance auf einen Kritischen Treffer"
+  time: "⌛ Zeit - Starker Block und erhöht die Rundenanzahl um 3, wenn ST (Ausdauer) < 50"
+  bleed: "🅱️ Bluten - Jeder 2. Angriff verursacht (10x Rundenanzahl + 5 % Gesundheit) Schaden beim Gegner"
+  gravity: "🪐 Gravitation - Deaktiviert die Blockade des Gegners, verringert die Verteidigung des Gegners um 50 % der DMG und verringert die Rundenanzahl um 3"
+  draconic: "🐲 Drakonisch - Drakonische Angriffe können nur ULTIMATIV oder Beschworen sein, kombiniert AP und Elementaleffekte deiner BASIS- und SPEZIAL-Angriffe zu einem mächtigen Schlag!"
+

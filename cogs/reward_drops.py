@@ -103,8 +103,8 @@ async def scenario_drop(player, scenario, difficulty):
 
 
 async def reward_money(battle_config, player):
-    amount = (1000 + (1000 * battle_config.current_opponent_number)) * (1 + player.rebirth)
-    gem_amount = 100 + (100 * battle_config.current_opponent_number) * (1 + player.rebirth)
+    amount = (10000 + (1000 * battle_config.current_opponent_number)) * (1 + player.rebirth)
+    gem_amount = 1000 + (100 * battle_config.current_opponent_number) * (1 + player.rebirth)
 
     if battle_config.is_tales_game_mode:
         gem_amount = gem_amount * 1.25

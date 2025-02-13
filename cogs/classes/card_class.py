@@ -43,7 +43,7 @@ from cogs.universe_traits.soul_eater import soul_eater, soul_resonance, meister
 
 class Card:
     try:
-        def __init__(self, name, path, price, available, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, card_type, passive, speed, universe, tier, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss, card_class, drop_style):
+        def __init__(self, name, path, price, available, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, card_type, passive, speed, universe, tier, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss, card_class, drop_style, descriptions):
             self.name = name
             self.fpath= fpath
             self.rpath = rpath
@@ -54,6 +54,7 @@ class Card:
             self.available = available
             self.skin_for = skin_for
             self.max_health = max_health
+            self.descriptions = descriptions
             self.health = health
             self.health_color = crown_utilities.health_color(self.health, self.max_health)
             self.max_stamina = max_stamina
@@ -98,6 +99,8 @@ class Card:
             self.is_summoner = False
             self.card_id = 0
             self.is_monstrosity = False
+            self.fighter_bonus = 0
+            self.ranger_bonus = 0
             self.class_tutorial_message = ""
             self.class_tutorial_message_r = ""
             self.value = 0
@@ -257,6 +260,7 @@ class Card:
             self.omingear_bonus = 0
             self.soul_resonance = False
             self.soul_resonance_amount = 0
+            
 
 
             self.slime_buff = 0
@@ -580,6 +584,11 @@ class Card:
                 "BLAST": {1: 10, 2: 15, 3: 20, 4: 50, 5: 75, 6: 100, 7: 150, 8: 250, 9: 350, 10: 450},
             }
 
+            self.ai_encounter_message = ""
+            self.ai_start_encounter_message = ""
+            
+
+
         def set_enhancer_value(self):
             if self.move4enh in self.enhancer_values:
                 set_of_values = self.enhancer_values[self.move4enh]
@@ -808,6 +817,7 @@ class Card:
             self.physical_parry_value = 1
             self.class_value = p_value
             self.class_tutorial_message = f"🔄 +{p_value} Parries!"
+            self.fighter_bonus = 0 
         
         if self.card_class == "MAGE":
             self.is_mage = True
@@ -867,9 +877,6 @@ class Card:
             self.is_assassin = True
             self._assassin_active = True
             self._assassin_attack = value
-            self.bleed_hit_value = 15
-            self.poison_damage_value = 50
-            self.death_buff_by_value = .50
             self.class_tutorial_message = f"{self.class_emoji} +{value} Sneak Attacks!"
             
         if self.card_class == "SWORDSMAN":
@@ -1129,10 +1136,14 @@ class Card:
             if arm_type == "SHIELD":
                 self.shield_active = True
                 self._shield_value = self._shield_value + arm_value
+                if self.is_fighter:
+                    self._shield_value = self._shield_value * 2
 
             if arm_type == "BARRIER":
                 self.barrier_active = True
                 self._barrier_value = self._barrier_value + arm_value
+                if self.is_fighter:
+                    self._barrier_value = self._barrier_value
 
             if arm_type == "PARRY":
                 self.parry_active = True
@@ -1168,7 +1179,7 @@ class Card:
                 self.universe_buff_message = "__Destiny Buff Applied__"
 
 
-    def set_explore_bounty_and_difficulty(self, battle_config):
+    def set_explore_bounty_and_difficulty(self, battle_config, map_level=0):
         if self.tier == 1:
             self.bounty = random.randint(5000, 10000)
         if self.tier == 2:
@@ -1183,8 +1194,15 @@ class Card:
             self.bounty = random.randint(100000, 150000)
         if self.tier == 7:
             self.bounty = random.randint(200000, 300000)
+        if self.tier == 8:
+            self.bounty = random.randint(400000, 500000)
+        if self.tier == 9:
+            self.bounty = random.randint(600000, 700000)
+        if self.tier == 10:
+            self.bounty = random.randint(800000, 1000000)
 
-        mode_selector_randomizer = random.randint(0, 200)
+        mode_selector_randomizer = random.randint(0, 500)
+
 
         if mode_selector_randomizer >= 100:
             selected_mode = "Easy"
@@ -1198,14 +1216,14 @@ class Card:
             self.approach_message = "👑 A Formidable "
             self._explore_cardtitle = {'TITLE': 'Universe Title'}
             self.card_lvl = random.randint(50, 200)
-            self.bounty = self.bounty * 5
+            self.bounty = self.bounty * 2
 
         if mode_selector_randomizer <= 69 and mode_selector_randomizer >= 20:
             selected_mode = "Hard"
             self.approach_message = "🔥 An Empowered "
             self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
             self.card_lvl = random.randint(500, 999)
-            self.bounty = self.bounty * 15
+            self.bounty = self.bounty * 5
 
 
         if mode_selector_randomizer <= 19:
@@ -1213,21 +1231,32 @@ class Card:
             self.approach_message = "👹 An Impossible "
             self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
             self.card_lvl = random.randint(850, 1500)
-            self.bounty = self.bounty * 150
+            self.bounty = self.bounty * 10
 
         if self.tier == 7:
             self.card_lvl = random.randint(1000, 1800)
         if self.tier == 6:
             self.card_lvl = random.randint(900, 1500)
 
+        if battle_config.is_rpg:
+            selected_mode = "RPG"
+            self.approach_message = "🗺️ Encounter with "
+            self._explore_cardtitle = {'TITLE': 'Universe Title'}
+            high, low = crown_utilities.set_opponent_level_ranges(map_level)
+            if battle_config.is_hard_difficulty:
+                low = low * 2
+                high = high * 2
+
+            self.card_lvl = random.randint(low, high)
+            self.bounty = self.bounty * 2
 
         if battle_config.is_hard_difficulty:
             self.attack = self.attack + (100 *self.tier)
             self.defense = self.defense + (100 * self.tier)
             self.max_health = self.max_health + (100 * self.tier)
             self.health = self.health + (500 * self.tier)
-            random_mod = random.randint(0,1500000)
-            self.bounty = self.bounty + (10000000 * self.tier) + random_mod
+            random_mod = random.randint(0,1000000)
+            self.bounty = self.bounty + (100000 * self.tier) + random_mod
 
         if self.bounty >= 150000:
             bounty_icon = "💸"
@@ -1247,7 +1276,8 @@ class Card:
 
         self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
         self.battle_message = "\n:crown: | **Glory**: Earn the Card & 2x Bounty, If you Lose, You lose gold!\n🪙 | **Gold**: Earn gold only!"
-
+        if battle_config.is_rpg:
+            self.battle_message = f"💬Talk to interact with {self.name}...\n🆚Fight to battle, win and this card and rewards!"
         self.set_card_level_buffs(None)
 
 
@@ -1432,7 +1462,7 @@ class Card:
         return self.evasion_message
 
 
-    def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle"):   
+    def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle", encounter=False):   
         try:    
             if self.health <= 0:
                 im = get_card(self.path, self.name, "base")
@@ -1504,6 +1534,7 @@ class Card:
                 moveset_font_2 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", super_font_size)
                 moveset_font_3 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", ultimate_font_size)
                 moveset_font_4 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", enhancer_font_size)
+                encounter_font = ImageFont.truetype("fonts/Jersey20-Regular.ttf", 33)
                 
 
                 health_bar, character_name = get_character_name_and_health_bar(self, draw, header, title_size)
@@ -1545,14 +1576,19 @@ class Card:
                         align="left")
                     pilmoji.text((602, 180), f"{self.universe_crest} {self.universe}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
-                    pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
-                    pilmoji.text((600, 290), move2_text.strip(), (255, 255, 255), font=moveset_font_2, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
-                    pilmoji.text((600, 330), move3_text.strip(), (255, 255, 255), font=moveset_font_3, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
-                    pilmoji.text((600, 370), move_enhanced_text.strip(), (255, 255, 255), font=moveset_font_4, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
+                    if mode == "RPG" and encounter:
+                        ai_encounter_message =  self.ai_encounter_message
+                        wrapped_message = wrap_text(ai_encounter_message, 40)
+                        pilmoji.text((602, 230), wrapped_message, (255, 255, 255), font=encounter_font, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
+                    else:
+                        pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
+                        pilmoji.text((600, 290), move2_text.strip(), (255, 255, 255), font=moveset_font_2, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
+                        pilmoji.text((600, 330), move3_text.strip(), (255, 255, 255), font=moveset_font_3, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
+                        pilmoji.text((600, 370), move_enhanced_text.strip(), (255, 255, 255), font=moveset_font_4, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
 
 
                 image_binary = BytesIO()
@@ -1563,6 +1599,17 @@ class Card:
         except Exception as ex:
             custom_logging.debug(ex)
 
+    async def set_ai_encounter_message(self, opponent_card, location):
+        ai_encounter_message =  await ai.rpg_encounter_message(self.name, self.universe, opponent_card, location)
+        self.ai_encounter_message = ai_encounter_message
+        return ai_encounter_message
+
+    async def set_ai_start_encounter_message(self, opponent_card, location):
+        ai_encounter_message =  await ai.rpg_start_encounter_message(self.name, self.universe, opponent_card, location)
+        self.ai_start_encounter_message = ai_encounter_message
+
+        return ai_encounter_message
+    
     def basic_attack_trait_handler(self, universe, battle_config, opponent_card):
         does_repel = False
         does_absorb = False
@@ -1905,14 +1952,14 @@ class Card:
                 abilitypower = attackpower - defensepower
                 if abilitypower <= 0:
                     abilitypower = ap + bonus_damage
-                print("Card Name: ", self.name)
-                print("__Engagement Checks__")
-                print("Attack", self.attack)
-                print("AP: ", ap)
-                print("Opponent Defense: ", _opponent_card.defense)
-                print("Attack Power: ", attackpower)
-                print("Defense Power: ", defensepower)
-                print("Ability Power: ", abilitypower) 
+                # print("Card Name: ", self.name)
+                # print("__Engagement Checks__")
+                # print("Attack", self.attack)
+                # print("AP: ", ap)
+                # print("Opponent Defense: ", _opponent_card.defense)
+                # print("Attack Power: ", attackpower)
+                # print("Defense Power: ", defensepower)
+                # print("Ability Power: ", abilitypower) 
 
                 #Engagement Checks
                 dmg = abilitypower
@@ -1926,37 +1973,37 @@ class Card:
                     engagement_low = 1.0
                     engagmement_high = 1.2
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Lethal Engagement Damage", dmg)
+                    # print("Lethal Engagement Damage", dmg)
                 elif self.attack > (_opponent_card.defense + (_opponent_card.defense * .05)):
                     engagement_low = 0.80
                     engagmement_high = 1.1
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Agrresssive Engagement Damage", dmg)
+                    # print("Agrresssive Engagement Damage", dmg)
                 elif self.attack < (_opponent_card.defense - (_opponent_card.defense * .05)):  
                     engagement_low = .50
                     engagmement_high = .80
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Cautious Engagement Damage", dmg)
+                    # print("Cautious Engagement Damage", dmg)
                 elif self.attack <= (_opponent_card.defense / 2):
                     engagement_low = .30
                     engagmement_high = .60
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Brave Engagement Damage", dmg)
+                    # print("Brave Engagement Damage", dmg)
                 else:
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Neutral Engagement Damage", dmg)
+                    # print("Neutral Engagement Damage", dmg)
                 #Variance for flavor
                 low = dmg - (dmg * .05)
                 high = dmg + (dmg * .05)
                 true_dmg = (round(random.randint(int(low), int(high))))
-                print("Current Damage After Flavor", true_dmg)
 
                 #Checking for Minimum True Damage
-                if true_dmg <= 0 or true_dmg is None or not true_dmg:
+                if true_dmg <= 0:
                     true_dmg = 50
 
                 #Enhanced Guard Effect
-                if opponent_title.enhanced_guard_effect:
+                if opponent_title.enhanced_guard_effect and opponent_card.used_block:
+                    battle_config.add_to_battle_log(f"(🎗️) {opponent_card.name}'s Enhanced Guard reduced {self.name}'s attack!")
                     true_dmg = true_dmg - (true_dmg * .8)
 
                 #Naruto Chakra Control Trait
@@ -1976,7 +2023,6 @@ class Card:
                 
                 #Evasion Modifiers
                 hit_roll = self.adjust_hit_roll(battle_config, hit_roll, _opponent_card, summon_used, true_dmg, move_element, low_hit, med_hit, standard_hit, high_hit, miss_hit)
-                print("Final Hit Roll: ", hit_roll)
                 if move_element in ["RECKLESS", "RECOIL"] and hit_roll > miss_hit:
                     if self.used_resolve:
                         true_dmg = round(true_dmg * 3)
@@ -2060,7 +2106,6 @@ class Card:
                 else:
                     message = f"{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage"
 
-
                 if is_physical_element:
                     if self.stamina > 80:
                         true_dmg = round(true_dmg * 1.5)
@@ -2106,7 +2151,7 @@ class Card:
                             message = f"{_opponent_card.name} absorbed {turn_card.name}'s attack for {true_dmg:,} healing ({move_emoji} absorbed)"
                         does_absorb = True
                         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
-                        
+                
                 #Assasin Strike Checks
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
@@ -2127,8 +2172,6 @@ class Card:
                 #Healer Checks
                 if _opponent_card._heal_active:
                     _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * _opponent_card._heal_buff))
-                print("__Damage Done__")
-                print("Final Damage Done:", true_dmg)
                 response = {"DMG": true_dmg, "MESSAGE": message,
                             "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina, "SUMMON_USED": summon_used}
                 return response
@@ -2141,11 +2184,11 @@ class Card:
         evasion =  - 1 * crown_utilities.calculate_speed_modifier(_opponent_card.speed)
         accuracy =  -1 * crown_utilities.calculate_speed_modifier(self.speed)
         evasion_bonus = accuracy - evasion
-        print("__Evasion Checks__")
-        print("Hit Roll: ", hit_roll)
-        print("Evasion: ", evasion)
-        print("Accuracy: ", accuracy)
-        print("Evasion Bonus: ", evasion_bonus)
+        # print("__Evasion Checks__")
+        # print("Hit Roll: ", hit_roll)
+        # print("Evasion: ", evasion)
+        # print("Accuracy: ", accuracy)
+        # print("Evasion Bonus: ", evasion_bonus)
 
         hit_roll += evasion_bonus
         
@@ -2616,6 +2659,8 @@ class Card:
             if self._swordsman_active:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained {self._swordsman_value} critical strikes")
             if self.is_tank:
+                if self._shield_value <= 0:
+                    self._shield_value = 0
                 self._shield_value +=  (self.tier * 250) + self.card_lvl
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained +🌐{(self.tier * 250) + self.card_lvl} shield")
             battle_config.turn_total = battle_config.turn_total + 1
@@ -3107,7 +3152,7 @@ class Card:
             opponent_card.health -= dmg['DMG']
             battle_log_msg = (
                 f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
-                f"[🌕 {self.name} gained {light_value:,} attack] [{self.light_speed_attack_value:,} damage stored]"
+                f"[{self.name} gained {light_value:,} attack] [{self.light_speed_attack_value:,} 🌕 damage stored]"
             )
         else:
             battle_log_msg = (
@@ -3279,7 +3324,7 @@ class Card:
         if deals_damage:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
 
-        opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_debuff_value)
+        opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
         self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
         self.health = self.health + round((dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05)))
 
@@ -3387,8 +3432,6 @@ class Card:
         )
         battle_log_message += f"\n{message}"
         battle_config.add_to_battle_log(battle_log_message)
-        battle_config.add_to_battle_log()
-
 
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
@@ -3753,6 +3796,7 @@ class Card:
                     self.attack_handler(battle_config, dmg, opponent_card)
                 battle_config.turn_total = battle_config.turn_total + 1
             else:
+                print("Something broke in the above code")
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
                 battle_config.repeat_turn()
         except Exception as e:
@@ -3914,7 +3958,7 @@ class Card:
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name} injects poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
             if self.poison_dmg == poison_capacity:
-                poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name}'s poison has reached max capacity! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
+                poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name}'s injected maximum poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
             battle_config.add_to_battle_log(poison_capacity_message)
 
         elif dmg['ELEMENT'] == "ROT":
@@ -3930,7 +3974,7 @@ class Card:
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name} inflits rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
             if self.rot_dmg == rot_capacity:
-                rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name}'s rot has reached max capacity! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
+                rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name}'s inflicted maximum rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
             battle_config.add_to_battle_log(rot_capacity_message)
 
 
@@ -4317,6 +4361,16 @@ def paste_stars(im, star, tier):
         im.paste(star, position, star)
         
     return im
+
+
+def wrap_text(text, width):
+    """
+    Insert newline characters into the text at every 'width' characters.
+    """
+    lines = []
+    for i in range(0, len(text), width):
+        lines.append(text[i:i + width])
+    return '\n'.join(lines)
 
 
 def format_number(num):
