@@ -33,7 +33,7 @@ async def summarize_last_moves(messages):
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = openai.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]

@@ -458,9 +458,10 @@ class GameModes(Extension):
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
         await ctx.defer()
         registered_player = await crown_utilities.player_check(ctx)
+        
         if not registered_player:
             return
-        
+        player = crown_utilities.create_player_from_data(registered_player)
         if mode == "Random":
             mode_options = ["Tales", "Dungeon", "Scenario", "Raid_Scenario"]
             mode = random.choice(mode_options)
@@ -470,6 +471,14 @@ class GameModes(Extension):
             # Create embed that says to select a universe 
             universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
+        # if universe and mode == "RPG":
+        #     #Create a small embed to show updating explore location
+        #     embed = Embed(title=f"🗺️ | {universe} Adventure", description=f"🌌 | *Updating your explore location to {universe}*", color=0x696969)
+        #     player.set_explore(universe)
+        #     rpg_embed = await ctx.send(embed=embed)
+        #     await rpg_embed.delete(delay=2)
+        #     #return
+
         """
         This command will be used to send all modes to either unvierse selection or battle commands
         If sent to unvierse selection the battle will be created inside the pagination of the universe selection
@@ -478,7 +487,7 @@ class GameModes(Extension):
         
         try:
             loggy.info(f"Mode: {mode} Universe: {universe} Player: {registered_player['DID']} has initiated a battle in {mode} mode.")
-            player = crown_utilities.create_player_from_data(registered_player)
+            
             if player.difficulty == "EASY" and mode == "Scenario":
                 player.difficulty = "NORMAL"
             

@@ -71,7 +71,7 @@ class RPG:
         self.player_name = self.player1.disname
         self.player1_did = self.player1.did
         self.explore_location = self.player1.explore_location
-        print(f"Player1 Explore Location: {self.explore_location}")
+        # print(f"Player1 Explore Location: {self.explore_location}")
         self.user = self.bot.get_user(self.player1_did)
         self.list_of_combatants = []
         self.names_of_combatants = []
@@ -297,7 +297,9 @@ class RPG:
         self.healing_items = []
         self.healing_items.extend(self.food)
         self.healing_items.extend(self.cooked_food)
-        self.resources = ['🪨','🧱']
+        self.raw_resources = ['🪨','🧱']
+        self.resources = []
+        self.resources.extend(self.raw_resources)
         self.resources.extend(self.gems)
         self.pumpkin = "🎃"
         self.pumpkin_array = ["🎃"]
@@ -398,6 +400,7 @@ class RPG:
     #Functions begin here
     @listen()
     async def on_ready(self):
+        loggy.info('RPG Cog is ready!')
         print('RPG Cog is ready!')
 
     
@@ -588,7 +591,7 @@ class RPG:
         civ_set = set(civ_tokens)  # Convert civ_tokens list to a set for faster lookup
         wildlife_set = set(self.wildlife)  # Convert wildlife_tokens list to a set for faster lookup
         loot_set = set(self.random_loot_point)
-        resource_set = set(self.resources)
+        resource_set = set(self.raw_resources)
 
         for row in map:
             for cell in row:
@@ -618,6 +621,8 @@ class RPG:
                 await self.place_loot_emojis(self._player.map['map'], 1)
             elif num == 100:
                 await self.place_loot_emojis(self._player.map['map'], 2)
+        if res <= 1:
+            await self.place_resource_emojis(self._player.map['map'], 1)
         if total <= 4:
             await self.place_wildlife_emojis(self._player.map['map'])
 
@@ -711,7 +716,6 @@ class RPG:
             if not map_dict:
                 loggy.error("No valid map dictionary found after multiple attempts. Using default map.")
                 map_dict = self.get_default_map()
-                print("No valid map dictionary found after multiple attempts. Using default map.")
 
         # Save the entire map dictionary to the player's profile
         player.map = deepcopy(map_dict)
@@ -739,7 +743,7 @@ class RPG:
 
 
     async def increment_mission_count(self, ctx, private_channel):
-        print(f"Mission count: {self._player.mission_count} / Mission requirements: {self._player.mission_requirements}")
+        #print(f"Mission count: {self._player.mission_count} / Mission requirements: {self._player.mission_requirements}")
         if self.mission_type == "DEFEAT_ALL_ENEMIES":
             self._player.mission_count += 1
             if self._player.mission_count >= self._player.mission_requirements:
@@ -795,13 +799,13 @@ class RPG:
             if self._player.mission_count >= self._player.mission_requirements:
                 await self.complete_quest(ctx, private_channel)
         
-        print(f"Quest count: {self._player.mission_count} / Quest requirements: {self._player.mission_requirements}")
+        #print(f"Quest count: {self._player.mission_count} / Quest requirements: {self._player.mission_requirements}")
 
         # Add more quest types and their increment logic here
 
 
     async def complete_quest(self, ctx, private_channel):
-        print("Mission completed! Incrementing RPG level")
+        #print("Mission completed! Incrementing RPG level")
         self._player.inc_rpg_level(self.universe)
         self._player.save_rpg_levels()
         x, y = self._player.player_position
@@ -1040,7 +1044,7 @@ class RPG:
             
             # Place "🪨" emojis on the map
             for i, j in rock_positions:
-                random_rock = random.choice(self.resources)
+                random_rock = random.choice(self.raw_resources)
                 map_data[i][j] = random_rock
             
             return map_data
@@ -1238,7 +1242,7 @@ class RPG:
                             self._player.map['map'][vs_x][vs_y] = original_terrain
                             self._player.map['map'][new_vs_pos[0]][new_vs_pos[1]] = "🆚"
                             self.encounter_position = new_vs_pos[0], new_vs_pos[1]
-                            print(f"VS emoji moved from {vs_x, vs_y} to {new_vs_pos}")
+                            #print(f"VS emoji moved from {vs_x, vs_y} to {new_vs_pos}")
                             # Start the encounter
                             self.previous_moves.append(f"(🆚) An enemy approaches!")
                             await self.encounter_handler(ctx, private_channel, "🆚", new_vs_pos)
@@ -1766,8 +1770,8 @@ class RPG:
                     self.previous_moves.append(f"({self.coin_item}) You found {gold_found} gold!")
                 if self.mission_type == "COLLECT_GOLD":
                     await self.increment_mission_count(ctx, private_channel)
-                if not self.loot_drop:
-                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
+                # if not self.loot_drop:
+                    #self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
                 self.loot_drop = False
             elif npc in self.drops:
                 success = None
@@ -2110,7 +2114,7 @@ class RPG:
             await self.encounter_handler(ctx, private_channel, npc, npc_position)
         
         if self.combat_victory:
-            print("Combat victory was invoked")
+            #print("Combat victory was invoked")
             self.previous_moves.append(f"(✅) You defeated the enemy!")
             self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
             self.combat_victory = False
@@ -2174,35 +2178,35 @@ class RPG:
                     await talk_msg.delete(delay=3)      
                     self.battling = True
                     await self.create_rpg_battle(ctx, private_channel)
-                elif random_number <= 40:
-                    self.previous_moves.append(f"(🧙) Looks like they have some items to sell...")
+                elif random_number <= 10:
+                    self.previous_moves.append(f"(🧙) As you leave a magic merchant appears to sell you some items!")
                     embedVar.add_field(name=f"[🧙)] They have a shop!", value=f"Check out their wares!")
                     self.battling = False
                     self.encounter = False
                     await self.open_shop(ctx, private_channel, '🧙')
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
-                elif random_number <= 60:
+                elif random_number <= 50:
                     self.previous_moves.append(f"(🎁) They have a gift for you!")
                     embedVar.add_field(name=f"[🎁)] They have a gift for you!", value=f"Check out your new stuff!")
                     self.battling = False
                     self.encounter = False
                     await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎁", npc_position)
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
-                elif random_number <= 80:
+                elif random_number <= 90:
                     if not self.has_quest:
                         self.previous_moves.append(f"(🗺️) They have a quest for you!")
                         self.quest_message_list.append(f"({npc}) You have a quest!")
                         embedVar.add_field(name=f"[🗺️)] They have a quest for you!", value=f"Check out your new quest!")
                         await self.generate_quest(ctx, private_channel, npc, npc_position)
                     else:
-                        self.previous_moves.append(f"({self.my_quest}) You already have a quest!")
+                        self.previous_moves.append(f"({self.my_quest}) They give you some information about your quest!")
                         embedVar.add_field(name=f"[🗺️)] You already have a quest!", value=f"Check out your current quest!")
                     self.battling = False
                     self.encounter = False
                     await self.generate_quest(ctx, private_channel, self._player.player_position, '🆚', npc_position)
                 elif random_number <= 100:
-                    self.previous_moves.append(f"(🎰) They have a game for you!")
-                    embedVar.add_field(name=f"[🎰)] They have a game for you!", value=f"Lets earn some loot!")
+                    self.previous_moves.append(f"(🎰) They have a rare item for you!")
+                    embedVar.add_field(name=f"[🎰)] They have a rare item for you!", value=f"Lets earn some loot!")
                     self.battling = False
                     self.encounter = False
                     await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎰", npc_position)
@@ -2583,10 +2587,18 @@ class RPG:
                             if not dialogue_option["dialogue_options"][0]["fight"]:
                                 # await msg.edit(components=[])
                                 # await self.increment_mission_count(ctx, private_channel)
-                                self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
-                                await talk_msg.delete()
-                                self.battling = False
-                                self.encounter = False
+                                randum_number = random.randint(1, 100)
+                                if randum_number <= 50:
+                                    await self.encounter_handler(ctx, private_channel, '💫', selected_card.name)
+                                    await talk_msg.delete()
+                                    self.battling = False
+                                    self.encounter = False
+                                else:
+                                    self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
+                                    await talk_msg.delete()
+                                    self.battling = False
+                                    self.encounter = False
+                                    
 
                             if dialogue_option["dialogue_options"][0]["fight"]:
                                 self.battling = True
@@ -2598,10 +2610,17 @@ class RPG:
                             if not dialogue_option["dialogue_options"][1]["fight"]:
                                 # await self.increment_mission_count(ctx, private_channel)
                                 # await msg.edit(components=[])
-                                self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
-                                await talk_msg.delete()
-                                self.battling = False
-                                self.encounter = False
+                                randum_number = random.randint(1, 100)
+                                if randum_number <= 50:
+                                    await self.encounter_handler(ctx, private_channel, '💫', selected_card.name)
+                                    await talk_msg.delete()
+                                    self.battling = False
+                                    self.encounter = False
+                                else:
+                                    self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
+                                    await talk_msg.delete()
+                                    self.battling = False
+                                    self.encounter = False
 
                             if dialogue_option["dialogue_options"][1]["fight"]:
                                 self.battling = True
@@ -2613,10 +2632,18 @@ class RPG:
                             if not dialogue_option["dialogue_options"][2]["fight"]:
                                 # await self.increment_mission_count(ctx, private_channel)
                                 # await msg.edit(components=[])
-                                self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
-                                await talk_msg.delete()
-                                self.battling = False
-                                self.encounter = False
+                                randum_number = random.randint(1, 100)
+                                randum_number = 5
+                                if randum_number <= 50:
+                                    await self.encounter_handler(ctx, private_channel, '💫', selected_card.name)
+                                    await talk_msg.delete()
+                                    self.battling = False
+                                    self.encounter = False
+                                else:
+                                    self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
+                                    await talk_msg.delete()
+                                    self.battling = False
+                                    self.encounter = False
 
                             if dialogue_option["dialogue_options"][2]["fight"]:
                                 self.battling = True
@@ -2635,7 +2662,8 @@ class RPG:
                     randum_number = random.randint(1, 100)
                     randum_number += self.player_speed
                     if randum_number >= 25:
-                        self.previous_moves.append(f"(💨) You ran away!")
+                        self.previous_moves.append(f"(💨) After a short fight you ran away! [-25%HP]")
+                        self.player_health-= round(self.player_health * .25)
                         self.battling = False
                         self.encounter = False
                     else:
@@ -2709,13 +2737,13 @@ class RPG:
         warp_point_position = warp_target['position']
         self.warp_point_position = warp_point_position
         new_position = self.get_closest_passable_space(warp_point_position)
-        print("new_position", new_position)
+        #print("new_position", new_position)
 
         # Check if the new position is a valid position, within range, and on a passable square
         if not self.is_reachable_without_bridge_or_water(self._player.player_position, new_position):
             # Find the nearest valid position that is reachable
             new_position = self.find_nearest_reachable_position(warp_point_position)
-            print("Adjusted new_position", new_position)
+            #print("Adjusted new_position", new_position)
 
         self._player.map['map'][self._player.player_position[0]][self._player.player_position[1]] = self._player.standing_on
         self._player.standing_on = self._player.map['map'][new_position[0]][new_position[1]]
@@ -3032,7 +3060,7 @@ class RPG:
             return ""
         
     def get_quest_list_embed(self):
-        print(self.quest_message_list)
+        #print(self.quest_message_list)
         if self.quest_message_list:
             return "\n".join(self.quest_message_list)
         else:
