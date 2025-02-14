@@ -2675,6 +2675,7 @@ class CustomPaginator(Paginator):
         await ctx.defer()
         user_data = db.queryUser({'DID': str(ctx.author.id)})
         player = crown_utilities.create_player_from_data(user_data)
+        db.updateUserNoFilter(player.user_query,{'$set':{'EXPLORE_LOCATION': universe_title}})
         acceptable = [1,2,3,4,5]
         arm_message = []
         card_message = []
@@ -2950,6 +2951,7 @@ class CustomPaginator(Paginator):
                 for index, card in enumerate(sorted_card_list):
                     try:
                         c = crown_utilities.create_card_from_data(card)
+                        print(c.name)
                         all_cards.append(f"{c.universe_crest} : 🀄 **{c.tier}** **{c.name}** [{c.class_emoji}] {c.move1_emoji} {c.move2_emoji} {c.move3_emoji}\n{c.drop_emoji}: {str(c.card_lvl)} ❤️ {c.health} 🗡️ {c.attack} 🛡️ {c.defense}\n")
                     except Exception as ex:
                         print(ex)

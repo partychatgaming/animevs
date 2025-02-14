@@ -35,7 +35,7 @@ kamino_ward_ruins = {
     "map_doors": (5, 5),
     "exit_points": [(0, 5), (10, 5)],
     "north_exits": None,
-    "south_exits": None,
+    "south_exits": ua_training_grounds,
     "east_exits": None,
     "west_exits": None,
     "door_exit": None,
@@ -54,3 +54,4 @@ kamino_ward_ruins = {
     ]
 }
 
+ua_training_grounds["north_exits"] = kamino_ward_ruins

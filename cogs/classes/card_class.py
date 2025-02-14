@@ -831,7 +831,7 @@ class Card:
             self.dark_buff_by_value = 20
             self.life_buff_value = .60
             self.psychic_barrier_buff_value = 2
-            self.psychic_debuff_value = .50
+            self.psychic_debuff_value = .25
             self.fire_buff_value = .75
             self.electric_buff_value = .25
             self.poison_damage_value = .50
@@ -2322,26 +2322,26 @@ class Card:
         self._arm_message = ""
         opponent_card._arm_message = ""
         if opponent_card.barrier_active:
-            opponent_card._arm_message += f"{weapon_emojis['barrier']} {opponent_card._barrier_value} Barrier{'s' if opponent_card._barrier_value > 1 else ''}\n"
+            opponent_card._arm_message += f"{weapon_emojis['barrier']} {opponent_card._barrier_value} Barrier{'s' if opponent_card._barrier_value > 1 else ''}"
         if opponent_card.shield_active:
-            opponent_card._arm_message += f"{weapon_emojis['shield']} {opponent_card._shield_value:,} Shield\n"
+            opponent_card._arm_message += f"{weapon_emojis['shield']} {opponent_card._shield_value:,} Shield"
         if opponent_card.parry_active:
-            opponent_card._arm_message += f"{weapon_emojis['parry']} {opponent_card._parry_value} Parr{'ies' if opponent_card._parry_value > 1 else 'y'}\n"
+            opponent_card._arm_message += f"{weapon_emojis['parry']} {opponent_card._parry_value} Parr{'ies' if opponent_card._parry_value > 1 else 'y'}"
         if opponent_card.siphon_active:
-            opponent_card._arm_message += f"{weapon_emojis['siphon']} {opponent_card._siphon_value} Siphon\n"
+            opponent_card._arm_message += f"{weapon_emojis['siphon']} {opponent_card._siphon_value} Siphon"
 
         if len(opponent_card._arm_message) > 0:
             opponent_card._arm_message = "\n" + opponent_card._arm_message
             
 
         if self.barrier_active:
-            self._arm_message += f"{weapon_emojis['barrier']} {self._barrier_value} Barrier{'s' if self._barrier_value > 1 else ''}\n"
+            self._arm_message += f"{weapon_emojis['barrier']} {self._barrier_value} Barrier{'s' if self._barrier_value > 1 else ''}"
         if self.shield_active:
-            self._arm_message += f"{weapon_emojis['shield']} {self._shield_value:,} Shield\n"
+            self._arm_message += f"{weapon_emojis['shield']} {self._shield_value:,} Shield"
         if self.parry_active:
-            self._arm_message += f"{weapon_emojis['parry']} {self._parry_value} Parr{'ies' if self._parry_value > 1 else 'y'}\n"
+            self._arm_message += f"{weapon_emojis['parry']} {self._parry_value} Parr{'ies' if self._parry_value > 1 else 'y'}"
         if self.siphon_active:
-            self._arm_message += f"{weapon_emojis['siphon']} {self._siphon_value} Siphon\n"
+            self._arm_message += f"{weapon_emojis['siphon']} {self._siphon_value} Siphon"
 
         
         if len(self._arm_message) > 0:
@@ -2628,7 +2628,7 @@ class Card:
 
             jjk_resolve = domain_expansion(self, battle_config, player_title, opponent_card)
 
-            if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve,fma_resolve]):
+            if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve, fma_resolve]):
                 self.standard_resolve_effect(battle_config, opponent_card, player_title)
 
             if player_title.synthesis_effect:
@@ -3148,7 +3148,7 @@ class Card:
         self.attack += light_value
         self.light_speed_attack_value += light_value
 
-        if deals_damage:
+        if deals_damage and not draconic:
             opponent_card.health -= dmg['DMG']
             battle_log_msg = (
                 f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
@@ -3240,8 +3240,13 @@ class Card:
         basic_dmg_var = dmg.copy()  # Create a copy of the dmg dictionary
         special_dmg_var = dmg.copy()  # Create a copy of the dmg dictionary
         
-        basic_dmg_var['DMG'] = round(dmg['DMG'] / 2)
-        special_dmg_var['DMG'] = round(dmg['DMG'] / 2)
+        total_dmg = dmg['DMG']
+        split_ratio = random.uniform(0, 1)
+        basic_dmg = round(total_dmg * split_ratio)
+        special_dmg = total_dmg - basic_dmg  # Ensure the total always adds up
+
+        basic_dmg_var['DMG'] = basic_dmg
+        special_dmg_var['DMG'] = special_dmg
         basic_dmg_var['ELEMENT'] = draconic_basic_element
         special_dmg_var['ELEMENT'] = draconic_special_element
 
@@ -3432,6 +3437,148 @@ class Card:
         )
         battle_log_message += f"\n{message}"
         battle_config.add_to_battle_log(battle_log_message)
+        battle_config.add_to_battle_log()
+
+    def gun_effect_handler(self, battle_config, dmg, opponent_card):
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+        # create a condition where there's a 20% chance to hit again, then send message to battle log that the attack hit again
+        if random.randint(1, 100) <= 40:
+            opponent_card.defense = opponent_card.defense - (opponent_card.defense * .35)
+            opponent_card.health = opponent_card.health - dmg['DMG']
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} shot again for {dmg['DMG']} damage")
+        
+    def time_effect_handler(self, battle_config, dmg, opponent_card):
+        if self.stamina <= 50:
+            self.stamina = 0
+            self.card_lvl_ap_buff = self.card_lvl_ap_buff + (round(dmg['DMG'] * ((battle_config.turn_total + 1) / 100)))
+        self.used_block = True
+        self.defense = round(self.defense * self.time_buff_by_value)
+        battle_config.turn_total = battle_config.turn_total + 3
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [+3 turns]")
+
+    def physical_effect_handler(self, battle_config, dmg, opponent_card):
+        self.physical_meter = self.physical_meter + 1
+        if self.physical_meter == 2:
+            self.parry_active = True
+            self._parry_value = self._parry_value + self.physical_parry_value
+            add_solo_leveling_temp_values(self, 'PARRY', opponent_card)
+            self.physical_meter = 0
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} gained {self.physical_parry_value} parry 🔄]")
+        else:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+        opponent_card.health = opponent_card.health - dmg['DMG']
+
+    def ranged_effect_handler(self, battle_config, dmg, opponent_card):
+        self.ranged_meter = self.ranged_meter + 1
+        if self.ranged_meter == 2:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} aims]")
+        elif self.ranged_meter == 3:
+            self.ranged_meter = 0
+            self.ranged_hit_bonus = self.ranged_hit_bonus + self.ranged_buff_value
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} increased {self.ranged_hit_bonus * 5}% accuracy]")
+        else:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+        opponent_card.health = opponent_card.health - dmg['DMG']
+
+    def reckless_effect_handler(self, battle_config, dmg, opponent_card):
+        self.health = self.health - (dmg['DMG'] * self.reckless_buff_value)
+        if self.used_resolve:
+            self.reckless_buff_value = .30
+        if self.health <= 0:
+            self.health = 1
+        if self.reckless_duration <= 0 and not dmg['SUMMON_USED']:
+            if not self.used_resolve:
+                self.reckless_duration = 1
+                self.reckless_rest = True
+            else:
+                self.reckless_duration = 0
+                self.reckless_rest = True
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} was dealt {str(round(dmg['DMG'] * self.reckless_buff_value))} reckless damage]")
+
+    def psychic_effect_handler(self, battle_config, dmg, opponent_card):
+        self.barrier_meter = self.barrier_meter + 1
+        debuff_value = round(dmg['DMG'] * self.psychic_debuff_value)
+        if self.barrier_meter == 3:
+            self.barrier_active = True
+            self._barrier_value = self._barrier_value + self.psychic_barrier_buff_value
+            add_solo_leveling_temp_values(self, 'BARRIER', opponent_card)
+            self.barrier_meter = 0
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} gained {self.psychic_barrier_buff_value} 💠 barrier [{opponent_card.name} lost {debuff_value} attack and defense]")
+        else:    
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{opponent_card.name} lost {debuff_value} attack and defense]")
+
+        opponent_card.defense = opponent_card.defense - debuff_value
+        opponent_card.attack = opponent_card.attack - debuff_value
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        if opponent_card.defense <= 30:
+            opponent_card.defense = 30
+        if opponent_card.attack <= 30:
+            opponent_card.attack = 30
+
+
+    def sleep_effect_handler(self, battle_config, dmg, opponent_card):
+        sleep_stacks_added = 0
+        if not self.sleep_exhaustion_bool:
+            self.sleep_counter = self.sleep_counter + 1
+            if self.sleep_counter == 2:
+                self.sleep_counter = 0
+                sleep_stacks_added = random.choice([1, 2, 3])
+                self.sleep_rest_skips = self.sleep_rest_skips + sleep_stacks_added
+                sleep_message = f"({battle_config.turn_total}) {self.name} added 💤 {sleep_stacks_added} sleep stacks [{self.sleep_rest_skips} total sleep stacks]"
+            else:
+                sleep_message = f"({battle_config.turn_total}) {self.name} is prepping to add 💤 sleep stacks on next hit"
+            battle_config.add_to_battle_log(sleep_message)
+
+        if self.sleep_exhaustion_bool or opponent_card.reckless_rest:
+            opponent_card.health = opponent_card.health - dmg['DMG']
+            sleep_message = f"({battle_config.turn_total}) 💤 {dmg['MESSAGE']}"
+            battle_config.add_to_battle_log(sleep_message)
+
+    def poison_effect_handler(self, battle_config, dmg, opponent_card):
+        poison_capacity = self.max_health * .30
+        if self.poison_dmg <= poison_capacity:
+            poison_damage_from_ability = round(self.poison_dmg + (dmg['DMG'] * self.poison_damage_value))
+            self.poison_dmg = self.poison_dmg + poison_damage_from_ability
+        if self.poison_dmg > poison_capacity:
+            self.poison_dmg = poison_capacity
+        
+        poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name} injects poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
+        if self.poison_dmg == poison_capacity:
+            poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name}'s injected maximum poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
+        battle_config.add_to_battle_log(poison_capacity_message)
+
+    def rot_effect_handler(self, battle_config, dmg, opponent_card):
+        rot_capacity = self.max_health * .20
+        if self.rot_dmg <= rot_capacity:
+            rot_damage_from_ability = round(self.rot_dmg + (dmg['DMG'] * self.rot_damage_value))
+            self.rot_dmg = self.rot_dmg + rot_damage_from_ability
+        if self.rot_dmg > rot_capacity:
+            self.rot_dmg = rot_capacity
+        
+        rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name} inflits rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
+        if self.rot_dmg == rot_capacity:
+            rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name}'s inflicted maximum rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
+        battle_config.add_to_battle_log(rot_capacity_message)
+
+    def bleed_effect_handler(self, battle_config, dmg, opponent_card):
+        self.bleed_damage_counter = self.bleed_damage_counter + 1
+        if self.bleed_damage_counter == 2:
+            self.bleed_hit = True
+            self.bleed_damage_counter = 0
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+
+    def gravity_effect_handler(self, battle_config, dmg, opponent_card):
+        battle_config.turn_total = battle_config.turn_total - 3
+        if (battle_config.turn_total - 3) < 0:
+            battle_config.turn_total = 0
+        self.gravity_hit = True
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        opponent_card.defense = opponent_card.defense - (dmg['DMG'] * self.gravity_debuff_value)
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [-3 turns]")
 
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
@@ -3822,23 +3969,10 @@ class Card:
             self.water_effect_handler(battle_config, dmg, opponent_card)
         
         elif dmg['ELEMENT'] == "GUN":
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            # create a condition where there's a 20% chance to hit again, then send message to battle log that the attack hit again
-            if random.randint(1, 100) <= 40:
-                opponent_card.defense = opponent_card.defense - (opponent_card.defense * .35)
-                opponent_card.health = opponent_card.health - dmg['DMG']
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} shot again for {dmg['DMG']} damage")
+            self.gun_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "TIME":
-            if self.stamina <= 50:
-                self.stamina = 0
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (round(dmg['DMG'] * ((battle_config.turn_total + 1) / 100)))
-            self.used_block = True
-            self.defense = round(self.defense * self.time_buff_by_value)
-            battle_config.turn_total = battle_config.turn_total + 3
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [+3 turns]")
+            self.time_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "EARTH":
             self.earth_effect_handler(battle_config, dmg, opponent_card)
@@ -3856,67 +3990,19 @@ class Card:
             self.draconic_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "PHYSICAL":
-            self.physical_meter = self.physical_meter + 1
-            if self.physical_meter == 2:
-                self.parry_active = True
-                self._parry_value = self._parry_value + self.physical_parry_value
-                add_solo_leveling_temp_values(self, 'PARRY', opponent_card)
-                self.physical_meter = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} gained {self.physical_parry_value} parry 🔄]")
-            else:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            opponent_card.health = opponent_card.health - dmg['DMG']
+            self.physical_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "RANGED":
-            self.ranged_meter = self.ranged_meter + 1
-            if self.ranged_meter == 2:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} aims]")
-            elif self.ranged_meter == 3:
-                self.ranged_meter = 0
-                self.ranged_hit_bonus = self.ranged_hit_bonus + self.ranged_buff_value
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} increased {self.ranged_hit_bonus * 5}% accuracy]")
-            else:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            opponent_card.health = opponent_card.health - dmg['DMG']
+            self.ranged_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "LIFE":
             self.life_effect_handler(battle_config, dmg, opponent_card)
         
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:
-            self.health = self.health - (dmg['DMG'] * self.reckless_buff_value)
-            if self.used_resolve:
-                self.reckless_buff_value = .30
-            if self.health <= 0:
-                self.health = 1
-            if self.reckless_duration <= 0 and not dmg['SUMMON_USED']:
-                if not self.used_resolve:
-                    self.reckless_duration = 1
-                    self.reckless_rest = True
-                else:
-                    self.reckless_duration = 0
-                    self.reckless_rest = True
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} was dealt {str(round(dmg['DMG'] * self.reckless_buff_value))} reckless damage]")
+            self.reckless_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "PSYCHIC":
-            self.barrier_meter = self.barrier_meter + 1
-            debuff_value = round(dmg['DMG'] * self.psychic_debuff_value)
-            if self.barrier_meter == 3:
-                self.barrier_active = True
-                self._barrier_value = self._barrier_value + self.psychic_barrier_buff_value
-                add_solo_leveling_temp_values(self, 'BARRIER', opponent_card)
-                self.barrier_meter = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} gained {self.psychic_barrier_buff_value} 💠 barrier [{opponent_card.name} lost {debuff_value} attack and defense]")
-            else:    
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{opponent_card.name} lost {debuff_value} attack and defense]")
-
-            opponent_card.defense = opponent_card.defense - debuff_value
-            opponent_card.attack = opponent_card.attack - debuff_value
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            if opponent_card.defense <= 30:
-                opponent_card.defense = 30
-            if opponent_card.attack <= 30:
-                opponent_card.attack = 30
+            self.psychic_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "NATURE":
             self.nature_effect_handler(battle_config, dmg, opponent_card)
@@ -3928,54 +4014,13 @@ class Card:
             self.electric_effect_handler(battle_config, dmg, opponent_card)
  
         elif dmg['ELEMENT'] == "SLEEP":
-            sleep_stacks_added = 0
-            if not self.sleep_exhaustion_bool:
-                self.sleep_counter = self.sleep_counter + 1
-                if self.sleep_counter == 2:
-                    self.sleep_counter = 0
-                    sleep_stacks_added = random.choice([1, 2, 3])
-                    self.sleep_rest_skips = self.sleep_rest_skips + sleep_stacks_added
-                    sleep_message = f"({battle_config.turn_total}) {self.name} added 💤 {sleep_stacks_added} sleep stacks [{self.sleep_rest_skips} total sleep stacks]"
-                else:
-                    sleep_message = f"({battle_config.turn_total}) {self.name} is prepping to add 💤 sleep stacks on next hit"
-                battle_config.add_to_battle_log(sleep_message)
-
-            if self.sleep_exhaustion_bool or opponent_card.reckless_rest:
-                opponent_card.health = opponent_card.health - dmg['DMG']
-                sleep_message = f"({battle_config.turn_total}) 💤 {dmg['MESSAGE']}"
-                battle_config.add_to_battle_log(sleep_message)
+            self.sleep_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "POISON":
-            poison_capacity = self.max_health * .30
-            if self.poison_dmg <= poison_capacity:
-                poison_damage_from_ability = round(self.poison_dmg + (dmg['DMG'] * self.poison_damage_value))
-                self.poison_dmg = self.poison_dmg + poison_damage_from_ability
-            if self.poison_dmg > poison_capacity:
-                self.poison_dmg = poison_capacity
-            
-            # Commented out to try new effect
-            # opponent_card.health = opponent_card.health - dmg['DMG']
-            # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name} injects poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
-            if self.poison_dmg == poison_capacity:
-                poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name}'s injected maximum poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
-            battle_config.add_to_battle_log(poison_capacity_message)
+            self.poison_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "ROT":
-            rot_capacity = self.max_health * .20
-            if self.rot_dmg <= rot_capacity:
-                rot_damage_from_ability = round(self.rot_dmg + (dmg['DMG'] * self.rot_damage_value))
-                self.rot_dmg = self.rot_dmg + rot_damage_from_ability
-            if self.rot_dmg > rot_capacity:
-                self.rot_dmg = rot_capacity
-            
-            # Commented out to try new effect
-            # opponent_card.health = opponent_card.health - dmg['DMG']
-            # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name} inflits rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
-            if self.rot_dmg == rot_capacity:
-                rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name}'s inflicted maximum rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
-            battle_config.add_to_battle_log(rot_capacity_message)
+            self.rot_effect_handler(battle_config, dmg, opponent_card)
 
 
         elif dmg['ELEMENT'] == "ICE":
@@ -3983,22 +4028,11 @@ class Card:
 
 
         elif dmg['ELEMENT'] == "BLEED":
-            self.bleed_damage_counter = self.bleed_damage_counter + 1
-            if self.bleed_damage_counter == 2:
-                self.bleed_hit = True
-                self.bleed_damage_counter = 0
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+            self.bleed_effect_handler(battle_config, dmg, opponent_card)
 
         
         elif dmg['ELEMENT'] == "GRAVITY":
-            battle_config.turn_total = battle_config.turn_total - 3
-            if (battle_config.turn_total - 3) < 0:
-                battle_config.turn_total = 0
-            self.gravity_hit = True
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * self.gravity_debuff_value)
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [-3 turns]")
+            self.gravity_effect_handler(battle_config, dmg, opponent_card)
         
         else:
             opponent_card.health = opponent_card.health - dmg['DMG']

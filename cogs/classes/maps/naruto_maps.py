@@ -54,7 +54,6 @@ hidden_sand_village = {
     ]
 }
 
-
 valley_of_the_end = {
     "standing_on": "🟫",
     "spawn_portal": (10, 5),
@@ -83,8 +82,6 @@ valley_of_the_end = {
     ]
 }
 
-
-
 akatsuki_hideout = {
     "standing_on": "🟩",
     "spawn_portal": (10, 5),
@@ -112,7 +109,6 @@ akatsuki_hideout = {
         ["🏢", "🏢", "🏢", "🏢", "🏢", "🟩", "🏢", "🏢", "🏢", "🏢", "🏢"]
     ]
 }
-
 
 map_konoha = {
     "standing_on": "🟩",
@@ -254,7 +250,6 @@ map_konoha_streets = {
     ]
 }
 
-
 map_five_kage_summit = {
     "standing_on": "⬜",
     "spawn_portal": (10, 5),
@@ -282,7 +277,6 @@ map_five_kage_summit = {
         ["🏛️", "🏛️", "🏛️", "🏛️", "🏛️", "⬜", "🏛️", "🏛️", "🏛️", "🏛️", "🏛️"]
     ]
 }
-
 
 map_akatsuki_hideout = {
     "standing_on": "⬜",
@@ -340,7 +334,6 @@ map_valley_of_the_end = {
         ["🗻", "🗻", "🗻", "🗻", "🗻", "🟫", "🗻", "🗻", "🗻", "🗻", "🗻"]
     ]
 }
-
 
 map_forest_of_death = {
     "standing_on": "🟩",

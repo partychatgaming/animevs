@@ -613,7 +613,7 @@ async def animevs(ctx):
       embedVar3.set_thumbnail(url=avatar)
 
       embedVar3_s = Embed(title=f"Card Stats", description=textwrap.dedent(f"""\
-      __Card Stats__                                                          
+      __Card Stats__                                                       
       - [HP]**Health: When your health reaches 0 you lose
       - [ST]**Stamina:** Used to perform attacks and skills
       - [ATK]**Attack:** Increases damage dealt
@@ -822,11 +822,12 @@ async def animevs(ctx):
       __PVE Game Modes__
       **🆘 The Tutorial** - Learn Anime VS+ battle system
       **⚡ Randomize** - Select and start a Random Game Mode Below
+      **🗺️ Adventure** - /Explore through the multiverse in a map-based RPG mode
       **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
       **👺 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
       **📽️ Scenario** - Battle through unique scenarios to earn Cards and Moves
       **💀 Raid** - Battle through High Level scenarios to earn Mythical Cards and Moves
-      **🌌 Explore** - Random Encounter battles to earn rare cards and major rewards
+      **🌌 Explore** - Random Encounter battles to earn rare cards and major rewards (Explore Determines your Adventure Universe!)
       
       __PVP Game Modes__
       **/pvp** - Battle a rival in PVP mode
@@ -840,7 +841,7 @@ async def animevs(ctx):
       embedVar9 = Embed(title=f"Presets",description=textwrap.dedent(f"""\
       Save your favorite builds in your **Preset**
       **/menu** tselect **View Preset** option, select a preset with **1-5**
-      *Select **Save Preset** to save a new Build!
+      Select **Save Preset** to save a new Build!
       
       **Preset Builds**
       You can bring your preset builds into Duo Battles!
@@ -3490,6 +3491,56 @@ async def createscenarios_autocomplete(ctx: AutocompleteContext):
                     break
 
    await ctx.send(choices=choices)
+
+
+# this command will take in a universe parameter
+@slash_command(description="update characters with descriptions", scopes=crown_utilities.guild_ids)
+async def updatecharacters(ctx):
+   await ctx.defer()
+   if ctx.author.id not in [306429381948211210, 263564778914578432]:
+      await ctx.send("🛑 You know damn well this command isn't for you.")
+      return
+   
+   # get all cards from universe
+   count = 0
+   for card in character_list:
+      name = card["name"]
+      descriptions = card["descriptions"]
+      encounter_options = card["options"]
+      # update card with descriptions
+      db.updateCard({"NAME": name}, {"$set": {"DESCRIPTIONS": descriptions}})
+      count += 1
+      if count % 10 == 0:
+         await asyncio.sleep(2)
+
+   await ctx.send(f"Updated {count} characters with descriptions.")
+   return
+
+
+
+# async def restart_bot():
+#     await bot.stop()
+#     await bot.start()
+
+
+# @Task.create(IntervalTrigger(minutes=5))
+# async def check_heartbeat():
+#       try:
+#          # Get the bot's latency
+#          latency = bot.latency
+#          loggy.info(f'Heartbeat check - latency: {latency}')
+#          # Check if latency is within acceptable range (e.g., below 2 seconds)
+#          if latency and latency > 9.0:
+#                loggy.warning('High latency detected, restarting bot...')
+#                await restart_bot()
+#       except Exception as e:
+#          loggy.error(f'Error during heartbeat check: {e}')
+#          await restart_bot()
+
+
+
+# # Run the bot
+# bot.start()
 
 
 @listen()

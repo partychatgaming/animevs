@@ -397,23 +397,30 @@ class Play(Extension):
 
                             await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
 
-                            await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-
+                            
                             if battle_config.is_rpg:
-                                battle_config.continue_fighting = False
-                                battle_config.rpg_config.adventuring = True
-                                battle_config.rpg_config.battling = False
-                                battle_config.rpg_config.encounter = False
-
+                                self.battling = False
+                                self.adventuring = True
+                                self.encounter = False
+                                #await battle_start_msg.delete()
                                 battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
-                
-                                battle_config.rpg_config.set_rpg_options()
-                                await asyncio.sleep(1)
-                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel)
-                                return
-                                
+                                x,y = battle_config.rpg_config.player_position
+                                if battle_config.rpg_config.player_health <= 0:
+                                    #battle_config.rpg_config.map['map'][x][y] = battle_config.rpg_config.standing_on
+                                    paginator = await battle_config.rpg_config.lose_adventure_embed(ctx)
+                                    await paginator.send(ctx)
+                                    await battle_msg.delete()
+                                    await battle_config.rpg_config._rpg_msg.delete()
+                                    self.previous_moves.append(f"💨Fleeing Encounter...!")
+                                    return
+                                embedVar = Embed(title=f"🆚 Encounter Victory", color=0x2ECC71)
+                                victory_msg = await private_channel.send(embed=embedVar)
+                                await victory_msg.delete(delay=5)
+                            else:
+                                await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
+
+                            return               
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
                     if battle_msg == None:
@@ -437,7 +444,7 @@ class Play(Extension):
             custom_logging.debug(ex)
 
 
-    async def rpg_commands(self, ctx, rpg_config, rpg_starter_message):
+    async def rpg_commands(self, ctx, rpg_starter_message):
         """
         Handles the logic for an RPG game in the game.
 
@@ -450,6 +457,7 @@ class Play(Extension):
         None
         """
         private_channel = ctx.channel
+        rpg_config = self
         try:
             rpg_config._uuid = uuid.uuid4()
             if not hasattr(self, 'bot'):
@@ -666,6 +674,8 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
     if battle_config.is_rpg:
+        x, y = battle_config._player.player_position
+        battle_config._player.map['map'][x][y] = battle_config._player.standing_on
         close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
         await close_embded.delete(delay=3)
         await battle_config.leave_adventure_embed(ctx)
@@ -1249,7 +1259,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}{universe_stacks}\n{summon_message}"
+        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
     #map_embed = battle_config.get_map_message(turn_card)
     embedVar = Embed(title=f"", color=turn_card.health_color)
@@ -1298,7 +1308,7 @@ async def start_of_moves_config(battle_config):
 def player_use_card_boost_ability(battle_config, button_ctx):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|s":
+    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|t":
             turn_card.use_boost(battle_config, partner_card)
     else:
         return

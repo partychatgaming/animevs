@@ -1,4 +1,5 @@
 import os
+# from anthropic import Anthropic
 from decouple import config
 import openai
 import asyncio
@@ -6,12 +7,13 @@ import asyncio
 # Set up your OpenAI API key
 # openai.api_key = config('OPENAI_API')
 
-
-# client = OpenAI(
-#     api_key=config('OPENAI_API')
+# claude = Anthropic(
+#     api_key=config('ANTHROPIC_API')
 # )
 
-openai.api_key = config('OPENAI_API')
+client = OpenAI(
+    api_key=config('OPENAI_API')
+)
 
 async def summarize_last_moves(messages):
     await asyncio.sleep(1)

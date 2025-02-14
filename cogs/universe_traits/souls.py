@@ -2,7 +2,7 @@ import crown_utilities
 
 def souls_resolve(player_card, battle_config, health, attack, defense, title):
     if player_card.universe == "Souls":
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}activatd ⚡Phase 2 -  Enhanced Moveset {title} [+❤️{health} | +🗡️ {attack} | --🛡️{defense}]")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} activated ⚡Phase 2 -  Enhanced Moveset {title} [+❤️{health} | +🗡️ {attack} | --🛡️{defense}]")
         combat_phases(player_card)
         return True
     else:
