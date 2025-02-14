@@ -1952,14 +1952,14 @@ class Card:
                 abilitypower = attackpower - defensepower
                 if abilitypower <= 0:
                     abilitypower = ap + bonus_damage
-                print("Card Name: ", self.name)
-                print("__Engagement Checks__")
-                print("Attack", self.attack)
-                print("AP: ", ap)
-                print("Opponent Defense: ", _opponent_card.defense)
-                print("Attack Power: ", attackpower)
-                print("Defense Power: ", defensepower)
-                print("Ability Power: ", abilitypower) 
+                # print("Card Name: ", self.name)
+                # print("__Engagement Checks__")
+                # print("Attack", self.attack)
+                # print("AP: ", ap)
+                # print("Opponent Defense: ", _opponent_card.defense)
+                # print("Attack Power: ", attackpower)
+                # print("Defense Power: ", defensepower)
+                # print("Ability Power: ", abilitypower) 
 
                 #Engagement Checks
                 dmg = abilitypower
@@ -1973,30 +1973,29 @@ class Card:
                     engagement_low = 1.0
                     engagmement_high = 1.2
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Lethal Engagement Damage", dmg)
+                    # print("Lethal Engagement Damage", dmg)
                 elif self.attack > (_opponent_card.defense + (_opponent_card.defense * .05)):
                     engagement_low = 0.80
                     engagmement_high = 1.1
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Agrresssive Engagement Damage", dmg)
+                    # print("Agrresssive Engagement Damage", dmg)
                 elif self.attack < (_opponent_card.defense - (_opponent_card.defense * .05)):  
                     engagement_low = .50
                     engagmement_high = .80
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Cautious Engagement Damage", dmg)
+                    # print("Cautious Engagement Damage", dmg)
                 elif self.attack <= (_opponent_card.defense / 2):
                     engagement_low = .30
                     engagmement_high = .60
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Brave Engagement Damage", dmg)
+                    # print("Brave Engagement Damage", dmg)
                 else:
                     dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    print("Neutral Engagement Damage", dmg)
+                    # print("Neutral Engagement Damage", dmg)
                 #Variance for flavor
                 low = dmg - (dmg * .05)
                 high = dmg + (dmg * .05)
                 true_dmg = (round(random.randint(int(low), int(high))))
-                print("Current Damage After Flavor", true_dmg)
 
                 #Checking for Minimum True Damage
                 if true_dmg <= 0:
@@ -2023,9 +2022,7 @@ class Card:
                 hit_roll = round(random.randint(1, 20))  
                 
                 #Evasion Modifiers
-                print("True Damage before Hit Roll", true_dmg)
                 hit_roll = self.adjust_hit_roll(battle_config, hit_roll, _opponent_card, summon_used, true_dmg, move_element, low_hit, med_hit, standard_hit, high_hit, miss_hit)
-                print("Final Hit Roll: ", hit_roll)
                 if move_element in ["RECKLESS", "RECOIL"] and hit_roll > miss_hit:
                     if self.used_resolve:
                         true_dmg = round(true_dmg * 3)
@@ -2109,7 +2106,6 @@ class Card:
                 else:
                     message = f"{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage"
 
-                print("True Damage After Hit Mod", true_dmg)
                 if is_physical_element:
                     if self.stamina > 80:
                         true_dmg = round(true_dmg * 1.5)
@@ -2156,7 +2152,6 @@ class Card:
                         does_absorb = True
                         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
                 
-                print("True Damage After Hit Affinities", true_dmg)
                 #Assasin Strike Checks
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
@@ -2177,8 +2172,6 @@ class Card:
                 #Healer Checks
                 if _opponent_card._heal_active:
                     _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * _opponent_card._heal_buff))
-                print("__Damage Done__")
-                print("Final Damage Done:", true_dmg)
                 response = {"DMG": true_dmg, "MESSAGE": message,
                             "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina, "SUMMON_USED": summon_used}
                 return response
@@ -2191,11 +2184,11 @@ class Card:
         evasion =  - 1 * crown_utilities.calculate_speed_modifier(_opponent_card.speed)
         accuracy =  -1 * crown_utilities.calculate_speed_modifier(self.speed)
         evasion_bonus = accuracy - evasion
-        print("__Evasion Checks__")
-        print("Hit Roll: ", hit_roll)
-        print("Evasion: ", evasion)
-        print("Accuracy: ", accuracy)
-        print("Evasion Bonus: ", evasion_bonus)
+        # print("__Evasion Checks__")
+        # print("Hit Roll: ", hit_roll)
+        # print("Evasion: ", evasion)
+        # print("Accuracy: ", accuracy)
+        # print("Evasion Bonus: ", evasion_bonus)
 
         hit_roll += evasion_bonus
         
@@ -3950,6 +3943,7 @@ class Card:
                     self.attack_handler(battle_config, dmg, opponent_card)
                 battle_config.turn_total = battle_config.turn_total + 1
             else:
+                print("Something broke in the above code")
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
                 battle_config.repeat_turn()
         except Exception as e:

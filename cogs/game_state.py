@@ -428,7 +428,7 @@ class GameState(Extension):
                     winning_message = await ai.win_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
                     losing_message = await ai.lose_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
                     
-                    win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.", description="View a summary of the rewards and match history here", color=0x1abc9c)
+                    win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
                     win_embed.set_footer(text=f"{battle_config.player1_card.name}: {winning_message}\n\n{battle_config.player2_card.name}: {losing_message}")
 
                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):

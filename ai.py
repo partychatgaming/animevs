@@ -1,7 +1,7 @@
 import os
 # from anthropic import Anthropic
 from decouple import config
-from openai import OpenAI
+import openai
 import asyncio
 
 # Set up your OpenAI API key
@@ -34,7 +34,7 @@ async def summarize_last_moves(messages):
     prompt = f"Summarize the last 4 moves completed in this anime card game based on the information given in this list:\n\n{input_text}\n\nNever summarize or create information that is not in the list given. Always follow the format of '(Turn Number) - Summary'. Please be short, concise, and to the point. Do not explain that you are a bot, simply respond with the summary. If there is only one move in the list, summarize that move. If there are no moves in the list, respond with 'The match has started.'"
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
-    response = client.chat.completions.create(
+    response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "user", "content": prompt}
@@ -62,7 +62,7 @@ async def suggested_title_scenario(universe_title, characters):
     prompt = f"I created an anime battle in which I have to defeat {character_names} from the {universe_title} universe. What is a good, short title for that battle? Only respond with the name of the title. Never add quotes around the title. Be creative and concise."
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
-    response = client.chat.completions.create(
+    response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "user", "content": prompt}
@@ -80,7 +80,7 @@ async def focus_message(your_card_name, your_card_universe, opponent_card, oppon
     prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. You are focusing intently on your strategy to win. Write a 1 sentence message to {opponent_card} to intimidate them and show your determination to win the match. Do not include quotes.  Be as raw and true to your character's nature as possible. "
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
-    response = client.chat.completions.create(
+    response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "user", "content": prompt}
@@ -346,51 +346,3 @@ async def rpg_story(your_card_name, universe_name, list_of_combatants, location_
     )
     return response.choices[0].message.content
 
-
-async def character_descriptions(name, universe):
-    message = claude.messages.create(
-        max_tokens=1024,
-        messages=[
-            {
-                "role": "user",
-                "content": f"Hello, Claude",
-            },
-            {
-                "role": "assistant",
-                "content": "Hello! How can I assist you today?",
-            },
-            {
-                "role": "user",
-                "content": f"""Please create a Python dictionary for the character {name} from {universe}. The dictionary should have the following structure:
-
-{{
-    "name": "{name}",
-    "descriptions": [
-        {{
-            "message": "Two-sentence hostile message from the character",
-            "dialogue_options": [
-                {{
-                    "response": "Response that leads to a fight",
-                    "fight": true
-                }},
-                {{
-                    "response": "Response that could avoid a fight",
-                    "fight": false
-                }}
-            ]
-        }},
-        ... (5 more similar entries)
-    ]
-}}
-
-Please provide 6 unique 'descriptions' entries. Each 'message' should be two sentences long and reflect the character's personality and way of speaking when facing an opponent with hostility. The 'dialogue_options' for each message should include two responses: one that would likely lead to a fight, and one that could potentially avoid a fight.
-
-For villains or antagonistic characters, both dialogue options can lead to a fight (i.e., both can have "fight": true) if this aligns with the character's personality in the source material.
-
-Ensure that the dialogue is authentic to the character's personality and speaking style in the {universe} series. Present the result as a valid Python dictionary. Only return the Python dictionary, no other text outside of the python dictionary."""
-            },
-        ],
-        model="claude-3-5-sonnet-20240620",
-    )
-    
-    return message.content[0].text

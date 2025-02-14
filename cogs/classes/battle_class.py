@@ -1000,6 +1000,7 @@ class Battle:
         # else:
         #     return '\n'.join(map(format_card, ['opponent', 'your']))  
 
+
     def ai_battle_command(self, your_card, opponent_card):
         aiMove = 0
         stamina = your_card.stamina
@@ -1402,6 +1403,7 @@ class Battle:
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}")
         return embedVar
 
+
     def get_tutorial_message(self, player_card):
         incomplete_task = '❌'
         complete_task = '✅'
@@ -1467,21 +1469,6 @@ class Battle:
         else:
             return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus*"
 
-    def get_map_message(self, player_card):
-        map_layout = [
-            f"🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫",
-            f"🟫🟦🟦🟦🟦🟦🟦🟦🟦🟫",
-            f"🟫🟦🗝️🟦🟦🟦🟦🟦🦴🟫",
-            f"🟫🟦🟦🟦🧙🟦🟦🟦🟦🟫",
-            f"🟫🟦🟦🟦🟦🟦🦇🟦🟦🟫",
-            f"🟫🟦🚪🟦🟦🟦🟦🟦🟦🟫",
-            f"🟫🟦🟦🟦🦊🟦🟦🟦🟦🟫",
-            f"🟫🟦🟦🟦🟦🟦🟦🟦🟦🟫",
-            f"🟫🟫🟫🟫{player_card.universe_crest}🟫🟫🟫🟫🟫"
-        ]
-
-        map_display = "\n".join(map_layout)
-        return map_display
     
     def close_pve_embed(self, player_card, opponent_card, companion_card = None):
         picon = "⚔️"
@@ -1560,7 +1547,8 @@ class Battle:
                                 value=f"🎴 | {opponent.equipped_card}\n🎗️ | {opponent.equipped_title}\n🦾 | {opponent.equipped_arm}\n🧬 | {opponent._equipped_summon_name}")
         embedVar.set_footer(text=f_message)
         return embedVar
-    
+
+
     def tutorial_messages(self, player_card, opponent_card=None, message_type=None):
         embedVar = False
         if message_type == 'BASIC':
@@ -1710,7 +1698,8 @@ class Battle:
                 embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
                             value=f"{text}")
             return embedVar
-    
+
+
     def blocking_trait_handler(self, player_card):
         name = False
         value = False
@@ -1737,7 +1726,8 @@ class Battle:
             name = "Plus Ultra"
             value =f"*On Block gain 20 * Class Level stored Quirk AP [{20 * player_card.class_level}]**"
         return name, value
-    
+
+
     def summon_trait_handler(self, player_card):
         name = False
         value = False
@@ -1751,7 +1741,8 @@ class Battle:
             name = "Summon Slime"
             value =f"On Summon\nGain (5 * Card Tier) Stamina**[{5 * player_card.card_tier}]**."
         return name, value
-       
+
+
     def resolve_trait_handler(self, player_card):
         if player_card.universe == "Soul Eater":
             name = "Soul Resonance"
@@ -1818,7 +1809,8 @@ class Battle:
             name = "Skill Evolution"
             value =f"On Resolve\nIncrease `ULTIMATE` AP by total ap of your `BASIC` and `SPECIAL` attack **[{player_card.slime_buff}]** which both become `25` ."
         return name, value
-    
+
+
     def focus_trait_handler(self, player_card, opponent_card):
         if player_card.universe == "Soul Eater":
             name = "Meister"
@@ -1857,7 +1849,8 @@ class Battle:
             value =f"On Focus\nSteal (Card Tier * Focus Count)% Attack **[{o_beezlebub_value}]** and Defense **[{d_beezlebub_value}]** from your opponent." 
         
         return name, value
-    
+
+
     def opponent_focus_trait_handler(self, player_card, opponent_card):
         """
         Handle the opponent focus trait for the player's card.
@@ -1893,6 +1886,7 @@ class Battle:
             value = f"On Opponent Focus:\nGain (25 * Card Tier) + Turn Count Attack **[{25 * opponent_card.card_tier + self.turn_total}]**"
         return name, value
 
+
     def starting_trait_handler(self, player_card, opponent_card):
         if player_card.universe == "Death Note":
             name = "\nDeath Note"
@@ -1913,7 +1907,8 @@ class Battle:
             name = "\nQuirk Energy"
             value =f"*Each turn store 50 ap to prepare for your Quirk Awakening Transformation*"
         return name, value
-    
+
+
     def death_trait_handler(self, player_card):
         if player_card.universe == "Dragon Ball Z":
             name = "Final Stand"
@@ -1925,7 +1920,8 @@ class Battle:
             name = "Devilization"
             value =f"When Health <= 50%\n\nDouble your Attack, Defense Max Health."
         return name, value
-    
+
+
     def blitz_trait_handler(self, player_card):
         if player_card.universe == "Bleach":
             name = "Shikai"
@@ -1940,6 +1936,7 @@ class Battle:
             name = "Demon Slayer Mark & Blood Demon Art"
             value =f"On Blitz\n**Hashira**: Your next attack is a critical strike\n\n**Demons**: Your next attack is a double strike"
         return name, value
+
 
     def next_turn(self):
         if self.is_co_op_mode:
@@ -2044,7 +2041,8 @@ class Battle:
             else:
                 value=f"{player_card.name}"
         return value
-    
+
+
     def get_most_blitzed(self, player_card, opponent_card, companion_card=None):
         value = ""
         if companion_card:
@@ -2191,7 +2189,6 @@ class Battle:
                         value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}\n")
         
         return embedVar
-
 
 
     async def get_non_drop_rewards(self, player):
@@ -2594,7 +2591,6 @@ class Battle:
         embedVar.add_field(name=f"❤️‍🩹 | Healing",
                         value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}")
         
-
 
     def format_game_clock(self, gameClock):
         hours, minutes, seconds = gameClock.split(":")

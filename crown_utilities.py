@@ -7,6 +7,7 @@ from cogs.classes.arm_class import Arm
 from cogs.classes.title_class import Title
 from cogs.classes.player_class import Player
 from cogs.classes.summon_class import Summon
+from cogs.classes.guild_class import Guild
 import time
 from logger import loggy
 import destiny as d
@@ -24,7 +25,7 @@ import asyncio
 import requests
 import interactions 
 import custom_logging
-from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import Client, PartialEmoji, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 print("Crown Utilities initiated")
 
@@ -184,90 +185,91 @@ async def summonlevel(player, player_card):
     xp_inc = 1
     bxp_inc = 1
     protections = ['BARRIER', 'PARRY']
-    if player.family != 'PCG':
-        family_info = db.queryFamily({'HEAD':str(player.did)})
-        familysummon = family_info['SUMMON']
-        if familysummon['NAME'] == str(player.equipped_summon):
-            xp_inc = 2
-            bxp_inc = 5
-            summon_object = familysummon
-            summon_name = summon_object['NAME']
-            summon_ability = ""
-            summon_ability_power = 0
-            for key in summon_object:
-                if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
-                    summon_ability_power = summon_object[key]
-                    summon_ability = key
-            summon_type = summon_object['TYPE']
-            summon_lvl = summon_object['LVL']
-            summon_exp = summon_object['EXP']
-            summon_bond = summon_object['BOND']
-            summon_bond_exp = summon_object['BONDEXP']
-            bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
-            if bond_req <= 0:
-                bond_req = 5
-            lvl_req = (int(summon_lvl) * 25) * (1 + summon_bond)
-            if lvl_req <= 0:
-                lvl_req = 25
+    # if player.family != 'PCG':
+    #     family_info = db.queryFamily({'HEAD':str(player.did)})
+    #     familysummon = family_info['SUMMON']
+    #     if familysummon['NAME'] == str(player.equipped_summon):
+    #         xp_inc = 2
+    #         bxp_inc = 5
+    #         summon_object = familysummon
+    #         summon_name = summon_object['NAME']
+    #         summon_ability = ""
+    #         summon_ability_power = 0
+    #         for key in summon_object:
+    #             if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+    #                 summon_ability_power = summon_object[key]
+    #                 summon_ability = key
+    #         summon_type = summon_object['TYPE']
+    #         summon_lvl = summon_object['LVL']
+    #         summon_exp = summon_object['EXP']
+    #         summon_bond = summon_object['BOND']
+    #         summon_bond_exp = summon_object['BONDEXP']
+    #         bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
+    #         if bond_req <= 0:
+    #             bond_req = 5
+    #         lvl_req = (int(summon_lvl) * 25) * (1 + summon_bond)
+    #         if lvl_req <= 0:
+    #             lvl_req = 25
             
-            power = ((1 + summon_bond) * summon_lvl) + int(summon_ability_power)
-            if summon_type in protections:
-                power = summon_bond + int(summon_ability_power)
+    #         power = ((1 + summon_bond) * summon_lvl) + int(summon_ability_power)
+    #         if summon_type in protections:
+    #             power = summon_bond + int(summon_ability_power)
                 
-            summon_path = summon_object['PATH']
-            # lvl = familysummon['LVL']  # To Level Up -(lvl * 10 = xp required)
-            # lvl_req = lvl * 10
-            # exp = familysummon['EXP']
-            # summon_name
-            # petmove_text = list(familysummon.keys())[3]  # Name of the ability
-            # petmove_ap = list(familysummon.values())[3]  # Ability Power
-            # petmove_type = familysummon['TYPE']
-            # bond = familysummon['BOND']
-            # bondexp = familysummon['BONDEXP']
-            # bond_req = ((petmove_ap * 5) * (bond + 1))
-            summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-            query = {'HEAD':str(family_info['HEAD'])}
+    #         summon_path = summon_object['PATH']
+    #         # lvl = familysummon['LVL']  # To Level Up -(lvl * 10 = xp required)
+    #         # lvl_req = lvl * 10
+    #         # exp = familysummon['EXP']
+    #         # summon_name
+    #         # petmove_text = list(familysummon.keys())[3]  # Name of the ability
+    #         # petmove_ap = list(familysummon.values())[3]  # Ability Power
+    #         # petmove_type = familysummon['TYPE']
+    #         # bond = familysummon['BOND']
+    #         # bondexp = familysummon['BONDEXP']
+    #         # bond_req = ((petmove_ap * 5) * (bond + 1))
+    #         summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #         query = {'HEAD':str(family_info['HEAD'])}
             
-            if summon_lvl< 10:
-                # Non Level Up Code
-                if summon_exp < (lvl_req - 1):
-                    #print("yay!")
-                    summon_exp = summon_exp + xp_inc
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                    transaction_message = f"🧬 | {player.disname} trained {summon_name}."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
+    #         if summon_lvl< 10:
+    #             # Non Level Up Code
+    #             if summon_exp < (lvl_req - 1):
+    #                 #print("yay!")
+    #                 summon_exp = summon_exp + xp_inc
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #                 transaction_message = f"🧬 | {player.disname} trained {summon_name}."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
 
-                # Level Up Code
-                if summon_exp >= (lvl_req - 1):
-                    summon_exp = 0
-                    summon_lvl = summon_lvl + 1
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                    transaction_message = f"🧬 | {player.disname} trained {summon_name} to Level **{summon_lvl}**."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
+    #             # Level Up Code
+    #             if summon_exp >= (lvl_req - 1):
+    #                 summon_exp = 0
+    #                 summon_lvl = summon_lvl + 1
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #                 transaction_message = f"🧬 | {player.disname} trained {summon_name} to Level **{summon_lvl}**."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
 
-            if summon_bond < 3:
-                # Non Bond Level Up Code
-                if summon_bond_exp < (bond_req - 1):
-                    #print("bonding")
-                    summon_bond_exp = summon_bond_exp + bxp_inc
+    #         if summon_bond < 3:
+    #             # Non Bond Level Up Code
+    #             if summon_bond_exp < (bond_req - 1):
+    #                 #print("bonding")
+    #                 summon_bond_exp = summon_bond_exp + bxp_inc
                     
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                    transaction_message = f"🧬 | {player.disname} bonded with {summon_name}."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #                 transaction_message = f"🧬 | {player.disname} bonded with {summon_name}."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
 
-                # Bond Level Up Code
-                if summon_bond_exp >= (bond_req - 1):
-                    summon_bond_exp = 0
-                    summon_bond = summon_bond + 1
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #             # Bond Level Up Code
+    #             if summon_bond_exp >= (bond_req - 1):
+    #                 summon_bond_exp = 0
+    #                 summon_bond = summon_bond + 1
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
                     
-                    transaction_message = f"🧬 | {player.disname} bonded with {summon_name} to Level **{summon_bond}**."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
-            #return False
+    #                 transaction_message = f"🧬 | {player.disname} bonded with {summon_name} to Level **{summon_bond}**."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
+    #         #return False
+    
     try:
         protections = ['BARRIER', 'PARRY']
         query = {'DID': str(player.did)}
@@ -300,7 +302,7 @@ async def summonlevel(player, player_card):
                 response = db.updateUser(query, update_query, filter_query)
                 level_message = f"Level: +🆙{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
-        if player_card.summon_lvl % 10 == 0:
+        if player_card.summon_lvl % 10 == 0 and player_card.summon_lvl != 0:
             if player_card.summon_bond < 10:
                 # Non Bond Level Up Code
                 # if player_card.summon_bondexp < (bond_req - 1):
@@ -794,11 +796,7 @@ async def cardlevel(user, mode: str, extra_exp = 0):
         # else:
         player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
         card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
-        # guild_buff = await guild_buff_update_function(player.guild.lower())
-        # arm = create_arm_from_data(db.queryArm({'ARM': player.equipped_arm}))
-        # title = create_title_from_data(db.queryTitle({'TITLE': player.equipped_title}))
         card.set_card_level_buffs(player.card_levels)
-        # has_universe_heart, has_universe_soul = get_level_boosters(player, card)
         exp_gain, lvl_req = get_exp_gain(player, mode, card, extra_exp)
 
         if player.difficulty == "EASY":
@@ -905,10 +903,11 @@ def get_level_up_exp_req(card):
 def get_exp_gain(player, mode, card, extra_exp):
     try:
         lvl_req = get_level_up_exp_req(card)
+        difficulty_exp = 0 if not player.difficulty == "HARD" else 3
         exp_gain = 0
-        t_exp_gain = 500 + (player.rebirth) + player.prestige_buff
-        d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
-        b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
+        t_exp_gain = (9000 * difficulty_exp) + (player.rebirth) + player.prestige_buff
+        d_exp_gain = (((50000 * difficulty_exp) + player.prestige_buff) * (1 + player.rebirth))
+        b_exp_gain = (1500000 * difficulty_exp) + ((100 + player.prestige_buff) * (1 + player.rebirth))
 
         if mode in DUNGEON_M:
             exp_gain = d_exp_gain + extra_exp
@@ -1734,6 +1733,14 @@ def create_card_from_data(card_data, is_boss = False):
         print(card_data['NAME'])
         custom_logging.debug(ex)
         return False
+    
+def create_guild_from_data(guild_data):
+    try:
+        guild = Guild(guild_data["OWNER"], guild_data["MEMBERS"], guild_data["TEAM_NAME"], guild_data["TEAM_DISPLAY_NAME"], guild_data["OFFICERS"], guild_data["CAPTAINS"], guild_data["TRANSACTIONS"], guild_data["STORAGE"], guild_data["GUILD_BUFF_AVAILABLE"], guild_data["GUILD_BUFF_ON"], guild_data["ACTIVE_GUILD_BUFF"], guild_data["GUILD_BUFFS"], guild_data["GUILD"], guild_data["BANK"], guild_data["WINS"], guild_data["LOSSES"], guild_data["BADGES"], guild_data["GUILD_MISSION"], guild_data["COMPLETED_MISSIONS"], guild_data["MEMBER_COUNT"], guild_data["WAR_FLAG"], guild_data["WAR_OPPONENT"], guild_data["SHIELDING"])
+        return guild
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return False
 
 
 def create_title_from_data(title_data):
@@ -1741,15 +1748,20 @@ def create_title_from_data(title_data):
     return title
 
 def create_arm_from_data(arm_data):
-    arm = Arm(arm_data['ARM'], arm_data['UNIVERSE'], arm_data['ABILITIES'], arm_data['DROP_STYLE'], arm_data['AVAILABLE'], arm_data['ELEMENT'])
-    return arm
+    try:
+        arm = Arm(arm_data['ARM'], arm_data['UNIVERSE'], arm_data['ABILITIES'], arm_data['DROP_STYLE'], arm_data['AVAILABLE'], arm_data['ELEMENT'])
+        return arm
+    except Exception as ex:
+        print(arm_data)
+        custom_logging.debug(ex)
+        return False
 
 def create_player_from_data(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
 
 def create_tutorial_bot(player_data):
-    player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], "Starter", "Training Dummy", "Stock", "Chick", "None", player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'])
+    player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], "Starter", "Training Dummy", "Stock", "Chick", "None", player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
 
 def create_summon_from_data(summon_data):
@@ -2767,40 +2779,39 @@ pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnoh Regio
 
 
 crest_dict = { 'Unbound': '🉐',
-              'My Hero Academia': '<:mha:1088699056420835419>',
-              'League Of Legends': '<:3873_league_of_legends_logo:1088701143921729567>',
-              'Pokemon': '<:pokemon:1088966251541450752>',
-              'Naruto': '<:naruto_103:1088703639973015573>',
-              'Bleach': '<:bleach:1088701142487285781>',
-              'God Of War': '<:kratos:1088701141753274408>',
-              'Chainsawman': '<:denji:1088701139886817311>',
-              'One Punch Man': '<:pngaaa:1085072765587030027>',
-              'Black Clover': '<:Black_Clover:1088699058262114314>',
-              'Demon Slayer': '<:Demon_Slayer:1088702009709973565>',
-              'Attack On Titan': '<:AOT:1088702007717658674>',
-              '7ds': '<:7ds:1088702006581006377>',
-              'Digimon': '<:digimon_sparkle:1088702667703988316>',
-              'Fate': '<:fate:1092176982277632032>',
-              'Solo Leveling': '<:jin:1090240014891352114>',
-              'Souls': '<:dark_souls_icon:1088702666688966726>',
-              'Dragon Ball Z': '<:dbz:1088698675338952774>',
-              'Pokemon': '<:pokemon:1088966251541450752>',
-              'Death Note': '<:death_note:1088702980682956800>',
+              'My Hero Academia': PartialEmoji(name='mha', id=1268053528413208587),
+              'League Of Legends': PartialEmoji(name='3873_league_of_legends_logo', id=1268053038812106753),
+              'Pokemon': PartialEmoji(name='pokemon', id=1268075112717094983),
+              'Naruto': PartialEmoji(name='naruto_103', id=1268053197063323783),
+              'Bleach': PartialEmoji(name='bleach', id=1268053118462197882),
+              'God Of War': PartialEmoji(name='kratos', id=1268053251522297949),
+              'Chainsawman': PartialEmoji(name='denji', id=1268053230923812935),
+              'One Punch Man': PartialEmoji(name='pngaaa', id=1268053449786785804),
+              'Black Clover': PartialEmoji(name='Black_Clover', id=1268053305897254952),
+              'Demon Slayer': PartialEmoji(name='Demon_Slayer', id=1268053268026621953),
+              'Attack On Titan': PartialEmoji(name='AOT', id=1268053287391985698),
+              '7ds': PartialEmoji(name='7ds', id=1268053339841630268),
+              'Digimon': PartialEmoji(name='digimon_sparkle', id=1268053549514887221),
+              'Fate': PartialEmoji(name='fate', id=1268075331286204487),
+              'Solo Leveling': PartialEmoji(name='jinwoo', id=1268075513491226665),
+              'Souls': PartialEmoji(name='dark_souls_icon', id=1268053062501535816),
+              'Dragon Ball Z': PartialEmoji(name='dbz', id=1268053322288463975),
+              'Death Note': PartialEmoji(name='death_note', id=1268053149176823819),
               'Crown Rift Awakening': ':u7a7a:',
               'Crown Rift Slayers': ':sa:',
               'Crown Rift Madness': ':m:',
-              'Persona': '<:persona:1090238487028047913>',
-              'YuYu Hakusho': '<:yusuke:1088702663861993503>',
-              'One Piece': '<:one_piece:1088702665581670451>',
-              'Overlord': '<:overlord:1091223691729305681>',
-              'Fairy Tail': '<:FairyTail:1091223690445865062>',
-              'That Time I Got Reincarnated as a Slime': '<:slime:1091223689007210517>',
-              'Soul Eater': '<:souleater:1257056890832031756>',
+              'Persona': PartialEmoji(name='persona', id=1268075686510334034),
+              'YuYu Hakusho': PartialEmoji(name='yusuke', id=1268052990699503707),
+              'One Piece': PartialEmoji(name='one_piece', id=1268053100208590848),
+              'Overlord': PartialEmoji(name='overlord', id=1268053613494800416),
+              'Fairy Tail': PartialEmoji(name='FairyTail', id=1268053173873152033),
+              'That Time I Got Reincarnated as a Slime': PartialEmoji(name='slime', id=1268075866269945948),
+              'Soul Eater': PartialEmoji(name='souleater', id=1268076333058228295),
               'Kill La Kill': '<:killlakill:1214431376070410281>',
               'Gurren Lagann': '<:gurren:1214432235927773205>',
-              'Jujutsu Kaisen': '<:jjk:1249819520650969138>',
-              'Katekyo Hitman Reborn': '<:reborn:1257057934634909817>',
-              'Full Metal Alchemist': '<:fma:1256672084327792730>',
+              'Jujutsu Kaisen': PartialEmoji(name='gojo', id=1268076323188768768),
+              'Katekyo Hitman Reborn': PartialEmoji(name='hitmanreborn', id=1268076323188768768),
+              'Full Metal Alchemist': PartialEmoji(name='fma', id=1268076300933791788),
               'Unbound': '🉐',
 }
 
@@ -2908,21 +2919,21 @@ tactics = [
 
 
 class_emojis = {
-    'TANK': '<:NewUI_Class_Guardian:1085080855174725682>',
-    'HEALER': '<:healer40:1085069588015874058>',
-    'FIGHTER': '<:NewUI_Class_Warrior:1085080858358198323>',
-    'ASSASSIN': '<:NewUI_Class_Assassin:1085080857225728020>',
-    'MAGE': '<:NewUI_Class_Mage:1085070773007421451>',
-    'RANGER': '<:NewUI_Class_Hunter:1085081189708210196>',
-    'SUMMONER': '<:summon:1085347631108194314>',
-    'SWORDSMAN': '<:Gold_Sword:1085347570282405958>',
-    'MONSTROSITY': '<:monster:1085347567384154172>',
-    'TACTICIAN': '<:Tactician:1085080853882884126>'
+    'TANK': PartialEmoji(name='NewUI_Class_Guardian', id=1268053376407572512),
+    'HEALER': PartialEmoji(name='healer40', id=1268053648777154734),
+    'FIGHTER': PartialEmoji(name='NewUI_Class_Warrior', id=1268053426319654972),
+    'ASSASSIN': PartialEmoji(name='NewUI_Class_Assassin', id=1268053406874992734),
+    'MAGE': PartialEmoji(name='mage', id=1268076706292568136),
+    'RANGER': PartialEmoji(name='NewUI_Class_Hunter', id=1268053356421840988),
+    'SUMMONER': PartialEmoji(name='summon', id=1268053467088425031),
+    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268053481021767763),
+    'MONSTROSITY': PartialEmoji(name='monster', id=1268053499845935124),
+    'TACTICIAN': PartialEmoji(name='NewUI_Currency_Favor', id=1268053391402340396)
 }
 
 utility_emojis = {
-    'OFF': '<:toggle_off:1085611427143897088>',
-    'ON': '<:toggle_on:1085611434207105115>'
+    'OFF': PartialEmoji(name='off', id=1268076986971062307),
+    'ON': PartialEmoji(name='on', id=1268076995959586868),
 }
 
 class_descriptions = {

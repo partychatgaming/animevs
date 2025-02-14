@@ -45,6 +45,7 @@ class GameModes(Extension):
         self.bot = bot
         self.level_up_cooldown = Cooldown(Buckets.MEMBER, 10, 3600) # (Buckets.MEMBER, 10, 3600)
         self.explore_cooldown = Cooldown(Buckets.MEMBER, 25, 3600)
+        self.rpg_game = None
     max_items = 150
 
     @listen()
@@ -455,7 +456,7 @@ class GameModes(Extension):
         autocomplete=True
     )
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
-        # await ctx.defer()
+        await ctx.defer()
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
@@ -467,9 +468,7 @@ class GameModes(Extension):
 
         if not universe and mode != "Tutorial" and mode != "RPG":
             # Create embed that says to select a universe 
-            embed = Embed(title="Select a Universe", description="All PVE game modes require universe selection. Please type or select a universe you would like to play in.", color=0x696969)
-            await ctx.send(embed=embed)
-            return
+            universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
         """
         This command will be used to send all modes to either unvierse selection or battle commands
@@ -498,9 +497,9 @@ class GameModes(Extension):
             # if mode == crown_utilities.ABYSS:
             #     await abyss(self, ctx, registered_player, mode)
             #     return
-            if mode == crown_utilities.RPG:
-                await self.rpg(ctx)
-                return
+            # if mode == crown_utilities.RPG:
+            #     await self.rpg(ctx)
+            #     return
             
             if mode == crown_utilities.TUTORIAL:
                 await tutorial(self, ctx, player, mode)
@@ -638,9 +637,9 @@ class GameModes(Extension):
             await ctx.send(f"An error occurred: {ex}")
             return
 
-
-    #@slash_command(description="Start an Association Raid")
-    async def raid(self, ctx, guild):
+    
+    #@slash_command(description="Start an Association Arena Battle")
+    async def arena(self, ctx, guild):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
@@ -763,7 +762,9 @@ async def tutorial(self, ctx, player, mode):
     try:
         #
         # await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
-
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
         tutorial_did = '837538366509154407'
         opponent = db.queryUser({'DID': tutorial_did})
         player2 = crown_utilities.create_tutorial_bot(opponent)
@@ -778,8 +779,8 @@ async def tutorial(self, ctx, player, mode):
         embed = Embed(title="An error occurred when setting up the tutorial battle.", description=f"Error: {ex}", color=0x696969)
         await ctx.send(embed=embed)
         return
-
-
+    
+    
 async def raid_scenario(self, ctx, player, mode):
     try:
         registered_player = await crown_utilities.player_check(ctx)

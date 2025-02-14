@@ -12,13 +12,13 @@ else:
     # TEST
     use_database = "PCGTEST"
 
+# THIS IS SPECIFICALLY FOR TESTING
+# use_database = "PCGPROD"
+
 # TOKEN = config('MONGOTOKEN_TEST')
 MONGO = config('MONGO_LOGIN')
 mongo = MongoClient(MONGO, tlsCAFile=certifi.where())
 
-# mongo = pymongo.MongoClient(TOKEN)
-# lore_db = mongo["Lore"]
-# lore_col = lore_db["lore"]
 
 db = mongo[use_database]
 users_col = db["USERS"]
@@ -1421,7 +1421,7 @@ def createArm(arm):
 
 def updateArm(query, new_value):
     try:
-        arm_col.update_one(query, new_value)
+        arm_col.update_one(query, new_value, upsert=True)
     except:
         return False
 
@@ -1895,6 +1895,35 @@ def queryUser(user_query):
             'trace': trace
         }))
         return False
+
+
+def queryUsers(user_query):
+    try:
+        data = users_col.find(user_query)
+        if data:
+            return data
+        else:
+            return False
+           
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        return False
+
+
+
 
 def queryAllUsers():
     data = users_col.find()

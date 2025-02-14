@@ -1,0 +1,221 @@
+messages:
+  language_changed: "Idioma cambiado a Español."
+help:
+  choices:
+    play: "⚔️ ¿Jugar?"
+    legend: "❓ ¿Qué significan estos emojis?"
+    classes: "🥋 ¿Qué son las clases de cartas?"
+    titles: "🎗️ ¿Qué son los efectos de título?"
+    arms: "🦾 ¿Qué son las mejoras para brazos?"
+    enhancers: "🦠 ¿Qué son las habilidades potenciadoras?"
+    elements: "🔅 ¿Qué son los elementos?"
+    menu: "👑 Inventario y Economía"
+    universe: "🌍 Información del Universo"
+    teams: "👥 Familia, Gremio, Asociación"
+    options: "⚙️ Opciones"
+    manual: "📔 Lee el manual de Anime VS+"
+  commands:
+    crown_unlimited_games: |
+      __Gestión de Cuenta__
+      **/register**: 🆕 Registra tu cuenta
+      **/deleteaccount**: Elimina tu cuenta
+      **/player**: Busca tu cuenta o la de un amigo
+      **/build**: Consulta tu configuración actual, cartas, títulos, armas, talismanes, invocaciones y más
+                                                                        
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+    
+    pve_modes: |
+      __Comandos PVP__
+      **/play** - Lucha a través de una variedad de modos PVE
+      **/explore** - Alternar el modo de exploración                           
+
+      __Modos de Juego PVE__
+      **🆘 El Tutorial** - Aprende el sistema de combate de Anime VS+
+      **⚡ Aleatorio** - Selecciona y comienza un modo de juego aleatorio a continuación
+      **🗺️ Aventura** - Entra en un universo 2D para luchar, saquear y más
+      **⚔️ Relatos** - Modo de batalla normal para ganar cartas, accesorios y más
+      **👺 Mazmorra** - Modo de batalla difícil para ganar cartas de mazmorra, accesorios de mazmorra y más
+      **📽️ Escenario** - Lucha en escenarios únicos para ganar cartas y movimientos
+      **💀 Incursión** - Lucha en escenarios de alto nivel para ganar cartas y movimientos míticos
+      **🌌 Explorar** - Encuentros aleatorios de batalla para ganar cartas raras y grandes recompensas
+                                            
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    pvp_modes: |
+      __Modos de Juego PVP__
+      **/pvp** - Lucha contra un rival en modo PVP
+      *¡Más modos de PVP próximamente!*
+                                
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    universe_stuff: |
+      __Información del Universo__
+      **/universes** - Consulta toda la información disponible sobre el universo, incluidas cartas, accesorios y destinos
+
+      **/view** - Busca o consulta todos los elementos del juego.
+                                    
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    card_legend: |
+      __Conceptos Básicos de las Cartas__
+      🎴 - **Carta**
+      ♾️ - **Universo de la Carta**
+      🀄 - **Nivel de la Carta** *1-10*
+      🔰/🔱/⚜️ - **Nivel de la Carta**
+      🥋 - **Clase de la Carta**
+      ❤️ - **Salud de la Carta** (HLT)
+      🌀 / ⚡ - **Resistencia de la Carta** (ST)
+      🗡️ - **Ataque de la Carta (ATK)** Cristal Azul 🟦
+      🛡️ - **Defensa de la Carta (DEF)** Cristal Rojo 🟥
+      🏃 - **Evasión de la Carta** (EVASIÓN)
+                                
+      __Conjunto de Movimientos de la Carta__
+      💥 - **Ataque Básico**
+      ☄️ - **Ataque Especial**            
+      🏵️ - **Ataque Definitivo**
+      🦠 - **Habilidad de Mejora**
+                                
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    equipment_legend: |
+      __Equipamiento e Invocaciones__
+      ⚠️ - Tu título o arma no coincide con tu universo
+      🎗️ - **Título**  *Los efectos del título se aplican en cada turno, pasivamente.*
+      🦾 - **Arma** *Las armas otorgan nuevos ataques, habilidades mejoradas o protecciones adicionales.*
+      🧬 - **Invocación** *Las invocaciones usan ataques o protecciones durante la batalla.*
+      📿 - **Talismán** *Equipa talismanes elementales para evitar las afinidades del oponente.*
+      ⚒️ - **Durabilidad** *La durabilidad de tu arma o talismán disminuye con cada uso.*
+                                    
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    currency_legend: |
+      __Comandos de Moneda__
+      **/balance** - Consulta tu saldo actual y el saldo del gremio
+      **/gems** - Consulta tus gemas actuales
+      **/essence** - Consulta tu esencia actual
+
+      **Moneda**
+      💰 - **Monedas** *Compra objetos en el Mercado o mediante intercambios.*
+      💎 - **Gemas** *Fabrica niveles de carta y objetos en el Herrero.*
+      🪔 - **Esencia** *Crea talismanes elementales.*
+                                    
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    elements_legend: |
+      **🔅 Elementos**
+
+      👊 Físico - Si la RES (resistencia) es mayor que 80, inflige daño adicional. Después de 3 golpes, obtienes una parada.
+
+      ⚔️ Espada - Cada tercer ataque resultará en un golpe crítico que también aumenta el ataque en un 40% del daño infligido.
+
+      🏹 A Distancia - Si la RES (resistencia) es mayor que 30, inflige 1.7 veces el daño. Cada 3 ataques a distancia aumentan la probabilidad de impacto en un 10%.
+
+      🔫 Pistola - Penetra el escudo. Tiene un 40% de probabilidad de infligir un doble golpe. El doble golpe reduce la defensa del oponente en un 35% del valor actual.
+
+      ♻️ Temerario - Inflige un daño adicional increíble, recibe el 60% como temerario. Si Temerario te mataría, reduce la salud a 1. Después de atacar, entras en un estado de descanso, saltándote tu turno.
+
+      🔥 Fuego - Inflige el 50% del daño del ataque anterior durante los siguientes turnos del oponente, el efecto de quemadura ignora los escudos y se acumula.
+
+      ❄️ Hielo - Cada 3 ataques, el oponente se congela y pierde 1 turno, y pierde ataque y defensa igual al 50% del daño infligido.
+
+      💧 Agua - Cada golpe aumenta todos los PA de movimiento de agua en 100. Cada 200 PA, obtienes un escudo. Cada 400 PA, envía un golpe de tsunami por daño verdadero.
+
+      ⛰️ Tierra - No se puede parar. Otorga escudo y aumenta la defensa en un 30% de los PA.
+
+      🌿 Naturaleza - Reduce el ATQ y la DEF del oponente en un 35% del daño y cura la salud y la salud máxima por esa misma cantidad.
+
+      🌩️ Eléctrico - Añade un 10% del daño infligido como daño de descarga, añadido a todos los PA de movimiento.
+
+      🌪️ Viento - En caso de fallo o crítico, aumenta todo el daño de viento en un 60% del daño infligido.
+
+      🔮 Psíquico - Penetra las barreras. Reduce el ATQ y la DEF del oponente en un 15% del daño. Después de 3 golpes, obtienes una barrera.
+
+      💤 Sueño - Cada segundo ataque añade una acumulación de Descanso. Antes de que el oponente se concentre, debe Descansar, saltándose su turno, por cada acumulación de Descanso. El oponente solo recibe daño por sueño mientras Descansa.
+
+      ☠️ Muerte - Inflige un 30% de daño a la salud máxima del oponente. Obtienes ataque igual a esa cantidad.
+
+      ❤️‍🔥 Vida - Roba el 30% del daño infligido a la salud y la salud máxima del oponente.
+
+      🌕 Luz - Aumenta el ATQ en un 40% del daño. El 40% del daño se almacena y daña al oponente cuando se concentra.
+
+      🌑 Oscuridad - Penetra escudos, barreras y paradas y disminuye la RES (resistencia) del oponente en 15.
+
+      🧪 Veneno - Penetra los escudos, acumula daño por veneno igual al 35% del daño infligido, acumulándose hasta el 30% de la salud máxima. Este daño golpea al oponente cuando el oponente ataca.
+
+      🩻 Pudrición - Penetra los escudos, acumula daño por pudrición igual al 15% del daño infligido, acumulándose hasta el 20% de la salud máxima. Este daño golpea la salud máxima del oponente cuando el oponente ataca.
+
+      🧿 Energía - Tiene un 35% más de probabilidad de crítico.
+
+      ⌛ Tiempo - Bloqueo fuerte y aumenta el conteo de turnos en 3. Si la RES (resistencia) es < 50, se Concentra durante 1 turno y reduce las protecciones del oponente y atraviesa la parada.
+
+      🅱️ Sangrado - Cada 2 ataques infligen (10 x conteo de turnos + 5% de salud) de daño al oponente.
+
+      🪐 Gravedad - Deshabilita el bloqueo del oponente, reduce la DEF del oponente en un 50% del daño, disminuye el conteo de turnos en 3, atraviesa la barrera y la parada.
+
+      🐲 Dracónico - Los ataques dracónicos solo pueden ser DEFINITIVOS o Invocados, ¡combinan los PA y los efectos elementales de tu ataque BÁSICO y ESPECIAL en un poderoso golpe!
+
+      [Únete al Servidor de Soporte de Anime VS+](https://discord.gg/pcn)
+
+    bot_commands: |
+      __Comandos del Gremio__
+      **/guild** - Consulta de gremios, configuraciones y solicitudes
+      **/guildoperations** - Operaciones del gremio
+      **/createguild** - Crea un gremio
+      **/disbandguild** - Disuelve un gremio
+      **/recruit** - Recluta jugadores para tu gremio
+      **/leaveguild** - Sal del gremio
+      **/pay** - Envía monedas a miembros del gremio
+      **/donate** - Dona monedas al banco del gremio
+
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    rewards_commands: |
+      __Comandos de Recompensas__
+      **/daily** - Reclama tu recompensa diaria
+      **/vote** - Reclama tu recompensa por votar
+
+      __¡Gacha Gacha! ⌨️__
+      **/code** - Introduce códigos para obtener recompensas en el juego.
+      **/roll** - Gasta oro para abrir cajas de botín.
+                                        
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+    option_commands: |
+      __Opciones del Juego__
+      **/help** - Consulta todos los comandos de ayuda y el manual
+      **/explore** - Alternar modo de exploración / universo
+      **/difficulty** - Cambia la dificultad del juego
+      **/autosave** - Activa o desactiva el autoguardado
+      **/battlehistory** - Ajusta la longitud del historial de batalla
+      **/battleview** - Alterna la visualización de estadísticas del oponente en batalla
+
+      [Únete al servidor de soporte de Anime VS+](https://discord.gg/pcn)
+
+  elements:
+    physical: "👊 Físico - Si la RES (resistencia) es mayor que 80, inflige Daño Adicional. Después de 3 Golpes, obtienes una Parada."
+    sword: "⚔️ Espada - Cada 3er ataque resultará en un Golpe Crítico que también aumenta el Ataque en un 40% del daño infligido."
+    ranged: "🏹 A Distancia - Si la RES (resistencia) es mayor que 30, inflige 1.7x de Daño. Cada 3 Ataques a Distancia aumentan la Probabilidad de Impacto en un 10%."
+    gun: "🔫 Pistola - Penetra el Escudo. Tiene un 40% de probabilidad de infligir un doble golpe. El doble golpe reduce la defensa del oponente en un 35% del valor actual."
+    reckless: "♻️ Temerario - Inflige un Daño Adicional Increíble, recibe el 60% como temerario. Si Temerario te mataría, reduce la Salud a 1."
+    fire: "🔥 Fuego - Inflige el 50% del daño del ataque anterior durante los siguientes turnos del oponente, el efecto de quemadura ignora los escudos y se acumula."
+    ice: "❄️ Hielo - Cada 3 ataques, el oponente se congela y pierde 1 turno, y pierde ataque y defensa igual al 50% del daño infligido."
+    water: "💧 Agua - Cada golpe aumenta todos los PA de movimiento de agua en 100. Cada 200 PA, obtienes un escudo. Cada 400 PA, lanza un Golpe de Tsunami por Daño Verdadero."
+    earth: "⛰️ Tierra - No se puede Parar. Otorga Escudo y Aumenta la Defensa en un 30% de los PA."
+    nature: "🌿 Naturaleza - Reduce el ATQ y la DEF del oponente en un 35% del Daño y cura la Salud y la Salud Máxima por esa misma cantidad."
+    electric: "🌩️ Eléctrico - Añade un 10% del Daño Infligido como daño de Descarga, añadido a todos los PA de Movimiento."
+    wind: "🌪️ Viento - En caso de Fallo o Crítico, aumenta todo el daño de viento en un 60% del daño infligido."
+    psychic: "🔮 Psíquico - Penetra las Barreras. Reduce el ATQ y la DEF del oponente en un 15% del Daño. Después de 3 Golpes, obtienes una Barrera."
+    sleep: "💤 Sueño - Cada 2do ataque añade una acumulación de Descanso. Antes de que el Oponente se concentre, debe Descansar."
+    death: "☠️ Muerte - Inflige un 30% de Daño a la salud máxima del oponente. Obtienes Ataque igual a esa cantidad."
+    life: "❤️‍🔥 Vida - Roba el 30% del daño infligido a la salud y la salud máxima del oponente."
+    light: "🌕 Luz - Aumenta el ATQ en un 40% del Daño. El 40% del Daño se almacena y daña al oponente cuando se concentra."
+    dark: "🌑 Oscuridad - Penetra Escudos, Barreras y Paradas y disminuye la RES (Resistencia) del oponente en 15."
+    poison: "🧪 Veneno - Penetra los escudos, acumula daño por veneno igual al 35% del daño infligido, acumulándose hasta el 30% de la salud máxima."
+    rot: "🩻 Pudrición - Penetra los escudos, acumula daño por pudrición igual al 15% del daño infligido, acumulándose hasta el 20% de la salud máxima."
+    energy: "🧿 Energía - Tiene un 35% más de probabilidad de Crítico."
+    time: "⌛ Tiempo - Bloqueo Fuerte y Aumenta el Conteo de Turnos en 3. Si la RES (Resistencia) es < 50."
+    bleed: "🅱️ Sangrado - Cada 2 Ataques infligen (10x conteo de turnos + 5% de Salud) de daño al oponente."
+    gravity: "🪐 Gravedad - Deshabilita el Bloqueo del Oponente, Reduce la DEF del oponente en un 50% del Daño, Disminuye el Conteo de Turnos en 3."
+    draconic: "🐲 Dracónico - Los ataques dracónicos solo pueden ser DEFINITIVOS o Invocados."
+
+    
