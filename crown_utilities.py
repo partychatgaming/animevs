@@ -2886,6 +2886,7 @@ rpg_npc_emojis = [
 ]
 
 
+
 scenario_level_config = 1499
 
 

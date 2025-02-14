@@ -139,6 +139,8 @@ class RPG:
 
         self.player_token = crown_utilities.crest_dict[self.player_card_data.universe]
         self.npc = crown_utilities.crest_dict[self.player_card_data.universe]
+        print(f"Emoji: {self.player_token}")
+        print(f"Emoji ID: {self.player_token.id}")
         self.civ_tokens = [
                             # Male emojis
                             "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳","👨‍🏭" "👨‍💼", "👨‍🔧",
@@ -331,7 +333,7 @@ class RPG:
         self.warp_points.extend(self.keys)
         self.warp_points.extend(self.items)
         self.warp_points.extend(self.remains)
-        self.warp_points.extend(self.npc)
+        #self.warp_points.extend(self.npc)
         self.warp_points.extend(self.civ_tokens)
         self.warp_points.extend(self.combat_points)
         self.warp_points.extend(self.wildlife)
@@ -388,8 +390,8 @@ class RPG:
         self.west_exits = None
         self.door_exit = None
 
-        self.player_tokens = {}  # Key: token, Value: player object
-        self.player_tokens[self.player_token] = self.player1_did  # Link token to player
+        #self.player_tokens = {}  # Key: token, Value: player object
+        #self.player_tokens[self.player_token] = self.player1_did  # Link token to player
 
 
         
@@ -1054,35 +1056,35 @@ class RPG:
         return self._player.map
 
 
-    def check_for_other_players(self, x, y):
-        """
-        Checks if the position (x, y) is occupied by another player's token.
+    # def check_for_other_players(self, x, y):
+    #     """
+    #     Checks if the position (x, y) is occupied by another player's token.
 
-        Args:
-            x (int): The x-coordinate of the map position.
-            y (int): The y-coordinate of the map position.
+    #     Args:
+    #         x (int): The x-coordinate of the map position.
+    #         y (int): The y-coordinate of the map position.
 
-        Returns:
-            str: The player1_did (Discord ID) of the encountered player, or None if empty or not a player token.
-        """
-        try:
-            # Retrieve the token at the specified position
-            token = self._player.map['map'][x][y]
-            print(f"Token from map: {token} (type: {type(token)})")
-            print(f"Player tokens: {self.player_tokens}")
+    #     Returns:
+    #         str: The player1_did (Discord ID) of the encountered player, or None if empty or not a player token.
+    #     """
+    #     try:
+    #         # Retrieve the token at the specified position
+    #         token = self._player.map['map'][x][y]
+    #         # print(f"Token from map: {token} (type: {type(token)})")
+    #         # print(f"Player tokens: {self.player_tokens}")
 
-            # Check if the token exists in the player tokens dictionary
-            if token in self.player_tokens:
-                return self.player_tokens[token]  # Return the player1_did
-            else:
-                print(f"Token '{token}' does not belong to any player.")
-                return None
-        except IndexError:
-            print(f"Invalid map coordinates: ({x}, {y})")
-            return None
-        except Exception as e:
-            print(f"Error during token lookup: {e}")
-            return None
+    #         # Check if the token exists in the player tokens dictionary
+    #         # if token in self.player_tokens:
+    #         #     return self.player_tokens[token]  # Return the player1_did
+    #         # else:
+    #         #     print(f"Token '{token}' does not belong to any player.")
+    #         #     return None
+    #     except IndexError:
+    #         print(f"Invalid map coordinates: ({x}, {y})")
+    #         return None
+    #     except Exception as e:
+    #         print(f"Error during token lookup: {e}")
+    #         return None
 
 
     async def move_player(self, ctx, private_channel,  direction, rpg_msg, deferred=False):
@@ -1127,7 +1129,7 @@ class RPG:
             self.moving = False
             self.adventuring = False
             self.previous_moves.append("🏁 Adventure has ended!")
-            self._player.map['map'][x][y] = f"{self._player.standing_on}"
+            #self._player.map['map'][x][y] = f"{self._player.standing_on}"
             currency_modifier = self.rpg_universe_level_check()
             gold_to_coin = self.player_gold
             await crown_utilities.bless(gold_to_coin, self.player1_did)
@@ -1350,9 +1352,9 @@ class RPG:
                     self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a civilian {cardinal}...maybe you can talk to them?")
                     self._player.player_position = self._player.player_position
                 elif self._player.map['map'][new_x][new_y] in crown_utilities.rpg_npc_emojis:
-                    encountered_player = self.check_for_other_players(new_x, new_y)
-                    if encountered_player:
-                        print(f"You encountered {encountered_player}!")
+                    # encountered_player = self.check_for_other_players(new_x, new_y)
+                    # if encountered_player:
+                    #     print(f"You encountered {encountered_player}!")
                     self.previous_moves.append(f"(👻) There is a {crown_utilities.rpg_npc[self._player.map['map'][new_x][new_y]]} {cardinal}.")
                     self._player.player_position = self._player.player_position
                 elif self._player.map['map'][new_x][new_y] in interaction_points:
@@ -2138,11 +2140,11 @@ class RPG:
         if npc != "💫":
             self.previous_moves.append(f"(🆚) Entering Encounter Mode!")
             x, y = npc_position
-            encountered_player = self.check_for_other_players(x,y)
-            print(encountered_player)
-            if encountered_player:
-                print(f"You encountered {encountered_player}!")
-                # Optionally: Trigger PvP or other interaction
+            # encountered_player = self.check_for_other_players(x,y)
+            # print(encountered_player)
+            # if encountered_player:
+            #     print(f"You encountered {encountered_player}!")
+            #     # Optionally: Trigger PvP or other interaction
 
         if npc in self.merchants:
             await self.open_shop(ctx, private_channel, npc)

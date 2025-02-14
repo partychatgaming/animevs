@@ -381,7 +381,7 @@ class GameModes(Extension):
     #         return
     
 
-    @slash_command(description="🗺️ RPG game mode")
+    # @slash_command(description="🗺️ RPG game mode")
     @cooldown(Buckets.USER, 1, 15)
     async def rpg(self, ctx: InteractionContext):
         registered_player = await crown_utilities.player_check(ctx)
@@ -415,7 +415,7 @@ class GameModes(Extension):
     @slash_command(description="pve to earn cards, accessories, gold, gems, and more as a solo player")
     @slash_option(
         name="mode",
-        description="abyss: climb ladder, tales: normal pve mode, dungeon: hard pve run, and boss: extreme encounters",
+        description="use /help to see the list of modes and descriptions",
         opt_type=OptionType.STRING,
         required=True,
         choices=[
@@ -497,9 +497,9 @@ class GameModes(Extension):
             # if mode == crown_utilities.ABYSS:
             #     await abyss(self, ctx, registered_player, mode)
             #     return
-            # if mode == crown_utilities.RPG:
-            #     await self.rpg(ctx)
-            #     return
+            if mode == crown_utilities.RPG:
+                await self.rpg(ctx)
+                return
             
             if mode == crown_utilities.TUTORIAL:
                 await tutorial(self, ctx, player, mode)
