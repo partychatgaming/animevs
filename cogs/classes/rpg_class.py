@@ -203,7 +203,11 @@ class RPG:
         self.walls = [ "⬛", "🌀"]
         self.movement_buttons = []
 
-        self.passable_points = ["🟩", "⬜","🟨","🟫","◼️", "🟪"]
+        self.roads = ["◼️"]
+        self.paths = ["🟩", "⬜","🟨","🟫", "🟪"]
+        self.passable_points = []
+        self.passable_points.extend(self.roads)
+        self.passable_points.extend(self.paths)
 
         self.climable_mountains = ["🏞️"]
         self.looted_mountain = ["⛰️"]
@@ -523,19 +527,7 @@ class RPG:
             self._player.player_position = saved_map['spawn_portal']
             self._player.new_map = False
             # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-            total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
-            if vs <= 2:
-                await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
-            if civ < 1:
-                await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
-            if loot <=1:
-                num = random.randint(1,100)
-                if num <= 50:
-                    await self.place_loot_emojis(self._player.map['map'], 1)
-                elif num == 100:
-                    await self.place_loot_emojis(self._player.map['map'], 2)
-            if total <= 4:
-                await self.place_wildlife_emojis(self._player.map['map'])
+            await self.place_emojis()
         else:
             # Load the new map as usual
             loggy.info(f"Loading new map: {new_map['map_name']} - {new_map['map_area']}")
@@ -555,19 +547,7 @@ class RPG:
             self._player.player_position = self._player.map['spawn_portal']
             self._player.new_map = True
             # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-            total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
-            if vs <= 2:
-                await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
-            if civ < 1:
-                await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
-            if loot <=1:
-                num = random.randint(1,100)
-                if num <= 50:
-                    await self.place_loot_emojis(self._player.map['map'], 1)
-                elif num == 100:
-                    await self.place_loot_emojis(self._player.map['map'], 2)
-            if total <= 4:
-                await self.place_wildlife_emojis(self._player.map['map'])
+            await self.place_emojis()
 
 
         # Set the player token on the map at the player's position
@@ -602,9 +582,11 @@ class RPG:
         civ_count = 0
         wild_count = 0
         loot_count = 0
+        resource_count = 0
         civ_set = set(civ_tokens)  # Convert civ_tokens list to a set for faster lookup
         wildlife_set = set(self.wildlife)  # Convert wildlife_tokens list to a set for faster lookup
         loot_set = set(self.random_loot_point)
+        resource_set = set(self.resources)
 
         for row in map:
             for cell in row:
@@ -616,13 +598,30 @@ class RPG:
                     wild_count += 1
                 elif cell in loot_set:
                     loot_count += 1
+                elif cell in resource_set:
+                    resource_count += 1
 
-        total_count = vs_count + civ_count + wild_count
-        return total_count, vs_count, civ_count, loot_count
+        total_count = vs_count + civ_count + wild_count 
+        return total_count, vs_count, civ_count, loot_count, resource_count
+    
+    async def place_emojis(self):
+        total, vs, civ, loot, res = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
+        if vs <= 2:
+            await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
+        if civ < 1:
+            await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
+        if loot <=1:
+            num = random.randint(1,100)
+            if num <= 50:
+                await self.place_loot_emojis(self._player.map['map'], 1)
+            elif num == 100:
+                await self.place_loot_emojis(self._player.map['map'], 2)
+        if total <= 4:
+            await self.place_wildlife_emojis(self._player.map['map'])
 
 
     async def generate_combatants(self):
-        number_of_combatants, vs_count, civ_count, loot_count = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
+        number_of_combatants, vs_count, civ_count, loot_count, resource_count = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
         self.vs_count = vs_count
         self.civ_count = civ_count
         # Fetch combatants
@@ -724,19 +723,8 @@ class RPG:
         self._player.map_level = self.rpg_universe_level_check()
     
         # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-        total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
-        if vs <= 2:
-            await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
-        if civ < 1:
-            await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
-        if loot <=1:
-            num = random.randint(1,100)
-            if num <= 50:
-                await self.place_loot_emojis(self._player.map['map'], 1)
-            elif num == 100:
-                await self.place_loot_emojis(self._player.map['map'], 2)
-        if total <= 4:
-            await self.place_wildlife_emojis(self._player.map['map'])
+        #total, vs, civ, loot, res = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
+        await self.place_emojis()
 
         # This method is called when the map is configured to programmatically generate combatants based on the number of "🆚" emojis on the map
         await self.generate_combatants()
@@ -929,9 +917,9 @@ class RPG:
         # This method determines how many opponents will be placed on the map based on the map level
         number_of_combatants = 0
         if int(self._player.map_level) < 10:
-            number_of_combatants = random.randint(2, 3)
+            number_of_combatants = random.randint(1, 2)
         elif int(self._player.map_level) < 40:
-            number_of_combatants = random.randint(2, 5)
+            number_of_combatants = random.randint(2, 3)
         elif int(self._player.map_level) < 80:
             number_of_combatants = random.randint(3, 5)
         else:
@@ -1036,6 +1024,28 @@ class RPG:
         except Exception as e:
             loggy.error(f"Failed to place '💰' emojis on the map: {e}")
             return
+
+    async def place_resource_emojis(self, map_data, num_rock):
+        try:
+            # Get all possible positions for placing "🪨"
+            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell in self.paths]
+            
+            if num_rock > len(available_positions):
+                raise ValueError("Number of '🪨' emojis to place exceeds the available positions.")
+            
+            # Randomly select positions to place "🪨"
+            rock_positions = random.sample(available_positions, num_rock)
+            
+            # Place "🪨" emojis on the map
+            for i, j in rock_positions:
+                random_rock = random.choice(self.resources)
+                map_data[i][j] = random_rock
+            
+            return map_data
+        except Exception as e:
+            loggy.error(f"Failed to place '🪨' emojis on the map: {e}")
+            return
+
 
 
     def get_default_map(self):
@@ -1180,19 +1190,7 @@ class RPG:
 
             if new_x < 0 or new_x >= len(self._player.map['map']) or new_y < 0 or new_y >= len(self._player.map['map'][0]):
                 map_change = await self.change_map(direction, (new_x, new_y))
-                total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
-                if vs <= 2:
-                    await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
-                if civ < 1:
-                    await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
-                if loot <=1:
-                    num = random.randint(1,100)
-                    if num <= 50:
-                        await self.place_loot_emojis(self._player.map['map'], 1)
-                    elif num == 100:
-                        await self.place_loot_emojis(self._player.map['map'], 2)
-                if total <= 4:
-                    await self.place_wildlife_emojis(self._player.map['map'])
+                await self.place_emojis()
                 if not map_change:
                     self.previous_moves.append(f"(🚫) You can't leave this area yet!")
                     self._player.player_position = (x, y)  # Keep the player in the same position
@@ -1268,19 +1266,7 @@ class RPG:
                 elif self._player.map['map'][new_x][new_y] in self.open_door:  # Can't move to doors
                     self.previous_moves.append(f"({self.open_door}) Moving into the next room {cardinal}")
                     next_map = await self.change_map(direction, (new_x, new_y))
-                    total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
-                    if vs <= 2:
-                        await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
-                    if civ < 1:
-                        await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
-                    if loot <=1:
-                        num = random.randint(1,100)
-                        if num <= 50:
-                            await self.place_loot_emojis(self._player.map['map'], 1)
-                        elif num == 100:
-                            await self.place_loot_emojis(self._player.map['map'], 2)
-                    if total <= 4:
-                        await self.place_wildlife_emojis(self._player.map['map'])
+                    await self.place_emojis()
                     if not next_map:
                         self.previous_moves.append(f"(🚫) You can't leave this area yet!")
                         self._player.player_position = (x, y)
@@ -2198,7 +2184,7 @@ class RPG:
                     embedVar.add_field(name=f"[🎁)] They have a gift for you!", value=f"Check out your new stuff!")
                     self.battling = False
                     self.encounter = False
-                    await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, "🎁", npc_position)
+                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎁", npc_position)
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 elif random_number <= 80:
                     if not self.has_quest:
@@ -2211,13 +2197,13 @@ class RPG:
                         embedVar.add_field(name=f"[🗺️)] You already have a quest!", value=f"Check out your current quest!")
                     self.battling = False
                     self.encounter = False
-                    await self.generate_quest(ctx, private_channel, self._player.playerposition, '🆚', npc_position)
+                    await self.generate_quest(ctx, private_channel, self._player.player_position, '🆚', npc_position)
                 elif random_number <= 100:
                     self.previous_moves.append(f"(🎰) They have a game for you!")
                     embedVar.add_field(name=f"[🎰)] They have a game for you!", value=f"Lets earn some loot!")
                     self.battling = False
                     self.encounter = False
-                    await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, "🎰", npc_position)
+                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎰", npc_position)
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 talk_msg = await private_channel.send(embed=embedVar)
                 await talk_msg.delete(delay=3)
@@ -2319,7 +2305,7 @@ class RPG:
                     elif choice in self.drops:
                         self.previous_moves.append(f"({npc}) You purchased the {item1}{get_emoji_label(item1)} drop for {p_1} gold!")
                         self.loot_drop = True
-                        await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, item1, None)               
+                        await self.rpg_action_handler(ctx, private_channel, self._player.player_position, item1, None)               
                 else:
                     self.previous_moves.append(f"({npc}) You don't have enough gold to purchase {item1}")
                     purchase = False
@@ -2355,7 +2341,7 @@ class RPG:
                     elif choice in self.drops:
                         self.previous_moves.append(f"({npc}) You purchased the {item2}{get_emoji_label(item2)} drop for {p_2} gold!")
                         self.loot_drop = True
-                        await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, item2, None)                
+                        await self.rpg_action_handler(ctx, private_channel, self._player.player_position, item2, None)                
                 else:
                     self.previous_moves.append(f"({npc}) You don't have enough gold to purchase {item2}")
                 await asyncio.sleep(1)
@@ -2389,11 +2375,11 @@ class RPG:
                     elif choice in self.drops:
                         self.previous_moves.append(f"({npc}) You purchased the {item3}{get_emoji_label(item3)} drop for {p_3} gold!")
                         self.loot_drop = True
-                        await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, item3, None)
+                        await self.rpg_action_handler(ctx, private_channel, self._player.player_position, item3, None)
                     elif choice in self.loot_rolls:
                         self.loot_drop = True
                         self.previous_moves.append(f"({npc}) You purchased the {item3}{get_emoji_label(item3)} roll for {p_3} gold!")
-                        await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, item3, None)
+                        await self.rpg_action_handler(ctx, private_channel, self._player.player_position, item3, None)
                     else:
                         purchase = False
                         self.previous_moves.append(f"({npc}) You can't purchase {item3}{get_emoji_label(item3)}!")
@@ -2812,7 +2798,7 @@ class RPG:
                     self.previous_moves.append(f"(🌉) You found a hidden chest!")
                     self.loot_drop = True
                     self.remove_combatant()
-                    await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, "🎁", npc_position)
+                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎁", npc_position)
                     crossed = True
                 else:
                     self.previous_moves.append(f"(🌉) You lost 100 gold!")
@@ -2820,7 +2806,7 @@ class RPG:
             else:
                 crossed = True
                 self.loot_drop = True
-                await self.rpg_action_handler(ctx, private_channel, self._player.playerposition, "👛", npc_position, direction)
+                await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "👛", npc_position, direction)
         elif random_number <= 25:
             self.previous_moves.append(f"(🆚) There is a roadblock on the bridge...You are under attack!")
             self.encounter = True
