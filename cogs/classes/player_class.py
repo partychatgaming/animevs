@@ -247,10 +247,13 @@ class Player:
         self.has_quest = False
         self.has_investigation = False
         self.my_quest = None
+        self.pole_durability = 3
 
         self.vs_count = 0
         self.civ_count = 0
         self.wild_count = 0
+        self.loot_count = 0
+        self.resource_count = 0
 
         self.loot_drop = False
 

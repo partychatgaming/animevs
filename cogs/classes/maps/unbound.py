@@ -213,10 +213,10 @@ pocket_dimension = {
         "map": [
                 ["🟨", "🟨", "🟨", "🟦", "🟦", "🏯", "🟦", "🟦", "⬜", "◼️", "⬜"],
                 ["◼️", "◼️", "◼️", "🌉", "◼️", "◼️", "◼️", "🌉", "◼️", "◼️", "⬜"],
-                ["🟨", "🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🟦", "⬜", "◼️", "⬜"],
+                ["🟨", "🟨", "🟨", "🟦", "🟫", "🟩", "🟩", "🟦", "⬜", "◼️", "⬜"],
                 ["🟨", "🟨", "🟨", "🟦", "🌳", "🟩", "🌳", "🟦", "⬜", "◼️", "⬜"],
-                ["🟨", "🟨", "🟨", "🟦", "⬛", "⬛", "⬛", "🟦", "⬜", "◼️", "⬜"],
-                ["🟨", "🟨", "🟦", "🟦", "⬛", "🚪", "⬛", "🟦", "⬜", "◼️", "⬜"],
+                ["🟨", "🟨", "🟨", "🟦", "🟫", "🟩", "🟩", "🟦", "⬜", "◼️", "⬜"],
+                ["🟨", "🟨", "🟦", "🟦", "🟫", "🟩", "🟩", "🟦", "⬜", "◼️", "⬜"],
                 ["🟨", "🟨", "🟦", "🌳", "🟫", "🟩", "🟩", "🌉", "◼️", "◼️", "⬜"],
                 ["🟨", "🟨", "🟦", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
                 ["🟨", "🟦", "🟦", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
@@ -226,10 +226,11 @@ pocket_dimension = {
         }
 
 
+
 conrete_jungle = {
         "standing_on": "◼️",
         "spawn_portal": (10, 5),
-        "map_name": "Concrete Jungle",
+        "map_name": "Concrete Jungle (PM)",
         "map_area": "City Training Grounds",
         "embed_color": 0x808080,
         "map_doors": None,
@@ -257,7 +258,7 @@ conrete_jungle = {
 concrete_jungle_am = {
         "standing_on": "◼️",
         "spawn_portal": (10, 5),
-        "map_name": "Concrete Jungle",
+        "map_name": "Concrete Jungle (AM)",
         "map_area": "City Training Grounds",
         "embed_color": 0x808080,
         "map_doors": None,
@@ -285,7 +286,7 @@ concrete_jungle_am = {
 concrete_jungle_pm = {
         "standing_on": "◼️",
         "spawn_portal": (10, 5),
-        "map_name": "Concrete Jungle",
+        "map_name": "Concrete Jungle (Nightlife)",
         "map_area": "City Training Grounds",
         "embed_color": 0x808080,
         "map_doors": None,
@@ -460,10 +461,10 @@ def get_pocket_dimension():
         "map": [
                 ["🟨", "🟨", "🟨", "🟦", "🟦", "🏯", "🟦", "🟦", "⬜", "◼️", "⬜"],
                 ["◼️", "◼️", "◼️", "🌉", "◼️", "◼️", "◼️", "🌉", "◼️", "◼️", "⬜"],
-                ["🟨", "🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🟦", "⬜", "◼️", "⬜"],
+                ["🟨", "🟨", "🟨", "🟦", "🟫", "🟩", "🟩", "🟦", "⬜", "◼️", "⬜"],
                 ["🟨", "🟨", "🟨", "🟦", "🌳", "🟩", "🌳", "🟦", "⬜", "◼️", "⬜"],
-                ["🟨", "🟨", "🟨", "🟦", "⬛", "⬛", "⬛", "🟦", "⬜", "◼️", "⬜"],
-                ["🟨", "🟨", "🟦", "🟦", "⬛", "🚪", "⬛", "🟦", "⬜", "◼️", "⬜"],
+                ["🟨", "🟨", "🟨", "🟦", "🟫", "🟩", "🟩", "🟦", "⬜", "◼️", "⬜"],
+                ["🟨", "🟨", "🟦", "🟦", "🟫", "🚪", "🟩", "🟦", "⬜", "◼️", "⬜"],
                 ["🟨", "🟨", "🟦", "🌳", "🟫", "🟩", "🟩", "🌉", "◼️", "◼️", "⬜"],
                 ["🟨", "🟨", "🟦", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
                 ["🟨", "🟦", "🟦", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
@@ -552,7 +553,7 @@ def get_concrete_jungle():
     concrete_jungle = {
         "standing_on": "◼️",
         "spawn_portal": (10, 5),
-        "map_name": "Concrete Jungle",
+        "map_name": "Concrete Jungle (PM)",
         "map_area": "City Training Grounds",
         "embed_color": 0x808080,
         "map_doors": None,
@@ -585,7 +586,7 @@ def get_concrete_jungle_am():
     concrete_jungle_am = {
         "standing_on": "◼️",
         "spawn_portal": (10, 5),
-        "map_name": "Concrete Jungle",
+        "map_name": "Concrete Jungle (AM)",
         "map_area": "City Training Grounds",
         "embed_color": 0x808080,
         "map_doors": None,
@@ -617,7 +618,7 @@ def get_concrete_jungle_pm():
     concrete_jungle_pm = {
         "standing_on": "◼️",
         "spawn_portal": (10, 5),
-        "map_name": "Concrete Jungle",
+        "map_name": "Concrete Jungle (Nightlife)",
         "map_area": "City Training Grounds",
         "embed_color": 0x808080,
         "map_doors": None,
@@ -657,7 +658,8 @@ def choose_map_time():
     else:
         return get_concrete_jungle_pm()
     
-
+city_time = choose_map_time()
+pocket_dimension['north_exits'] = copy.deepcopy(city_time)
 default_map['south_exits'] = get_eerie_graveyard()
 default_map['door_exit'] = get_large_tunnel()
 default_map['north_exits'] = get_pocket_dimension()

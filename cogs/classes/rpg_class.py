@@ -154,6 +154,8 @@ class RPG:
                             "👦", "👧",
                         ]
         
+        print(self.civ_tokens)
+        
         self.difficulty = _player.difficulty
         self.is_easy_difficulty = False
         self.is_hard_difficulty = False
@@ -285,7 +287,7 @@ class RPG:
         self.tutorial = ["🥋"]
         self.combat_points = ["🏴‍☠️","⚔️","🆚","🎯"]
         self.combat_points.extend(self.tutorial)
-        self.combat_points.extend(f"{self.npc}")
+        #self.combat_points.extend(f"{self.npc}")
 
         self.loot_rolls = ["🎲","🃏","🎰"]
         self.encounter_rolls =["💫"]
@@ -305,7 +307,7 @@ class RPG:
         self.pumpkin_array = ["🎃"]
 
         self.random_loot_point = []
-        self.random_loot_point.extend(self.items)
+        self.random_loot_point.extend(self.rare_items)
         self.random_loot_point.extend(self.remains)
 
 
@@ -353,8 +355,8 @@ class RPG:
         self.world_interaction_buttons.extend(self.quest)
 
         #Other Players & Universes
-        self.rpg_npc = crown_utilities.rpg_npc_emojis
-        self.world_interaction_buttons.extend(self.rpg_npc)
+        #self.rpg_npc = crown_utilities.rpg_npc_emojis
+        #self.world_interaction_buttons.extend(self.rpg_npc)
 
         #Merchants sell arms
         #Wildlife drop food
@@ -588,43 +590,50 @@ class RPG:
         wild_count = 0
         loot_count = 0
         resource_count = 0
-        civ_set = set(civ_tokens)  # Convert civ_tokens list to a set for faster lookup
-        wildlife_set = set(self.wildlife)  # Convert wildlife_tokens list to a set for faster lookup
-        loot_set = set(self.random_loot_point)
-        resource_set = set(self.raw_resources)
+        # civ_set = {str(token) for token in self.civ_tokens}  # Convert civ_tokens list to a set for faster lookup
+        # wildlife_set = {str(token) for token in self.wildlife}  # Convert wildlife_tokens list to a set for faster lookup
+        # loot_set = {str(token) for token in self.random_loot_point}
+        # resource_set = {str(token) for token in self.resources}
 
         for row in map:
             for cell in row:
                 if cell == "🆚":
                     vs_count += 1
-                elif cell in civ_set:
+                elif cell in self.civ_tokens:
                     civ_count += 1
-                elif cell in wildlife_set:
+                elif cell in self.wildlife:
                     wild_count += 1
-                elif cell in loot_set:
+                elif cell in self.random_loot_point:
                     loot_count += 1
-                elif cell in resource_set:
+                elif cell in self.raw_resources:
                     resource_count += 1
+        # loggy.info(f"VS: {vs_count}")
+        # loggy.info(f"Civ: {civ_count}")
+        # loggy.info(f"Wild: {wild_count}")
+        # loggy.info(f"Loot: {loot_count}")
+        # loggy.info(f"Resource: {resource_count}")
+        # loggy.info(f"Total: {vs_count + civ_count + wild_count}")
 
         total_count = vs_count + civ_count + wild_count 
         return total_count, vs_count, civ_count, loot_count, resource_count
     
     async def place_emojis(self):
         total, vs, civ, loot, res = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
-        if vs <= 2:
-            await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
-        if civ < 1:
-            await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
-        if loot <=1:
-            num = random.randint(1,100)
-            if num <= 50:
-                await self.place_loot_emojis(self._player.map['map'], 1)
-            elif num == 100:
-                await self.place_loot_emojis(self._player.map['map'], 2)
-        if res <= 1:
-            await self.place_resource_emojis(self._player.map['map'], 1)
-        if total <= 4:
-            await self.place_wildlife_emojis(self._player.map['map'])
+        if total <= 6:
+            if vs <= 2:
+                await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
+            if civ < 1:
+                await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
+            if loot <=1:
+                num = random.randint(1,100)
+                if num <= 50:
+                    await self.place_loot_emojis(self._player.map['map'], 1)
+                elif num == 100:
+                    await self.place_loot_emojis(self._player.map['map'], 2)
+            if res <= 1:
+                await self.place_resource_emojis(self._player.map['map'], 1)
+            if total <= 4:
+                await self.place_wildlife_emojis(self._player.map['map'])
 
 
     async def generate_combatants(self):
@@ -1012,23 +1021,23 @@ class RPG:
     
     async def place_loot_emojis(self, map_data, num_loot):
         try:
-            # Get all possible positions for placing "💰"
+            # Get all possible positions for placing "🎒"
             available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell in self.passable_points]
             
             if num_loot > len(available_positions):
-                raise ValueError("Number of '💰' emojis to place exceeds the available positions.")
+                raise ValueError("Number of '🎒' emojis to place exceeds the available positions.")
             
-            # Randomly select positions to place "💰"
+            # Randomly select positions to place "🎒"
             loot_positions = random.sample(available_positions, num_loot)
             
-            # Place "💰" emojis on the map
+            # Place "🎒" emojis on the map
             for i, j in loot_positions:
                 random_loot = random.choice(self.random_loot_point)
                 map_data[i][j] = random_loot
             
             return map_data
         except Exception as e:
-            loggy.error(f"Failed to place '💰' emojis on the map: {e}")
+            loggy.error(f"Failed to place '🎒' emojis on the map: {e}")
             return
 
     async def place_resource_emojis(self, map_data, num_rock):
@@ -1097,6 +1106,8 @@ class RPG:
         # if not deferred:
         #     await ctx.defer()
         #     deferred = True
+        if self.swimmer:
+            self.passable_points.extend(self.water_points)
         interaction_points = self.interaction_points
         x, y = self._player.player_position
         start_x = x
@@ -1489,8 +1500,6 @@ class RPG:
             #Add world interaction Buttons
             if left and left in self.world_interaction_buttons:
                 v_label=f"{self.left_position}" 
-                if left in self.rpg_npc:
-                    v_label = f"👻{crown_utilities.rpg_npc[self.left_position]}"
                 if left in self.gold:
                     v_label = f"🪙Gold"
                 world_buttons.append(
@@ -1502,8 +1511,6 @@ class RPG:
                 )
             if right and right in self.world_interaction_buttons:
                 v_label = f"{self.right_position}"
-                if right in self.rpg_npc:
-                    v_label = f"👻{crown_utilities.rpg_npc[self.right_position]}"
                 if right in self.gold:
                     v_label = f"🪙Gold"
                 world_buttons.append(
@@ -1515,8 +1522,6 @@ class RPG:
                 )
             if up and up in self.world_interaction_buttons:
                 v_label = f"{self.above_position}"
-                if up in self.rpg_npc:
-                    v_label = f"👻{crown_utilities.rpg_npc[self.above_position]}"
                 if up in self.gold:
                     v_label = f"🪙Gold"
                 world_buttons.append(
@@ -1528,8 +1533,6 @@ class RPG:
                 )
             if down and down in self.world_interaction_buttons:
                 v_label = f"{self.below_position}"
-                if down in self.rpg_npc:
-                    v_label = f"👻{crown_utilities.rpg_npc[self.below_position]}"
                 if down in self.gold:
                     v_label = f"🪙Gold"
                 world_buttons.append(
@@ -1545,8 +1548,8 @@ class RPG:
                 warp_points = self.get_closest_warp_points(self._player.player_position)
                 for i, point in enumerate(warp_points):
                     v_label=f"{point['type']}{emoji_labels[point['type']]}"
-                    if point['type'] in self.rpg_npc:
-                        v_label = f"👻{crown_utilities.rpg_npc[point['type']]}"
+                    if point['type'] in self.gold:
+                        v_label = f"🪙Gold"
                     warp_buttons.append(
                         Button(
                             style=ButtonStyle.GRAY,
@@ -1633,7 +1636,7 @@ class RPG:
                 skill_message += f"|{skill}"
         rpg_map_embed = self.get_map_message()
         
-        embedVar = Embed(title=f"[🌎]Exploring: {self._player.map['map_name']}",description=f"**[🗺️]** *{self._player.map['map_area']}*", color=0xFFD700)
+        embedVar = Embed(title=f"[🌎]Exploring: {self.universe} Universe",description=f"**[🗺️]** *{self._player.map['map_name']}*", color=0xFFD700)
         print(self.mission_message)
         embedVar.set_author(name=f"Level {self._player.map_level} Adventure - 🎖️{self.mission_message} ({self._player.mission_count}/{self._player.mission_requirements})", icon_url=f"{self.player1.avatar}")
         
@@ -1921,6 +1924,10 @@ class RPG:
                     self.previous_moves.append(f"(🎣) You cast your line and found some loot!")
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🎲", npc_position, direction)
                     self.loot_drop = True
+                    self._player.pole_durability -= 1
+                    if self._player.pole_durability <= 0:
+                        self.fishing_pole = False
+                        self.previous_moves.append(f"(🎣) Your pole broke!")
                 else:
                     self.previous_moves.append(f"(🟦) You can't swim yet...If only you had a pole??")
             elif npc in self.trees:
@@ -1998,7 +2005,7 @@ class RPG:
                         self.previous_moves.append(f"({npc}) You found Gemstone!")
                     self.player_gems += gems_gained
                     self.previous_moves.append(f"(⛏️) You mined 💎{gems_gained} Gems! {miner_bonus_message}")
-                    if self.mission_type == "COLLECT_GEMS":
+                    if self.mission_type == "COLLECT_CRYSTAL":
                         await self.increment_mission_count(ctx, private_channel)
                     # if not self.miner:
                     #     self.miner = True
@@ -2412,6 +2419,7 @@ class RPG:
                 self.pickaxe = True
             elif purchase_item == "🎣":
                 self.fishing_pole = True
+                self._player.pole_durability = 3
             elif purchase_item == "🔨":
                 self.hammer = True
             elif purchase_item == "🏊":
@@ -3138,8 +3146,11 @@ class RPG:
 
     async def leave_adventure_embed(self, ctx):
         from cogs.classes.custom_paginator import Paginator
-        gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold * 10):,} Coins"
-        gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {round(self.player_gems * 10):,} Gems"
+        gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold):,} Coins"
+        gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {round(self.player_gems):,} Gems"
+        if self.mission_completed:
+            gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold * 10):,} Coins"
+            gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {round(self.player_gems * 10):,} Gems"
         
         inventory_message = "No Items Aquired"
         skills_message = "No Skills Aquired"
