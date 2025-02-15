@@ -101,6 +101,7 @@ class RPG:
         self.player_card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': self.player1_card_name}))
         self.player_card_data.set_card_level_buffs(self.player1.card_levels)
         self.player_avatar = self.player1.avatar
+        self.player_card_universe = self.player_card_data.universe
 
         self.player_health = self.player_card_data.health
         self.player_max_health = self.player_card_data.health
@@ -113,6 +114,7 @@ class RPG:
         self.player_atk_boost = False
         self.player_def_boost = False
         self.player_hp_boost = False
+
 
         #self.universe = self.player_card_data.universe
         self.universe = self._player.explore_location
@@ -646,6 +648,8 @@ class RPG:
 
 
     async def fetch_combatants(self, number_of_combatants):
+        if self.universe == "Unbound":
+            return query_rpg_cards(self.player_card_universe, 1, number_of_combatants)
         return query_rpg_cards(self.universe, 1, number_of_combatants)
 
 
