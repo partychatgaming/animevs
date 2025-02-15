@@ -16,7 +16,6 @@ class GameState(Extension):
 
     @listen()
     async def on_ready(self):
-        #print('GameState Cog is ready!')
         loggy.info('GameState Cog is ready')
 
     async def save_spot(self, player, universe_title, mode, currentopponent):

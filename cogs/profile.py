@@ -7,11 +7,12 @@ import textwrap
 import uuid
 import asyncio
 import custom_logging
+import random
 from logger import loggy
 import uuid
 from .classes.custom_paginator import CustomPaginator
 from interactions.ext.paginators import Paginator
-from interactions import ActionRow, Button, ButtonStyle, File, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, slash_option, AutocompleteContext
+from interactions import ActionRow, Button, ButtonStyle, File, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, cooldown, Buckets, Embed, Extension, slash_option, AutocompleteContext
 
 
 emojis = ['👍', '👎']
@@ -22,7 +23,6 @@ class Profile(Extension):
 
     @listen()
     async def on_ready(self):
-        # print('Profile Cog is ready!')
         loggy.info('Profile Cog is ready!')
  
     @slash_command(description="View your or a player's current build", options=[
@@ -293,129 +293,6 @@ class Profile(Extension):
             return
     
     @slash_command(description="Infuse Elemental Essence into Talisman's for aid")
-    #                 options=[
-    #                     SlashCommandOption(
-    #                         name="selection",
-    #                         description="select an option to continue",
-    #                         type=OptionType.STRING,
-    #                         required=True,
-    #                         choices=[
-    #                             SlashCommandChoice(
-    #                                 name="👊 Physical",
-    #                                 value="PHYSICAL",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="⚔️ Sword",
-    #                                 value="SWORD",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🔥 Fire",
-    #                                 value="FIRE",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="❄️ Ice",
-    #                                 value="ICE",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="💧 Water",
-    #                                 value="WATER",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="⛰️ Earth",
-    #                                 value="EARTH",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🌿 Nature",
-    #                                 value="NATURE",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="⚡️ Electric",
-    #                                 value="ELECTRIC",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🌪️ Wind",
-    #                                 value="WIND",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🔮 Psychic",
-    #                                 value="PSYCHIC",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="☠️ Death",
-    #                                 value="DEATH",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="❤️‍🔥 Life",
-    #                                 value="LIFE"
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🌕 Light",
-    #                                 value="LIGHT",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🌑 Dark",
-    #                                 value="DARK",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🧪 Poison",
-    #                                 value="POISON",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🩻 Rot",
-    #                                 value="ROT",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🔫 Gun",
-    #                                 value="GUN",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🏹 Ranged",
-    #                                 value="RANGED",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🧿 Energy / Spirit",
-    #                                 value="ENERGY",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="♻️ Reckless",
-    #                                 value="RECKLESS",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="💤 Sleep",
-    #                                 value="SLEEP",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="⌛ Time",
-    #                                 value="TIME",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🅱️ Bleed",
-    #                                 value="BLEED",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🪐 Gravity",
-    #                                 value="GRAVITY",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🔫 Gun",
-    #                                 value="GUN",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🩻 Rot",
-    #                                 value="ROT",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="⚔️ Sword",
-    #                                 value="SWORD",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🌿 Nature",
-    #                                 value="NATURE",
-    #                             )
-    #                         ]
-    #                     )
-    #                 ]
-    #     )
     @slash_option(
         name="elements",
         description="Elemental Abilities",
@@ -1813,7 +1690,242 @@ class Profile(Extension):
             embed = Embed(title=f"🔖 | Whoops!", description=f"Something went wrong. Please try again later.")
             await ctx.send(embed=embed)
             return
+
+
+    @slash_command(description="Input Codes", options=[
+    SlashCommandOption(name="code_input", description="Code to input", type=OptionType.STRING, required=True),
+    ], scopes=crown_utilities.guild_ids)
+    @cooldown(Buckets.USER, 1, 60)
+    async def code(self, ctx, code_input: str):
+        await ctx.defer()
+        try:
+            query = {'DID': str(ctx.author.id)}
+            user_data = db.queryUser(query)
+            user = crown_utilities.create_player_from_data(user_data)
+            code = db.queryCodes({'CODE_INPUT': code_input})
+            
+            if code and code['AVAILABLE']:
+                coin = code['COIN']
+                gems = code['GEMS']
+                exp = code['EXP']
+                card = code['CARD']
+                arm = code['ARM']
+                summon = code['SUMMON']
+                equipped_card = crown_utilities.create_card_from_data(db.queryCard({'NAME': user.equipped_card}))
+                card_drop = db.queryCard({'NAME': card}) if card else ""
+                arm_drop = db.queryArm({'NAME': arm}) if arm else ""
+                embed_list = []
+                if code_input not in user.used_codes:
+                    if gems:
+                        if not user.gems:
+                            universe_to_add_gems = equipped_card.universe
+                            user.save_gems(universe_to_add_gems, gems)
+                        for universe in user.gems:
+                            user.save_gems(universe["UNIVERSE"], gems)
+                        embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
+                        embed_list.append(embed)
+
+                    if coin:
+                        await crown_utilities.bless(int(coin), user.did)
+                        embed = Embed(title="Gold Increased", description=f"🪙 **{coin:,}** gold have been added to your balance!", color=0x00ff00)
+                        embed_list.append(embed)
+                    
+                    if card_drop:
+                        card = crown_utilities.create_card_from_data(card_drop)
+                    if card not in user.cards or card not in user.storage:
+                        user.save_card(card)
+                        embed = Embed(title="🎴 Card Drop", description=f"You received **{card.name}** from {card.universe_crest} {card.universe}!", color=0x00ff00)
+                        embed_list.append(embed)
+                    
+                    if arm_drop:
+                        arm = crown_utilities.create_arm_from_data(arm_drop)
+                        if arm not in user.arms or arm not in user.storage:
+                            user.save_arm(arm)
+                            embed = Embed(title="🛡️ Arm Drop", description=f"You received **{arm.name}** from {arm.universe_crest} {arm.universe}!", color=0x00ff00)
+                            embed_list.append(embed)
+                    
+                    if exp:
+                        user = await self.bot.fetch_user(ctx.author.id)
+                        mode = "Purchase"
+                        level_response = await crown_utilities.cardlevel(user, mode, exp)
+                        level_up_message = f"Your 🎴 **{equipped_card.name}** card leveled up {level_response:,} times!" if level_response else f"Your 🎴 **{equipped_card.name}** card gained {exp:,} experience points!"
+                        embed = Embed(title="Experience Gained", description=f"{level_up_message}", color=0x00ff00)
+                        embed_list.append(embed)
+                    response = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
+                    if embed_list:
+                        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+                        paginator.show_select_menu = True
+                        await paginator.send(ctx)
+                else:
+                    loggy.info(f"Code {code_input} has been used by {ctx.author}")
+                    embed = Embed(title="Code Already Used", description=f"{ctx.author.mention} has already used **{code_input}**", color=0x00ff00)
+                    await ctx.send(embed=embed)
+                    return
+            else:
+                embed = Embed(title="Invalid Code", description=f"{ctx.author.mention} has entered an invalid code **{code_input}**", color=0x00ff00)
+                await ctx.send(embed=embed)
+                return
+        except Exception as ex:
+            custom_logging.debug(ex)
+            return
+
+
+    @slash_command(name="gift", description="Give money to friend", options=[
+    SlashCommandOption(name="player", description="Player to gift", type=OptionType.USER, required=True),
+    ], scopes=crown_utilities.guild_ids)
+    @cooldown(Buckets.USER, 1, 5)
+    async def gift(ctx, player, amount: int):
+        user2 = player
+        vault = db.queryVault({'DID': str(ctx.author.id)})
+        user_data = db.queryUser({'DID': str(ctx.author.id)})
+        if user_data['LEVEL'] < 21:
+            await ctx.send(f"🔓 Unlock Gifting by completing Floor 20 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            return
+
+        balance = vault['BALANCE']
+        tax = amount * .09
+        amount_plus_tax = amount + tax
+
+        if balance <= int(amount_plus_tax):
+            await ctx.send(f"You do not have that amount (:coin{amount_plus_tax}) to gift.")
+        else:
+            await crown_utilities.bless(int(amount), user2.id)
+            await crown_utilities.curse(amount_plus_tax, ctx.author.id)
+            await ctx.send(f"🪙{amount} has been gifted to {user2.mention}.")
+            return
+
+
+    @slash_command(name="roll", description="Spend 10,000 🪙coins per roll for a chance at random cards, arms, summons, and gems", options=[
+        SlashCommandOption(name="rolls", description="Number of rolls to perform", choices=[
+            SlashCommandChoice(name="1 Roll", value=1),
+            SlashCommandChoice(name="5 Rolls", value=5),
+            SlashCommandChoice(name="10 Rolls", value=10),
+            SlashCommandChoice(name="25 Rolls", value=25),
+        ], type=OptionType.INTEGER, required=False),
+    ], scopes=crown_utilities.guild_ids)
+    @cooldown(Buckets.USER, 1, 45)
+    async def roll(self, ctx, rolls: int = 1):
+        await ctx.defer()
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
         
+    
+        cost = 10000 * rolls
+    
+    
+        user = crown_utilities.create_player_from_data(a_registered_player)
+        if user.balance < cost:
+            embed = Embed(title="Gacha", description=f"You do not have enough 🪙 to roll the Gacha. It costs 🪙 {cost:,} coin for {rolls} Rolls.")
+            await ctx.send(embeds=[embed])
+            return
+        
+        await crown_utilities.curse(cost, user.did)
+
+        # Retrieve all necessary data in one go
+        cards, arms, summons, universes = await asyncio.gather(
+            asyncio.to_thread(db.getCardsFromAvailableUniverses),
+            asyncio.to_thread(db.getArmsFromAvailableUniverses),
+            asyncio.to_thread(db.getSummonsFromAvailableUniverses),
+            asyncio.to_thread(db.queryAllUniverses)
+        )
+
+        quest_message = await Quests.milestone_check(user, "ROLL", 1)
+        
+        all_cards = list(cards)
+        all_arms = list(arms)
+        all_summons = list(summons)
+        universe_list = list(universes)
+
+        items = []
+
+        for _ in range(rolls):
+            roll = random.random()
+            if roll <= 0.0002:  # 0.02% chance
+                scenario_or_destiny = [item for item in all_cards + all_arms if item['DROP_STYLE'] in ['SCENARIO', 'DESTINY']]
+                if scenario_or_destiny:
+                    selected_item = random.choice(scenario_or_destiny)
+                    if 'NAME' in selected_item:
+                        user.save_card(crown_utilities.create_card_from_data(selected_item))
+                    else:
+                        user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                    items.append(selected_item)
+            elif roll <= 0.001:  # 0.1% chance (cumulative)
+                dungeon_summons = [item for item in all_summons if item['DROP_STYLE'] == 'DUNGEON']
+                if dungeon_summons:
+                    selected_item = random.choice(dungeon_summons)
+                    user.save_summon(crown_utilities.create_summon_from_data(selected_item))
+                    items.append(selected_item)
+            elif roll <= 0.005:  # 0.4% chance (cumulative)
+                tales_summons = [item for item in all_summons if item['DROP_STYLE'] == 'TALES']
+                if tales_summons:
+                    selected_item = random.choice(tales_summons)
+                    user.save_summon(crown_utilities.create_summon_from_data(selected_item))
+                    items.append(selected_item)
+            elif roll <= 0.015:  # 1.0% chance (cumulative)
+                dungeon_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'DUNGEON']
+                if dungeon_items:
+                    selected_item = random.choice(dungeon_items)
+                    if 'NAME' in selected_item:
+                        user.save_card(crown_utilities.create_card_from_data(selected_item))
+                    else:
+                        user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                    items.append(selected_item)
+            elif roll <= 0.05:  # 5.0% chance (cumulative)
+                tales_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'TALES']
+                if tales_items:
+                    selected_item = random.choice(tales_items)
+                    if 'NAME' in selected_item:
+                        user.save_card(crown_utilities.create_card_from_data(selected_item))
+                    else:
+                        user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                    items.append(selected_item)
+            else:  # 95% chance
+                gem_amount = random.randint(1000, 10000)
+                selected_universe = random.choice(universe_list)
+                user.save_gems(selected_universe["TITLE"], gem_amount)
+                items.append({"type": "gems", "amount": gem_amount, "universe": selected_universe['TITLE']})
+
+        super_rare_gif = "https://i.pinimg.com/originals/85/03/1d/85031d29916b8746829d7e721381cf6b.gif"
+        rare_gif = "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/alejandroaldana/23tRzVvUNcn54i4rmoPMmabLUHBJL19eqoNwRsnJrhuJ3TyHMww66C8c4fruCJUNNpfcQ.gif"
+        normal_rare_gif = "https://pa1.narvii.com/6237/8d2ff4e7f9dce12a5772c597ae857f29e1804c92_hq.gif"
+
+        embeds = []
+        for item in items:
+            if isinstance(item, dict) and item.get('type') == 'gems':
+                embed = Embed(
+                    title="You have earned gems!",
+                    description=f"You earned 💎 {item['amount']:,} gems in {crown_utilities.crest_dict[item['universe']]} {item['universe']}"
+                )
+                embed.set_image(url=normal_rare_gif)
+            else:
+                name = item.get('NAME') or item.get('ARM') or item.get('PET')
+                drop_style = item.get('DROP_STYLE')
+                type_emoji = "🎴" if 'NAME' in item else "🦾" if 'ARM' in item else "🧬"
+
+                if drop_style == 'DUNGEON':
+                    embed = Embed(title=f"You have earned a {type_emoji} item!", description=f"{type_emoji} {name} - You have earned a rare item!")
+                    embed.set_image(url=rare_gif)
+                elif drop_style in ['SCENARIO', 'DESTINY']:
+                    embed = Embed(title=f"You have earned a {type_emoji} item!", description=f"{type_emoji} {name} - You have earned a super rare item!")
+                    embed.set_image(url=super_rare_gif)
+                else:
+                    embed = Embed(title=f"You have earned a {type_emoji} item!", description=f"{type_emoji} {name} - You have earned an item!")
+                    embed.set_image(url=normal_rare_gif)
+
+            if quest_message:
+                embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
+            embed.set_thumbnail(url=user.avatar)
+            embeds.append(embed)
+
+        paginator = Paginator.create_from_embeds(self.bot, *embeds)
+        paginator.show_select_menu = True
+        await paginator.send(ctx)
+
+
+
+
     # @slash_command(description="Draw Items from Association Armory",
     #             options=[
     #                 SlashCommandOption(
