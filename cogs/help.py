@@ -1,16 +1,10 @@
 from cogs.classes.custom_paginator import CustomPaginator
-from ai import suggested_title_scenario
 import db
 import time
 from choicemanager import ChoicesManager
-import messages as m
 import help_commands as h
-import aiohttp
-from bson.int64 import Int64
 import textwrap
-import logging
 from logger import loggy
-from decouple import config
 import textwrap
 import unique_traits as ut
 now = time.asctime()

@@ -1,13 +1,9 @@
 import db
 import crown_utilities
-import interactions
-import datetime
 import textwrap
 import time
-from logger import loggy
 now = time.asctime()
-import unique_traits as ut
-from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import Button, ButtonStyle, Embed
 from cogs.play import Play as play
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config
 from cogs.quests import Quests

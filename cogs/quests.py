@@ -2,11 +2,8 @@ import crown_utilities
 import custom_logging
 from logger import loggy
 import db
-import messages as m
-from interactions import User
 import asyncio
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-import logging
+from interactions import listen, slash_command, Embed, Extension
 from logger import loggy
 
 class Quests(Extension):

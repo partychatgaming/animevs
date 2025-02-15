@@ -7,7 +7,6 @@ import textwrap
 import uuid
 import asyncio
 import custom_logging
-import destiny as d
 from logger import loggy
 import uuid
 from .classes.custom_paginator import CustomPaginator

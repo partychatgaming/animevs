@@ -1,24 +1,7 @@
-import textwrap
 import crown_utilities
 import db
 import dataclasses as data
-import messages as m
-import numpy as np
-import unique_traits as ut
-import help_commands as h
-import uuid
-import asyncio
-import random
-from .classes.custom_paginator import CustomPaginator
-from .classes.arm_class import Arm
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.player_class import Player
-from .classes.battle_class import Battle
-from .classes.summon_class import Summon
-from cogs.battle_config import BattleConfig
-from interactions import listen, slash_command, InteractionContext, OptionType, slash_option, AutocompleteContext, Embed, Extension
-import logging
+from interactions import listen, slash_command, InteractionContext, OptionType, slash_option, AutocompleteContext, Extension
 from logger import loggy
 
 class Explore(Extension):

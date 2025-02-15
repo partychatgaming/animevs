@@ -2,13 +2,7 @@ import crown_utilities
 import db
 import classes as data
 import messages as m
-import numpy as np
-import help_commands as h
-from PIL import Image, ImageFont, ImageDraw
-import requests
-from collections import ChainMap
-from interactions import User
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, SlashCommandOption, OptionType, Embed, Extension
 import uuid
 import logging
 from logger import loggy

@@ -23,9 +23,8 @@ import re
 import random
 import asyncio
 import requests
-import interactions 
 import custom_logging
-from interactions import Client, PartialEmoji, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import PartialEmoji, File, Embed
 
 loggy.info("Crown Utilities initiated")
 # print("Crown Utilities initiated")

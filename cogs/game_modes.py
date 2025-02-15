@@ -1,31 +1,20 @@
 import time
-from re import T
 import db
 import dataclasses as data
 import destiny as d
 import messages as m
 import numpy as np
-import help_commands as h
 from PIL import Image, ImageFont, ImageDraw
 import requests
 import random
 now = time.asctime()
-import base64
 from io import BytesIO
-import io
 import asyncio
 import textwrap
 import crown_utilities
 import custom_logging
 from .universe import Universe as universe_cog
 from .scenarios import Scenario as scenario_cog
-from .tactics import Tactics as tactics_cog
-from .reward_drops import RewardDrops as reward_drops_cog
-from .classes.player_class import Player
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.arm_class import Arm
-from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
 from .classes.rpg_class import RPG
 from cogs.battle_config import BattleConfig
@@ -34,7 +23,6 @@ from pilmoji import Pilmoji
 import destiny as d
 import interactions
 import uuid
-from .classes.custom_paginator import CustomPaginator
 from interactions.api.events import MessageCreate
 from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, cooldown, Embed, Extension, slash_option, AutocompleteContext
 

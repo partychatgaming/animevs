@@ -1,33 +1,10 @@
-import custom_logging
-import os
-import datetime
-from cogs.classes.custom_paginator import CustomPaginator
-from ai import suggested_title_scenario
 import db
 import time
-import classes as data
-import translation_manager as tm
-from language_cache import LanguageCache
-from choicemanager import ChoicesManager
-import messages as m
-import help_commands as h
-import aiohttp
-from bson.int64 import Int64
-import textwrap
-import logging
 from logger import loggy
 from decouple import config
-import textwrap
-import random
 import unique_traits as ut
 now = time.asctime()
-import asyncio
-from characters import character_list
-import requests
-import json
-import uuid
-from interactions.ext.paginators import Paginator
-from interactions import Task, IntervalTrigger, Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option, Extension
+from interactions import listen, slash_command, SlashCommandOption, OptionType, SlashCommandChoice, cooldown, Buckets, Embed, Extension
 import crown_utilities
 
 class Options(Extension):

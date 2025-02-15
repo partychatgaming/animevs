@@ -2,8 +2,7 @@ import crown_utilities
 import db
 from cogs.play import Play as play
 from cogs.classes.battle_class import Battle
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-import logging
+from interactions import listen, Extension
 from logger import loggy
 
 class BattleConfig(Extension):

@@ -5,11 +5,9 @@ import asyncio
 import textwrap
 from cogs.reward_drops import reward_drop, scenario_drop
 from cogs.quests import Quests
-import time
 import ai
 from interactions.ext.paginators import Paginator
-from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-import logging
+from interactions import ActionRow, Button, ButtonStyle, listen, Embed, Extension
 from logger import loggy
 
 class GameState(Extension):

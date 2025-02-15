@@ -1,8 +1,6 @@
 from pymongo import MongoClient
 import certifi
-import messages as m
 from decouple import config
-import re
 import random
 
 if config('ENV') == "production":

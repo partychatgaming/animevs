@@ -3,7 +3,6 @@ import interactions
 from interactions import listen, Extension, slash_command, SlashContext, OptionType, slash_option, InteractionContext
 from language_cache import LanguageCache
 from translation_manager import TranslationManager
-import logging
 from logger import loggy
 
 class LanguageCog(Extension):

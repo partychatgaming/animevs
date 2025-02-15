@@ -2,17 +2,13 @@ import asyncio
 import textwrap
 import uuid
 import db
-import classes as data
-from typing import Callable, Coroutine, List, Optional, Sequence, TYPE_CHECKING, Union
+from typing import List, Optional, TYPE_CHECKING
 import crown_utilities
 import custom_logging
 from cogs.battle_config import BattleConfig as bc
 from cogs.quests import Quests
 import random
 import logging
-from logger import loggy
-
-import attrs
 
 from interactions import (
     Embed,
