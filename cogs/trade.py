@@ -7,7 +7,6 @@ from interactions import User
 from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Embed, Extension
 from cogs.classes.trade_class import Trading
 from cogs.quests import Quests
-import logging
 from logger import loggy
 
 class Trade(Extension):

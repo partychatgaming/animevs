@@ -1,5 +1,4 @@
 from dataclasses import dataclass, asdict, field
-from logging import captureWarnings
 from bson.int64 import Int64
 import time
 

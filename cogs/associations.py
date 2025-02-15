@@ -2,17 +2,10 @@ import crown_utilities
 import db
 import dataclasses as data
 import messages as m
-import numpy as np
-import help_commands as h
-# Converters
-from PIL import Image, ImageFont, ImageDraw
-import requests
-from collections import ChainMap
 import textwrap
 # from dinteractions_Paginator import Paginator
 from interactions import User
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-import logging
+from interactions import ActionRow, Button, ButtonStyle, listen, Embed, Extension
 from logger import loggy
 
 emojis = ['👍', '👎']

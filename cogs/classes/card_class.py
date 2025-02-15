@@ -1,12 +1,10 @@
 import unique_traits as ut
-import os
 import crown_utilities
 import custom_logging
 import stats
 import interactions
 import requests
 import textwrap
-from logger import loggy
 import ai
 import db
 import random

@@ -3,11 +3,8 @@ import custom_logging
 import db
 import asyncio
 import uuid
-import messages as m
-from interactions import User
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, SlashCommandOption, OptionType, SlashCommandChoice, Embed, Extension
 from interactions.ext.paginators import Paginator
-import logging
 from logger import loggy
 
 class Marketplace(Extension):
