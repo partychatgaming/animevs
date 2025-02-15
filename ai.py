@@ -10,8 +10,10 @@ import asyncio
 #     api_key=config('OPENAI_API')
 # )
 
-client = OpenAI(api_key=config('OPENAI_API'))
-
+client = OpenAI(
+    api_key=config('OPENAI_API'),
+    http_client=None
+)
 async def summarize_last_moves(messages):
     await asyncio.sleep(1)
     # Check if messages is not a list
