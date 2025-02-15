@@ -10,7 +10,7 @@ class Matches(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Matches Cog is ready!')
+        #print('Matches Cog is ready!')
         loggy.info('Matches Cog is ready')
 
     async def cog_check(self, ctx):

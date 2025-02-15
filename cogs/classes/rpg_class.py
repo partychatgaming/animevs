@@ -154,7 +154,7 @@ class RPG:
                             "👦", "👧",
                         ]
         
-        print(self.civ_tokens)
+        #print(self.civ_tokens)
         
         self.difficulty = _player.difficulty
         self.is_easy_difficulty = False

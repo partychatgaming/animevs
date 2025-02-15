@@ -17,7 +17,7 @@ class Lobbies(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Lobbies Cog is ready!')
+        #print('Lobbies Cog is ready!')
         loggy.info('Lobbies Cog is ready')
 
     async def cog_check(self, ctx):

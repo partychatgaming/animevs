@@ -12,7 +12,7 @@ class Quests(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Quests Cog is ready!')
+        #print('Quests Cog is ready!')
         loggy.info('Quests Cog is ready!')
 
     async def cog_check(self, ctx):

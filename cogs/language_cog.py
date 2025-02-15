@@ -13,7 +13,7 @@ class LanguageCog(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Language Cog is ready!')
+        #print('Language Cog is ready!')
         loggy.info('Language Cog is ready')
         
     def get_text(self, ctx: SlashContext, key: str) -> str:

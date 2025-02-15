@@ -236,7 +236,7 @@ register:
   unregistered: "You are not registered. Please register with /register"
   registration_cancellation: "Registration cancelled."
   universe_selection_prompt: |
-    Select A Starting Universe!**
+    Select A Starting Universe!
     Select a universe to earn *3* 🎴 Cards and 🦾 Arms to begin! 
 
     [ℹ️]__Don't overthink it!__
