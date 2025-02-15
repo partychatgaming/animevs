@@ -3,18 +3,8 @@ import textwrap
 import crown_utilities
 import custom_logging
 from cogs.game_state import GameState as gs
-import db
-import dataclasses as data
-import messages as m
-import numpy as np
-import unique_traits as ut
-import help_commands as h
 import uuid
 import asyncio
-from PIL import Image
-import io
-import re
-import ai
 from logger import loggy
 # import bot as main
 import cogs.tactics as tactics

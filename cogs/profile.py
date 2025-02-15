@@ -1,24 +1,8 @@
-import emoji
-from pymongo import response
 import asyncio
 import crown_utilities
 import db
-import classes as data #
-import messages as m
-import numpy as np
-import help_commands as h
-import unique_traits as ut
-from PIL import Image, ImageFont, ImageDraw
-import requests
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.arm_class import Arm
-from .classes.summon_class import Summon
-from .classes.player_class import Player
-from .classes.battle_class  import Battle
 from .quests import Quests
-from .game_modes import enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping
-import random
+from .game_modes import enhancer_suffix_mapping
 import textwrap
 import uuid
 import asyncio
@@ -28,7 +12,7 @@ from logger import loggy
 import uuid
 from .classes.custom_paginator import CustomPaginator
 from interactions.ext.paginators import Paginator
-from interactions import Client, ActionRow, Button, ButtonStyle, File, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, slash_option, AutocompleteContext
+from interactions import ActionRow, Button, ButtonStyle, File, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, slash_option, AutocompleteContext
 
 
 emojis = ['👍', '👎']
