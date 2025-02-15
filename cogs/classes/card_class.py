@@ -17,7 +17,7 @@ from cogs.universe_traits.chainsawman import devils_endurance, contracts, contra
 from cogs.universe_traits.demon_slayer import total_concentration_breathing, demon_slayer_blitz
 from cogs.universe_traits.one_piece import conquerors_haki, armament
 from cogs.universe_traits.yuyu_hakusho import spirit_resolved, meditation
-from cogs.universe_traits.my_hero_academia import plus_ultra, quirk_awakening, activate_my_hero_academia_trait
+from cogs.universe_traits.my_hero_academia import plus_ultra, quirk_awakening
 from cogs.universe_traits.aot import titan_mode, rally, omnigear
 from cogs.universe_traits.bleach import first_release, spiritual_pressure
 from cogs.universe_traits.god_of_war import acension
@@ -33,10 +33,10 @@ from cogs.universe_traits.solo_leveling import rulers_authority, add_solo_leveli
 from cogs.universe_traits.one_punch_man import rank_hero, hero_reinforcements
 from cogs.universe_traits.seven_deadly_sins import increase_power
 from cogs.universe_traits.persona import summon_persona, summon_blitz
-from cogs.universe_traits.overlord import fear_aura, fear, fear_duration_check
+from cogs.universe_traits.overlord import fear_aura, fear
 from cogs.universe_traits.jujutsu_kaisen import cursed_energy, cursed_energy_reset, domain_expansion, domain_expansion_check
 from cogs.universe_traits.slime import  skill_evolution, summon_slime, beezlebub
-from cogs.universe_traits.fma import philosopher_stone, equivalent_exchange, equivalent_exchange_resolve
+from cogs.universe_traits.fma import equivalent_exchange, equivalent_exchange_resolve
 from cogs.universe_traits.soul_eater import soul_eater, soul_resonance, meister
 
 class Card:
