@@ -120,6 +120,9 @@ class Play(Extension):
 
                         if custom_id == f"{battle_config._uuid}|start_game_auto_battle_mode":
                             battle_config.is_auto_battle_game_mode = True
+                            if battle_config.is_rpg:
+                                await battle_start_msg.delete()
+                                await asyncio.sleep(2)
                             embedVar = Embed(title=f"The battle is being simulated...", color=0xe74c3c)
                             embedVar.set_thumbnail(url=ctx.author.avatar_url)
                             battle_msg = await  private_channel.send(embed=embedVar)

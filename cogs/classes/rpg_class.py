@@ -101,6 +101,7 @@ class RPG:
         self.player_card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': self.player1_card_name}))
         self.player_card_data.set_card_level_buffs(self.player1.card_levels)
         self.player_avatar = self.player1.avatar
+        self.player_card_universe = self.player_card_data.universe
 
         self.player_health = self.player_card_data.health
         self.player_max_health = self.player_card_data.health
@@ -113,6 +114,7 @@ class RPG:
         self.player_atk_boost = False
         self.player_def_boost = False
         self.player_hp_boost = False
+
 
         #self.universe = self.player_card_data.universe
         self.universe = self._player.explore_location
@@ -154,7 +156,7 @@ class RPG:
                             "👦", "👧",
                         ]
         
-        print(self.civ_tokens)
+        #print(self.civ_tokens)
         
         self.difficulty = _player.difficulty
         self.is_easy_difficulty = False
@@ -646,6 +648,8 @@ class RPG:
 
 
     async def fetch_combatants(self, number_of_combatants):
+        if self.universe == "Unbound":
+            return query_rpg_cards(self.player_card_universe, 1, number_of_combatants)
         return query_rpg_cards(self.universe, 1, number_of_combatants)
 
 
@@ -1773,8 +1777,8 @@ class RPG:
                     self.previous_moves.append(f"({self.coin_item}) You found {gold_found} gold!")
                 if self.mission_type == "COLLECT_GOLD":
                     await self.increment_mission_count(ctx, private_channel)
-                # if not self.loot_drop:
-                    #self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
+                if not self.loot_drop:
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
                 self.loot_drop = False
             elif npc in self.drops:
                 success = None
@@ -1841,6 +1845,7 @@ class RPG:
                 else:
                     #The animal is friendly and leaves a item for the player using the drop system
                     self.previous_moves.append(f"({npc}) The {emoji_labels[npc]} left a gift!")
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🃏", npc_position, direction)
             elif npc in self.remains:
                 if npc == "💀":

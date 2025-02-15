@@ -22,7 +22,7 @@ class Views(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Views Cog is ready!')
+        #print('Views Cog is ready!')
         loggy.info('Views Cog is ready')
 
     async def cog_check(self, ctx):

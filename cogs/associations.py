@@ -1061,5 +1061,143 @@ class Guild(Extension):
                 "There's an issue with your commnads. Alert support.")
             return
 
+
+# @slash_command(name="bounty", description="Set Association Bounty", options=[
+#    SlashCommandOption(name="amount", description="Amount to set bounty to", type=OptionType.INTEGER, required=True),
+# ], scopes=crown_utilities.guild_ids)
+async def bounty(ctx, amount):
+   negCurseAmount = 0 - abs(int(amount))
+   posCurseAmount = 0 + abs(int(amount))
+   user = db.queryUser({'DID': str(ctx.author.id)})
+   guild_name = user['GUILD']
+   if guild_name == 'PCG':
+      await ctx.send(m.GUILD_DOESNT_EXIST, delete_after=5)
+      return
+   guild_query = {'GNAME' :guild_name}
+   guild = db.queryGuildAlt(guild_query)
+   founder = guild['FOUNDER']
+   sworn = guild['SWORN']
+   if user['DISNAME'] != founder and user['DISNAME'] != sworn:
+      await ctx.send(m.NOT_LEADER, delete_after=5)
+      return
+
+   guild_bank = guild['BANK']
+   guild_bounty = guild['BOUNTY']
+   finalBount = guild_bounty + posCurseAmount
+   finalBal = guild_bank + negCurseAmount
+   if finalBal < 0:
+      await ctx.send(f"Association does not have that much 🪙", delete_after=5)
+      return
+   else:
+      update_query = {"$set": {'BOUNTY': int(finalBount)}, '$inc': {'BANK' : int(negCurseAmount)}}
+      db.updateGuildAlt(guild_query, update_query)
+      await ctx.send(f"New {guild['GNAME']} Bounty: :yen: {'{:,}'.format(finalBount)}! Use /raid `Association`{guild['GNAME']} to claim the Bounty!")
+      return
+
+
+# @slash_command(name="sponsor", description="Sponsor Guild with Association Funds", options=[
+#    SlashCommandOption(name="guild", description="Guild to sponsor", type=OptionType.STRING, required=True),
+#    SlashCommandOption(name="amount", description="Amount to sponsor", type=OptionType.INTEGER, required=True),
+# ], scopes=crown_utilities.guild_ids)
+async def sponsor(ctx, guild, amount):
+   team = guild
+   user = db.queryUser({'DID': str(ctx.author.id)})
+   guild_name = user['GUILD']
+   if guild_name == 'PCG':
+      await ctx.send(m.GUILD_DOESNT_EXIST, delete_after=5)
+      return
+   
+   guild_query = {'GNAME' :guild_name}
+   guild = db.queryGuildAlt(guild_query)
+   founder = guild['FDID']
+   sworn = guild['WDID']
+   shield = guild['SDID']
+   guild_bank = guild['BANK']
+   if int(amount) >= guild['BANK']:
+      await ctx.send("Association does not have that much 🪙", delete_after=5)
+      return
+
+   if user['DID'] != founder and user['DID'] != sworn and user['DID'] != shield:
+      await ctx.send(m.NOT_LEADER, delete_after=5)
+      return
+
+   team_name = team.lower()
+   team_data = db.queryTeam({'TEAM_NAME' : team_name})
+
+   if not team_data:
+      await ctx.send(m.TEAM_DOESNT_EXIST, delete_after=5)
+      return
+
+   sword_list = []
+   for sword in guild['SWORDS']:
+      sword_list.append(sword)
+
+   if team_name not in sword_list:
+      await ctx.send(m.USER_NOT_IN_GUILD, delete_after=5)
+      return
+
+   team_bank = team_data['BANK']
+   transaction_message =f"{guild_name} sponsored {team_name} 🪙{amount}"
+   update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+   response = db.updateGuildAlt(guild_query, update_query)
+   await crown_utilities.blessteam(int(amount), team_name)
+   await crown_utilities.curseguild(int(amount), guild['GNAME'])
+   await ctx.send(f"{guild_name} sponsored {team_name} 🪙{amount}!!!")
+   return
+
+
+# @slash_command(name="fund", description="Fund Association From Guild Bank", options=[
+#    SlashCommandOption(name="amount", description="Amount to fund", type=OptionType.INTEGER, required=True),
+# ], scopes=crown_utilities.guild_ids)
+async def fund(ctx, amount):
+   try:
+      user = db.queryUser({'DID': str(ctx.author.id)})
+      team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
+      team_guild = team['GUILD']
+      guild = db.queryGuildAlt({'GNAME': team['GUILD']})
+      guild_query = {"GNAME": guild['GNAME']}
+      if team_guild =="PCG":
+         await ctx.send("Your team must join a Association First!")
+         return
+      if user['TEAM'] == 'PCG' or user['DISNAME'] != team['OWNER']:
+         await ctx.send("You must be owner of team to fund the Association. ")
+         return
+
+      balance = team['BANK']
+      if balance <= int(amount):
+         await ctx.send("You do not have that amount to fund.")
+      else:
+         await crown_utilities.curseteam(int(amount), team['TEAM_NAME'])
+         await blessguild_alt(int(amount), str(team_guild))
+         transaction_message =f"{team['TEAM_DISPLAY_NAME']} funded 🪙{amount}"
+         update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+         response = db.updateGuildAlt(guild_query, update_query)
+         await ctx.send(f"{team_guild} has been funded 🪙 {amount}.")
+         return
+   except Exception as ex:
+      loggy.error(f"Error in Fund command: {ex}")
+      await ctx.send(f"Error when funding Association. Alert support. Thank you!")
+      return
+
+
+async def blessguild_alt(amount, guild):
+   blessAmount = amount
+   posBlessAmount = 0 + abs(int(blessAmount))
+   query = {'GNAME': str(guild)}
+   guild_data = db.queryGuildAlt(query)
+   if guild_data:
+      hall = guild_data['HALL']
+      hall_data = db.queryHall({'HALL': hall})
+      multiplier = hall_data['MULT']
+      update_query = {"$inc": {'BANK': posBlessAmount}}
+      db.updateGuildAlt(query, update_query)
+   else:
+      loggy.error(f"Guild {guild} does not exist.")
+
+
+
+
+
+
 # def setup(bot):
 #     Guild(bot)

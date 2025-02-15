@@ -1372,6 +1372,27 @@ class Family(Extension):
             }))
 
 
+# @slash_command(name="invest", description="Invest money in your Family", scopes=crown_utilities.guild_ids)
+# @cooldown(Buckets.USER, 1, 10)
+async def invest(ctx, amount):
+   user = db.queryUser({'DID': str(ctx.author.id)})
+   family = db.queryFamily({'HEAD': user['DID']})
+   vault = db.queryVault({'DID': str(ctx.author.id)})
+   balance = vault['BALANCE']
+   if family:
+      if balance <= int(amount):
+         await ctx.send("You do not have that amount to invest.", ephemeral=True)
+      else:
+         await crown_utilities.blessfamily_Alt(int(amount), user['DID'])
+         await crown_utilities.curse(int(amount), ctx.author.id)
+         transaction_message =f"🪙 | {user['DISNAME']} invested 🪙{amount} "
+         update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
+         await ctx.send(f"**🪙{amount}** invested into **{user['NAME']}'s Family**.")
+         return
+   else:
+      await ctx.send(f"Family does not exist")
+
+
 
 # def setup(bot):
 #     Family(bot)

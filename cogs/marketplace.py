@@ -13,7 +13,7 @@ class Marketplace(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Marketplace Cog is ready!')
+        #print('Marketplace Cog is ready!')
         loggy.info('Marketplace Cog is ready')
 
     async def cog_check(self, ctx):
