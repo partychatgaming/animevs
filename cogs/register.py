@@ -250,8 +250,6 @@ class Register(Extension):
             await ctx.send(embed=embed)
 
 
-
-
 # # Update Later
 # @slash_command(name="rebirth", description="Rebirth for permanent buffs", scopes=crown_utilities.guild_ids)
 # async def rebirth(ctx):
