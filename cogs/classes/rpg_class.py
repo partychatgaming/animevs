@@ -1777,8 +1777,8 @@ class RPG:
                     self.previous_moves.append(f"({self.coin_item}) You found {gold_found} gold!")
                 if self.mission_type == "COLLECT_GOLD":
                     await self.increment_mission_count(ctx, private_channel)
-                # if not self.loot_drop:
-                    #self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
+                if not self.loot_drop:
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
                 self.loot_drop = False
             elif npc in self.drops:
                 success = None
