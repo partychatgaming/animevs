@@ -7,6 +7,8 @@ import messages as m
 from interactions import User
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 from interactions.ext.paginators import Paginator
+import logging
+from logger import loggy
 
 class Marketplace(Extension):
     def __init__(self, bot):
@@ -15,6 +17,7 @@ class Marketplace(Extension):
     @listen()
     async def on_ready(self):
         print('Marketplace Cog is ready!')
+        loggy.info('Marketplace Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

@@ -30,7 +30,8 @@ class Play(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Play Cog is ready!')
+        # print('Play Cog is ready!')
+        loggy.info('Play Cog is ready')
 
 
     async def cog_check(self, ctx):
@@ -129,10 +130,9 @@ class Play(Extension):
 
                         if custom_id == f"{battle_config._uuid}|start_game_auto_battle_mode":
                             battle_config.is_auto_battle_game_mode = True
-                            embedVar = Embed(title=f"Auto Battle has started", color=0xe74c3c)
+                            embedVar = Embed(title=f"The battle is being simulated...", color=0xe74c3c)
                             embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                            await asyncio.sleep(2)
-                            battle_msg = await private_channel.send(embed=embedVar)
+                            battle_msg = await  private_channel.send(embed=embedVar)
                         else:
                             embedVar = Embed(title=f"Battle is starting", color=0x2ECC71)
                             if battle_config.is_rpg:
@@ -158,8 +158,14 @@ class Play(Extension):
                             if check_if_game_over(battle_config):
                                 game_over_check = True
                                 break
-
-
+                            
+                            if battle_config.is_auto_battle_game_mode:
+                                winning_card, message = calculate_instant_winner(battle_config, battle_config.player1_card, battle_config.player2_card)
+                                battle_config.auto_battle_result_message = message
+                                battle_config.continue_fighting = False
+                                battle_config.match_has_ended = True
+                                game_over_check = True
+                                break
 
                             if battle_config.is_turn == 0:
                                 if await health_check(battle_config):
@@ -397,23 +403,32 @@ class Play(Extension):
 
                             await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
 
-                            await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-
+                            
                             if battle_config.is_rpg:
-                                battle_config.continue_fighting = False
-                                battle_config.rpg_config.adventuring = True
-                                battle_config.rpg_config.battling = False
-                                battle_config.rpg_config.encounter = False
-
+                                self.battling = False
+                                self.adventuring = True
+                                self.encounter = False
+                                #await battle_start_msg.delete()
                                 battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
+                                x,y = battle_config.rpg_config.player_position
+                                if battle_config.rpg_config.player_health <= 0:
+                                    #battle_config.rpg_config.map['map'][x][y] = battle_config.rpg_config.standing_on
+                                    paginator = await battle_config.rpg_config.lose_adventure_embed(ctx)
+                                    await paginator.send(ctx)
+                                    await battle_msg.delete()
+                                    await battle_config.rpg_config._rpg_msg.delete()
+                                    self.previous_moves.append(f"💨Fleeing Encounter...!")
+                                    return
+                                embedVar = Embed(title=f"🆚 Encounter Victory", color=0x2ECC71)
+                                victory_msg = await private_channel.send(embed=embedVar)
+                                await victory_msg.delete(delay=5)
+                            else:
+                                await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
+
+                            # If you need this return for RPG battles, add it inside the if/else statement instead of here. Otherwise, you will stop the battles from proceeding past this point. 
+                            # return             
                 
-                                battle_config.rpg_config.set_rpg_options()
-                                await asyncio.sleep(1)
-                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel)
-                                return
-                                
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
                     if battle_msg == None:
@@ -437,7 +452,7 @@ class Play(Extension):
             custom_logging.debug(ex)
 
 
-    async def rpg_commands(self, ctx, rpg_config, rpg_starter_message):
+    async def rpg_commands(self, ctx, rpg_starter_message):
         """
         Handles the logic for an RPG game in the game.
 
@@ -450,6 +465,7 @@ class Play(Extension):
         None
         """
         private_channel = ctx.channel
+        rpg_config = self
         try:
             rpg_config._uuid = uuid.uuid4()
             if not hasattr(self, 'bot'):
@@ -535,7 +551,77 @@ async def add_ai_start_messages(battle_config):
 
         battle_config.turn_zero_has_happened = True
         return
+
+
+def calculate_instant_winner(battle_config, card1, card2, level_threshold=300):
+    if (card1.card_lvl - card2.card_lvl) >= level_threshold:
+        card2.health = 0
+        battle_config.player1_wins = True
+        battle_config.player2_wins = False
+        return card1, "Level advantage"
+    if (card2.card_lvl - card1.card_lvl) >= level_threshold:
+        card1.health = 0
+        battle_config.player1_wins = False
+        battle_config.player2_wins = True
+        return card2, "Level advantage"
     
+    def calculate_battle_rating(attacker, defender):
+        # Offensive Rating
+        moves = [
+            (attacker.move1ap, attacker.move1_element, attacker.move1_stamina),
+            (attacker.move2ap, attacker.move2_element, attacker.move2_stamina),
+            (attacker.move3ap, attacker.move3_element, attacker.move3_stamina)
+        ]
+        
+        # Calculate sustainable damage considering stamina
+        sustainable_power = 0
+        for ap, element, stamina_cost in moves:
+            if stamina_cost == 0:
+                stamina_cost = 1
+            turns_until_exhaustion = attacker.stamina / stamina_cost
+            
+            defense_power = max(0, defender.defense - attacker.attack)
+            attack_power = attacker.attack + ap
+            ability_power = max(ap, attack_power - defense_power)
+            
+            # Apply element modifiers
+            if element in defender.weaknesses:
+                ability_power *= 1.6
+            elif element in defender.resistances:
+                ability_power *= 0.45
+            elif element in defender.immunity:
+                ability_power = 0
+            elif element in defender.repels or element in defender.absorbs:
+                ability_power = 0
+                
+            # Consider sustainable damage over time
+            sustainable_power = max(sustainable_power, ability_power * turns_until_exhaustion)
+        
+        # Calculate overall battle rating
+        offensive_rating = sustainable_power / defender.health
+        defensive_rating = attacker.defense / max(1, defender.attack)
+        stamina_rating = attacker.stamina / 100  # Normalize stamina
+        
+        return (offensive_rating * 0.5) + (defensive_rating * 0.3) + (stamina_rating * 0.2)
+
+    card1_rating = calculate_battle_rating(card1, card2)
+    card2_rating = calculate_battle_rating(card2, card1)
+    
+    # Add some randomness for close matches
+    if abs(card1_rating - card2_rating) < 0.1:
+        card1.health = 0
+        battle_config.player2_wins = True
+        return None, "Too close to call"
+    elif card1_rating > card2_rating:
+        card2.health = 0
+        battle_config.player1_wins = True
+        battle_config.player2_wins = False
+        return card1, f"Better overall combat rating ({card1_rating:.2f} vs {card2_rating:.2f})"
+    else:
+        card1.health = 0
+        battle_config.player2_wins = True
+        return card2, f"Worse overall combat rating ({card2_rating:.2f} vs {card1_rating:.2f})"
+                            
 
 def set_battle_start_time():
     # Get the current local time when the battle starts
@@ -600,15 +686,15 @@ def config_battle_starting_buttons(battle_config):
         ),
     ]
 
-    # if battle_config.can_auto_battle and not battle_config.is_co_op_mode and not battle_config.is_duo_mode:
-    #     start_tales_buttons.append(
-    #         Button(
-    #             style=ButtonStyle.GREY,
-    #             label="Auto Battle",
-    #             custom_id=f"{battle_config._uuid}|start_game_auto_battle_mode"
-    #         )
+    if battle_config.can_auto_battle and not battle_config.is_co_op_mode and not battle_config.is_duo_mode:
+        start_tales_buttons.append(
+            Button(
+                style=ButtonStyle.GREY,
+                label="Auto Battle",
+                custom_id=f"{battle_config._uuid}|start_game_auto_battle_mode"
+            )
 
-    #     )
+        )
     
     if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on() and not battle_config.is_rpg:
         if battle_config.current_opponent_number > 0:
@@ -666,6 +752,8 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
     if battle_config.is_rpg:
+        x, y = battle_config._player.player_position
+        battle_config._player.map['map'][x][y] = battle_config._player.standing_on
         close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
         await close_embded.delete(delay=3)
         await battle_config.leave_adventure_embed(ctx)
@@ -1249,7 +1337,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}{universe_stacks}\n{summon_message}"
+        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
     #map_embed = battle_config.get_map_message(turn_card)
     embedVar = Embed(title=f"", color=turn_card.health_color)
@@ -1298,7 +1386,7 @@ async def start_of_moves_config(battle_config):
 def player_use_card_boost_ability(battle_config, button_ctx):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|s":
+    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|t":
             turn_card.use_boost(battle_config, partner_card)
     else:
         return

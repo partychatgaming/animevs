@@ -11,7 +11,8 @@ import asyncio
 import random
 from .classes.custom_paginator import CustomPaginator
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-
+import logging
+from logger import loggy
 
 class Boss(Extension):
     def __init__(self, bot):
@@ -21,7 +22,8 @@ class Boss(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Boss Cog is ready!')
+        # print('Boss Cog is ready!')
+        loggy.info('Boss Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

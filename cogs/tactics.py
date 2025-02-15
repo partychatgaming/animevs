@@ -19,6 +19,8 @@ import asyncio
 import random
 import re
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+import logging
+from logger import loggy
 
 class Tactics(Extension):
     def __init__(self, bot):
@@ -26,7 +28,8 @@ class Tactics(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Tactics Cog is ready!')
+        # print('Tactics Cog is ready!')
+        loggy.info('Tactics Cog is ready')
 
 
     async def cog_check(self, ctx):

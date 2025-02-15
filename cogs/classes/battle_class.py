@@ -128,7 +128,7 @@ class Battle:
 
         # Messages
         self.abyss_message = ""
-
+        self.auto_battle_result_message = ""
         # Abyss / Scenario / Explore Config / RPG
         self.abyss_floor = ""
         self.abyss_card_to_earn = ""
@@ -1397,8 +1397,9 @@ class Battle:
             picon = "🔥"
 
                 
-        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!")
-        embedVar.add_field(name="💽 | Saved Data", value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
+        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!",color=0x2ECC71)
+        embedVar.add_field(name="💽 | Saved Data",
+                                value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}")
         return embedVar
 
@@ -2527,7 +2528,7 @@ class Battle:
         if self.is_raid_game_mode:
             embedVar = Embed(title=f"🛡️ **{opponent_card.name}** defended the {self._association_name}\nMatch concluded in {self.turn_total} turns", color=0x1abc9c)
         else:
-            embedVar = Embed(title=f"💀 Try Again", color=0xe91e63)
+            embedVar = Embed(title=f"💀 Try Again\n{self.auto_battle_result_message}", color=0xe91e63)
 
 
         # Define a list of milestones to check

@@ -12,7 +12,8 @@ import textwrap
 # from dinteractions_Paginator import Paginator
 from interactions import User
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-
+import logging
+from logger import loggy
 
 emojis = ['👍', '👎']
 
@@ -22,7 +23,8 @@ class Guild(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Guild Cog is ready!')
+        # print('Assocaition Cog is ready!')
+        loggy.info('Association Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

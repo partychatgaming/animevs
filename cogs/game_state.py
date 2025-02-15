@@ -9,7 +9,8 @@ import time
 import ai
 from interactions.ext.paginators import Paginator
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-
+import logging
+from logger import loggy
 
 class GameState(Extension):
     def __init__(self, bot):
@@ -17,26 +18,8 @@ class GameState(Extension):
 
     @listen()
     async def on_ready(self):
-        print('GameState Cog is ready!')
-
-    # async def save_spot(self, player, universe_title, mode, currentopponent):
-    #     """
-    #     Update this with the bot.py function that updates save_spot as well as to not store duplicate save spots
-    #     """
-    #     try:
-    #         player.make_available()
-    #         for save_spot in player.save_spot:
-    #             if save_spot['UNIVERSE'] == universe_title and save_spot['MODE'] == mode:
-    #                 query = {"DID": player.did}
-    #                 new_value = {"$pull": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode)}}}
-    #                 db.updateUserNoFilter(query, new_value)
-
-    #         user = {"DID": str(player.did)}
-    #         query = {"$addToSet": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode), "CURRENTOPPONENT": currentopponent}}}
-    #         response = db.updateUserNoFilter(user, query)
-    #         return
-    #     except Exception as ex:
-    #         custom_logging.debug(ex)
+        #print('GameState Cog is ready!')
+        loggy.info('GameState Cog is ready')
 
     async def save_spot(self, player, universe_title, mode, currentopponent):
         """
@@ -424,11 +407,10 @@ class GameState(Extension):
                     return quest_embed, milestone_embed
 
                 async def compile_generic_results_embeds(reward_msg):
-                    print(reward_msg)
                     winning_message = await ai.win_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
                     losing_message = await ai.lose_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
                     
-                    win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
+                    win_embed = Embed(title=f"🎊 VICTORY\n{battle_config.auto_battle_result_message}\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
                     win_embed.set_footer(text=f"{battle_config.player1_card.name}: {winning_message}\n\n{battle_config.player2_card.name}: {losing_message}")
 
                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
@@ -500,9 +482,10 @@ class GameState(Extension):
                     paginator.show_select_menu = True
                     paginator._author_id = battle_config.player1.did
                     await paginator.send(ctx)
-                    battle_config.reset_game()
                     battle_config.current_opponent_number = battle_config.current_opponent_number + 1
                     battle_config.continue_fighting = True
+                    battle_config.reset_game()
+                    return
 
 
                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
@@ -559,6 +542,7 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
         return True
     else:
         return False
+   
     
 async def rpg_win(self, battle_config, battle_msg, private_channel, user1):
     if battle_config.is_rpg:

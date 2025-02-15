@@ -27,7 +27,8 @@ import interactions
 import custom_logging
 from interactions import Client, PartialEmoji, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
-print("Crown Utilities initiated")
+loggy.info("Crown Utilities initiated")
+# print("Crown Utilities initiated")
 
 
 # Create separate caches
@@ -788,12 +789,7 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
 
     
 async def cardlevel(user, mode: str, extra_exp = 0):
-    print(mode)
     try:
-        # if mode == "RPG":
-        #     player = create_player_from_data(db.queryUser({'DID': user.did}))
-            
-        # else:
         player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
         card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
         card.set_card_level_buffs(player.card_levels)
@@ -803,7 +799,6 @@ async def cardlevel(user, mode: str, extra_exp = 0):
             return
 
         number_of_level_ups, card = await update_experience(card, player, exp_gain, lvl_req)
-        # print(f"Number of Level Ups - {number_of_level_ups}")
 
         if number_of_level_ups > 0:
             loggy.info(f"Card Leveling - {user} - {number_of_level_ups} Level Ups")
@@ -903,11 +898,11 @@ def get_level_up_exp_req(card):
 def get_exp_gain(player, mode, card, extra_exp):
     try:
         lvl_req = get_level_up_exp_req(card)
-        difficulty_exp = 0 if not player.difficulty == "HARD" else 3
+        difficulty_exp = 0 if not player.difficulty == "HARD" else 20
         exp_gain = 0
-        t_exp_gain = (9000 * difficulty_exp) + (player.rebirth) + player.prestige_buff
-        d_exp_gain = (((50000 * difficulty_exp) + player.prestige_buff) * (1 + player.rebirth))
-        b_exp_gain = (1500000 * difficulty_exp) + ((100 + player.prestige_buff) * (1 + player.rebirth))
+        t_exp_gain = (200 * difficulty_exp) + (player.rebirth) + player.prestige_buff
+        d_exp_gain = (((2000 * difficulty_exp) + player.prestige_buff) * (1 + player.rebirth))
+        b_exp_gain = (150000 * difficulty_exp) + ((100 + player.prestige_buff) * (1 + player.rebirth))
 
         if mode in DUNGEON_M:
             exp_gain = d_exp_gain + extra_exp
@@ -1630,49 +1625,103 @@ def create_card_from_data(card_data, is_boss = False):
     try:
         if not card_data["UNIVERSE"] == "Bleach":
             card_data["DESCRIPTIONS"] = [
-           {
-               "message": "Oh my, it seems we have a little conflict here. Shall we resolve this with science or violence?",
-               "dialogue_options": [
-                   {"response": "Enough games, Urahara! Let's settle this with our Zanpakuto!", "fight": True},
-                   {"response": "Science sounds intriguing. What did you have in mind?", "fight": False}
-               ]
-           },
-           {
-               "message": "My Benihime has many tricks up her sleeve. Are you sure you want to see them all?",
-               "dialogue_options": [
-                   {"response": "I'm not afraid of your tricks! Show me what you've got!", "fight": True},
-                   {"response": "Your inventiveness is renowned. Could you demonstrate a non-combat application?", "fight": False}
-               ]
-           },
-           {
-               "message": "As the former captain of the 12th Division, I've forgotten more about Kidō than most ever learn.",
-               "dialogue_options": [
-                   {"response": "Your past achievements mean nothing! Face me here and now!", "fight": True},
-                   {"response": "I'm always eager to learn. Would you be willing to teach me some Kidō?", "fight": False}
-               ]
-           },
-           {
-               "message": "My Bankai, Kannonbiraki Benihime Aratame, can restructure anything it touches. Fascinating, isn't it?",
-               "dialogue_options": [
-                   {"response": "I don't care how it works, I'll smash right through it!", "fight": True},
-                   {"response": "That's an incredible ability. How does the restructuring process work?", "fight": False}
-               ]
-           },
-           {
-               "message": "I always have a plan B, and C, and probably all the way to Z. Are you prepared for that?",
-               "dialogue_options": [
-                   {"response": "I'll foil every one of your plans! Let's go!", "fight": True},
-                   {"response": "Your strategic mind is impressive. Maybe we could collaborate instead of fight?", "fight": False}
-               ]
-           },
-           {
-               "message": "In the world of the Shinigami, knowledge is true power. Shall I demonstrate?",
-               "dialogue_options": [
-                   {"response": "Enough talk! Let's see how your knowledge fares against my strength!", "fight": True},
-                   {"response": "I'm always eager to learn. What knowledge would you like to share?", "fight": False}
-               ]
-           }
-       ]
+            {
+                "message": "You walk into a settlement engulfed in flames, but the lone figure in the center looks stunned and unsure what to do.",
+                "dialogue_options": [
+                    {"response": "Are you responsible for this? Answer me now!", "fight": True},
+                    {"response": "What happened here? Can you tell me what you saw?", "fight": False},
+                    {"response": "I’ll get help. Stay here if you’re innocent.", "fight": False}
+                ]
+            },
+            {
+                "message": "You come across an individual practicing intricate moves with a weapon, their expression focused and intense.",
+                "dialogue_options": [
+                    {"response": "Care for a sparring partner? Let’s see what you’ve got!", "fight": True},
+                    {"response": "Your form is impressive. Mind if I watch?", "fight": False},
+                    {"response": "I’ll leave you to your training. Good luck.", "fight": False}
+                ]
+            },
+            {
+                "message": "A traveler sits on a rock near a broken cart, examining a strange map. They look up as you approach.",
+                "dialogue_options": [
+                    {"response": "Hand over that map. I won’t ask twice!", "fight": True},
+                    {"response": "What brings you here? Need any help with your cart?", "fight": False},
+                    {"response": "Sorry for disturbing you. I’ll be on my way.", "fight": False}
+                ]
+            },
+            {
+                "message": "You find a cloaked figure standing over a fallen body. They glance at you with a mixture of fear and defiance.",
+                "dialogue_options": [
+                    {"response": "Did you do this? You’ll answer to me!", "fight": True},
+                    {"response": "Stay where you are. I need to know what happened.", "fight": False},
+                    {"response": "I’ll come back with help. Don’t leave the scene.", "fight": False}
+                ]
+            },
+            {
+                "message": "You stumble upon someone cradling an injured creature, their face a mix of worry and concentration.",
+                "dialogue_options": [
+                    {"response": "Step away! That creature could be dangerous.", "fight": True},
+                    {"response": "Let me help you. That injury looks bad.", "fight": False},
+                    {"response": "I’ll leave you to it. You seem to know what you’re doing.", "fight": False}
+                ]
+            },
+            {
+                "message": "An individual stands next to an unconscious merchant, hurriedly gathering supplies from the ground.",
+                "dialogue_options": [
+                    {"response": "Stop looting and step away now!", "fight": True},
+                    {"response": "What happened here? Did you see who did this?", "fight": False},
+                    {"response": "This doesn’t concern me. I’ll be on my way.", "fight": False}
+                ]
+            },
+            {
+                "message": "A robed figure stands in a glowing rune circle, but they seem panicked and unsure of what they’ve done.",
+                "dialogue_options": [
+                    {"response": "Whatever you’re doing, it stops now!", "fight": True},
+                    {"response": "Calm down. Can you explain what’s happening?", "fight": False},
+                    {"response": "I’m leaving. This is beyond me.", "fight": False}
+                ]
+            },
+            {
+                "message": "A merchant pleads with a heavily armed stranger, who seems to be deciding whether to attack or leave.",
+                "dialogue_options": [
+                    {"response": "Leave them alone, or face me!", "fight": True},
+                    {"response": "Let’s talk this through. There’s no need for violence.", "fight": False},
+                    {"response": "I’ll stay out of this. It’s not my business.", "fight": False}
+                ]
+            },
+            {
+                "message": "An traveler stands at the edge of a stream, cleaning their weapon. They look up as you approach.",
+                "dialogue_options": [
+                    {"response": "I’ve heard of your skill. Care to test it against me?", "fight": True},
+                    {"response": "Good day. May I join you for a moment?", "fight": False},
+                    {"response": "I’ll leave you to your thoughts. Farewell.", "fight": False}
+                ]
+            },
+            {
+                "message": "A new face crouches beside a snare, adjusting its mechanisms carefully. They nod as you draw near.",
+                "dialogue_options": [
+                    {"response": "Let’s see how well you handle being the hunted!", "fight": True},
+                    {"response": "That’s a fine trap. Mind if I lend a hand?", "fight": False},
+                    {"response": "I’ll leave you to your work. Good luck out here.", "fight": False}
+                ]
+            },
+            {
+                "message": "A figure covered in blood turns to face you, their eyes wild with rage as they raise a weapon without hesitation.",
+                "dialogue_options": [
+                    {"response": "I won’t let you hurt anyone else!", "fight": True},
+                    {"response": "Try to calm them down: ‘This doesn’t have to end in violence.’", "fight": True},
+                    {"response": "Step back cautiously, looking for an opening to defend yourself.", "fight": True}
+                ]
+            },
+            {
+                "message": "A figure steps forward with a challenging glare, pointing their weapon at you. ‘You look strong. Let’s see what you’ve got!’",
+                "dialogue_options": [
+                    {"response": "I accept your challenge! Let’s do this!", "fight": True},
+                    {"response": "You’re making a mistake, but if it’s a fight you want, fine.", "fight": True},
+                    {"response": "I don’t have time for this. If you insist, I’ll take you down quickly.", "fight": True}
+                ]
+            }
+        ]
         card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'], card_data['DESCRIPTIONS'])
         return card
     except Exception as ex:
@@ -1705,6 +1754,9 @@ def create_arm_from_data(arm_data):
 def create_player_from_data(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
+
+def create_family_from_data(family_data):
+    family = Family(family_data['HEAD'], family_data['HOUSE'], family_data['MEMBERS'], family_data['FAMILY_PET'], family_data['BANK'], family_data['WINS'], family_data['LOSSES'], family_data['BADGES'], family_data['MISSION'], family_data['COMPLETED_MISSIONS'], family_data['MEMBER_COUNT'], family_data['WAR_FLAG'], family_data['WAR_OPPONENT'], family_data['SHIELDING'])
 
 def create_tutorial_bot(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], "Starter", "Training Dummy", "Stock", "Chick", "None", player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
@@ -2725,37 +2777,37 @@ pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnoh Regio
 
 
 crest_dict = { 'Unbound': '🉐',
-              'My Hero Academia': PartialEmoji(name='mha', id=1268053528413208587),
+              'My Hero Academia': PartialEmoji(name='mha', id=1268066318037553193),
               'League Of Legends': PartialEmoji(name='3873_league_of_legends_logo', id=1268053038812106753),
               'Pokemon': PartialEmoji(name='pokemon', id=1268075112717094983),
-              'Naruto': PartialEmoji(name='naruto_103', id=1268053197063323783),
-              'Bleach': PartialEmoji(name='bleach', id=1268053118462197882),
+              'Naruto': PartialEmoji(name='naruto_103', id=1268066289595711561),
+              'Bleach': PartialEmoji(name='bleach', id=1268066313578872852),
               'God Of War': PartialEmoji(name='kratos', id=1268053251522297949),
-              'Chainsawman': PartialEmoji(name='denji', id=1268053230923812935),
-              'One Punch Man': PartialEmoji(name='pngaaa', id=1268053449786785804),
+              'Chainsawman': PartialEmoji(name='denji', id=1268066310273634324),
+              'One Punch Man': PartialEmoji(name='pngaaa', id=1268066372433481811),
               'Black Clover': PartialEmoji(name='Black_Clover', id=1268053305897254952),
-              'Demon Slayer': PartialEmoji(name='Demon_Slayer', id=1268053268026621953),
-              'Attack On Titan': PartialEmoji(name='AOT', id=1268053287391985698),
-              '7ds': PartialEmoji(name='7ds', id=1268053339841630268),
-              'Digimon': PartialEmoji(name='digimon_sparkle', id=1268053549514887221),
+              'Demon Slayer': PartialEmoji(name='Demon_Slayer', id=1268066307941859409),
+              'Attack On Titan': PartialEmoji(name='AOT', id=1268066305446121524),
+              '7ds': PartialEmoji(name='7ds', id=1268066302547726376),
+              'Digimon': PartialEmoji(name='digimon_sparkle', id=1268066299947389000),
               'Fate': PartialEmoji(name='fate', id=1268075331286204487),
               'Solo Leveling': PartialEmoji(name='jinwoo', id=1268075513491226665),
-              'Souls': PartialEmoji(name='dark_souls_icon', id=1268053062501535816),
+              'Souls': PartialEmoji(name='dark_souls_icon', id=1268066297078353940),
               'Dragon Ball Z': PartialEmoji(name='dbz', id=1268053322288463975),
-              'Death Note': PartialEmoji(name='death_note', id=1268053149176823819),
+              'Death Note': PartialEmoji(name='death_note', id=1268066292292915333),
               'Crown Rift Awakening': ':u7a7a:',
               'Crown Rift Slayers': ':sa:',
               'Crown Rift Madness': ':m:',
               'Persona': PartialEmoji(name='persona', id=1268075686510334034),
-              'YuYu Hakusho': PartialEmoji(name='yusuke', id=1268052990699503707),
-              'One Piece': PartialEmoji(name='one_piece', id=1268053100208590848),
-              'Overlord': PartialEmoji(name='overlord', id=1268053613494800416),
-              'Fairy Tail': PartialEmoji(name='FairyTail', id=1268053173873152033),
-              'That Time I Got Reincarnated as a Slime': PartialEmoji(name='slime', id=1268075866269945948),
-              'Soul Eater': PartialEmoji(name='souleater', id=1268076333058228295),
+              'YuYu Hakusho': PartialEmoji(name='yusuke', id=1268066293693546557),
+              'One Piece': PartialEmoji(name='one_piece', id=1268066295585439744),
+              'Overlord': PartialEmoji(name='overlord', id=1268066285569445979),
+              'Fairy Tail': PartialEmoji(name='FairyTail', id=1268066278975995964),
+              'That Time I Got Reincarnated as a Slime': PartialEmoji(name='slime', id=1268066270679400468),
+              'Soul Eater': PartialEmoji(name='souleater', id=1214430692050468864),
               'Kill La Kill': '<:killlakill:1214431376070410281>',
               'Gurren Lagann': '<:gurren:1214432235927773205>',
-              'Jujutsu Kaisen': PartialEmoji(name='gojo', id=1268076323188768768),
+              'Jujutsu Kaisen': PartialEmoji(name='gojo', id=1205674072693018655),
               'Katekyo Hitman Reborn': PartialEmoji(name='hitmanreborn', id=1268076323188768768),
               'Full Metal Alchemist': PartialEmoji(name='fma', id=1268076300933791788),
               'Unbound': '🉐',
@@ -2763,42 +2815,75 @@ crest_dict = { 'Unbound': '🉐',
 
 rpg_npc = { 
     'Unbound': '🉐',
-    '<:mha:1088699056420835419>': 'My Hero Academia NPC',
-    '<:3873_league_of_legends_logo:1088701143921729567>': 'League Of Legends NPC',
-    '<:pokemon:1088966251541450752>': 'Pokemon NPC',
-    '<:naruto_103:1088703639973015573>': 'Naruto NPC',
-    '<:bleach:1088701142487285781>': 'Bleach NPC',
-    '<:kratos:1088701141753274408>': 'God Of War NPC',
-    '<:denji:1088701139886817311>': 'Chainsawman NPC',
-    '<:pngaaa:1085072765587030027>': 'One Punch Man NPC',
-    '<:Black_Clover:1088699058262114314>': 'Black Clover NPC',
-    '<:Demon_Slayer:1088702009709973565>': 'Demon Slayer NPC',
-    '<:AOT:1088702007717658674>': 'Attack On Titan NPC',
-    '<:7ds:1088702006581006377>': '7ds NPC',
-    '<:digimon_sparkle:1088702667703988316>': 'Digimon NPC',
-    '<:fate:1092176982277632032>': 'Fate NPC',
-    '<:jin:1090240014891352114>': 'Solo Leveling NPC',
-    '<:dark_souls_icon:1088702666688966726>': 'Souls NPC',
-    '<:dbz:1088698675338952774>': 'Dragon Ball Z NPC',
-    '<:death_note:1088702980682956800>': 'Death Note NPC',
-    ':u7a7a:': 'Crown Rift Awakening NPC',
-    ':sa:': 'Crown Rift Slayers NPC',
-    ':m:': 'Crown Rift Madness NPC',
-    '<:persona:1090238487028047913>': 'Persona NPC',
-    '<:yusuke:1088702663861993503>': 'YuYu Hakusho NPC',
-    '<:one_piece:1088702665581670451>': 'One Piece NPC',
-    '<:overlord:1091223691729305681>': 'Overlord NPC',
-    '<:FairyTail:1091223690445865062>': 'Fairy Tail NPC',
-    '<:slime:1091223689007210517>': 'Slime NPC',
-    '<:souleater:1257056890832031756>': 'Soul Eater NPC',
-    '<:killlakill:1214431376070410281>': 'Kill La Kill NPC',
-    '<:gurren:1214432235927773205>': 'Gurren Lagann NPC',
-    '<:jjk:1249819520650969138>': 'Jujutsu Kaisen NPC',
-    '<:reborn:1257057934634909817>': 'Katekyo Hitman Reborn NPC',
-    '<:fma:1256672084327792730>': 'Full Metal Alchemist NPC',
+    '<:mha:1268066318037553193>': 'My Hero Academia Phantom',
+    '<:3873_league_of_legends_logo:1088701143921729567>': 'League Of Legends Phantom',
+    '<:pokemon:1088966251541450752>': 'Pokemon Phantom',
+    '<:naruto_103:1268066289595711561>': 'Naruto Phantom',
+    '<:bleach:1268066313578872852>': 'Bleach Phantom',
+    '<:kratos:1088701141753274408>': 'God Of War Phantom',
+    '<:denji:1268066310273634324>': 'Chainsawman Phantom',
+    '<:pngaaa:1268066372433481811>': 'One Punch Man Phantom',
+    '<:Black_Clover:1088699058262114314>': 'Black Clover Phantom',
+    '<:Demon_Slayer:1268066307941859409>': 'Demon Slayer Phantom',
+    '<:AOT:1268066305446121524>': 'Attack On Titan Phantom',
+    '<:7ds:1268066302547726376>': '7ds Phantom',
+    '<:digimon_sparkle:1268066299947389000>': 'Digimon Phantom',
+    '<:fate:1092176982277632032>': 'Fate Phantom',
+    '<:jin:1090240014891352114>': 'Solo Leveling Phantom',
+    '<:dark_souls_icon:1268066297078353940>': 'Souls Phantom',
+    '<:dbz:1088698675338952774>': 'Dragon Ball Z Phantom',
+    '<:death_note:1268066292292915333>': 'Death Note Phantom',
+    ':u7a7a:': 'Crown Rift Awakening Phantom',
+    ':sa:': 'Crown Rift Slayers Phantom',
+    ':m:': 'Crown Rift Madness Phantom',
+    '<:persona:1090238487028047913>': 'Persona Phantom',
+    '<:yusuke:1268066293693546557>': 'YuYu Hakusho Phantom',
+    '<:one_piece:1268066295585439744>': 'One Piece Phantom',
+    '<:overlord:1268066285569445979>': 'Overlord Phantom',
+    '<:FairyTail:1268066278975995964>': 'Fairy Tail Phantom',
+    '<:slime:1268066270679400468>': 'Slime Phantom',
+    '<:souleater:1214430692050468864>': 'Soul Eater Phantom',
+    '<:killlakill:1214431376070410281>': 'Kill La Kill Phantom',
+    '<:gurren:1214432235927773205>': 'Gurren Lagann Phantom',
+    '<:Sukuna:1205674072693018655>': 'Jujutsu Kaisen Phantom',
+    '<:reborn:1257057934634909817>': 'Katekyo Hitman Reborn Phantom',
+    '<:fma:1256672084327792730>': 'Full Metal Alchemist Phantom',
 }
 
 rpg_npc_emojis = [
+    '<:mha:1268066318037553193>',
+    '<:3873_league_of_legends_logo:1088701143921729567>',
+    '<:pokemon:1088966251541450752>',
+    '<:naruto_103:1268066289595711561>',
+    '<:bleach:1268066313578872852>',
+    '<:kratos:1088701141753274408>',
+    '<:denji:1268066310273634324>',
+    '<:pngaaa:1268066372433481811>',
+    '<:Black_Clover:1088699058262114314>',
+    '<:Demon_Slayer:1268066307941859409>',
+    '<:AOT:1088702007717658674>',
+    '<:7ds:1268066302547726376>',
+    '<:digimon_sparkle:1268066299947389000>',
+    '<:fate:1092176982277632032>',
+    '<:jin:1090240014891352114>',
+    '<:dark_souls_icon:1268066297078353940>',
+    '<:dbz:1088698675338952774>',
+    '<:death_note:1268066292292915333>',
+    '<:persona:1090238487028047913>',
+    '<:yusuke:1268066293693546557>',
+    '<:one_piece:1088702665581670451>',
+    '<:overlord:1268066285569445979>',
+    '<:FairyTail:1268066278975995964>',
+    '<:slime:1268066270679400468>',
+    '<:souleater:1214430692050468864>',
+    '<:killlakill:1214431376070410281>',
+    '<:gurren:1214432235927773205>',
+    '<:Sukuna:1205674072693018655>',
+    '<:reborn:1257057934634909817>',
+    '<:fma:1256672084327792730>',
+]
+
+old_rpg_npc_emojis = [
     '<:mha:1088699056420835419>',
     '<:3873_league_of_legends_logo:1088701143921729567>',
     '<:pokemon:1088966251541450752>',
@@ -2830,6 +2915,8 @@ rpg_npc_emojis = [
     '<:reborn:1257057934634909817>',
     '<:fma:1256672084327792730>',
 ]
+
+
 
 
 scenario_level_config = 1499
@@ -2865,16 +2952,16 @@ tactics = [
 
 
 class_emojis = {
-    'TANK': PartialEmoji(name='NewUI_Class_Guardian', id=1268053376407572512),
-    'HEALER': PartialEmoji(name='healer40', id=1268053648777154734),
-    'FIGHTER': PartialEmoji(name='NewUI_Class_Warrior', id=1268053426319654972),
-    'ASSASSIN': PartialEmoji(name='NewUI_Class_Assassin', id=1268053406874992734),
+    'TANK': PartialEmoji(name='NewUI_Class_Guardian', id=1268066359523410002),
+    'HEALER': PartialEmoji(name='healer40', id=1268066374014599198),
+    'FIGHTER': PartialEmoji(name='NewUI_Class_Warrior', id=1268066362861944937),
+    'ASSASSIN': PartialEmoji(name='NewUI_Class_Assassin', id=1268066469405523971),
     'MAGE': PartialEmoji(name='mage', id=1268076706292568136),
-    'RANGER': PartialEmoji(name='NewUI_Class_Hunter', id=1268053356421840988),
-    'SUMMONER': PartialEmoji(name='summon', id=1268053467088425031),
-    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268053481021767763),
-    'MONSTROSITY': PartialEmoji(name='monster', id=1268053499845935124),
-    'TACTICIAN': PartialEmoji(name='NewUI_Currency_Favor', id=1268053391402340396)
+    'RANGER': PartialEmoji(name='NewUI_Class_Hunter', id=1268066356637728780),
+    'SUMMONER': PartialEmoji(name='summon', id=1268066355400146965),
+    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268066328577703986),
+    'MONSTROSITY': PartialEmoji(name='monster', id=1268066325637632091),
+    'TACTICIAN': PartialEmoji(name='NewUI_Currency_Favor', id=1268066357354827837)
 }
 
 utility_emojis = {
