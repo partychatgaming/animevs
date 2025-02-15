@@ -9,7 +9,8 @@ import time
 import ai
 from interactions.ext.paginators import Paginator
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-
+import logging
+from logger import loggy
 
 class GameState(Extension):
     def __init__(self, bot):
@@ -17,7 +18,8 @@ class GameState(Extension):
 
     @listen()
     async def on_ready(self):
-        print('GameState Cog is ready!')
+        #print('GameState Cog is ready!')
+        loggy.info('GameState Cog is ready')
 
     async def save_spot(self, player, universe_title, mode, currentopponent):
         """

@@ -20,6 +20,8 @@ from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+import logging
+from logger import loggy
 
 emojis = ['👍', '👎']
 
@@ -30,6 +32,7 @@ class Matches(Extension):
     @listen()
     async def on_ready(self):
         print('Matches Cog is ready!')
+        loggy.info('Matches Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

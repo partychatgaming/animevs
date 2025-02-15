@@ -139,11 +139,11 @@ class RPG:
 
         self.player_token = crown_utilities.crest_dict[self.player_card_data.universe]
         self.npc = crown_utilities.crest_dict[self.player_card_data.universe]
-        print(f"Emoji: {self.player_token}")
-        print(f"Emoji ID: {self.player_token.id}")
+        # print(f"Emoji: {self.player_token}")
+        # print(f"Emoji ID: {self.player_token.id}")
         self.civ_tokens = [
                             # Male emojis
-                            "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳","👨‍🏭" "👨‍💼", "👨‍🔧",
+                            "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳","👨‍🏭","👨‍💼", "👨‍🔧",
                             "🕵️‍♂️", "👷‍♂️", "🤴", "👳‍♂️", "👲", "🧔", "👱‍♂️", "👨‍🦰", "👨‍🦱", 
                             "👨‍🦳", "👨‍🦲", "🧓", "👴",
                             # Female emojis
@@ -1637,7 +1637,7 @@ class RPG:
         rpg_map_embed = self.get_map_message()
         
         embedVar = Embed(title=f"[🌎]Exploring: {self.universe} Universe",description=f"**[🗺️]** *{self._player.map['map_name']}*", color=0xFFD700)
-        print(self.mission_message)
+        #print(self.mission_message)
         embedVar.set_author(name=f"Level {self._player.map_level} Adventure - 🎖️{self.mission_message} ({self._player.mission_count}/{self._player.mission_requirements})", icon_url=f"{self.player1.avatar}")
         
         
@@ -1675,7 +1675,7 @@ class RPG:
         #     embedVar.add_field(name=f"**[💭]{self.player1_card_name}'s Thoughts**", value=f"*{ai_area_msg}*", inline=False)
         #     self.last_thought = ai_area_msg
 
-        embedVar.add_field(name=f"[{self.player_token}]My Player Token\n[❤️]{self.player_health:,} HP", value=f"**[{self.standing_on}]** *Standing On {get_ground_type(self._player.standing_on)}*\n{rpg_map_embed}", inline=False)
+        embedVar.add_field(name=f"[{self.player_token}]My Player Token\n[❤️]{self.player_health:,} HP", value=f"**[{self._player.standing_on}]** *Standing On {get_ground_type(self._player.standing_on)}*\n{rpg_map_embed}", inline=False)
         # embedVar.set_thumbnail(url=self.player_card_image)
         embedVar.set_footer(text=self.get_previous_moves_embed() or "No previous moves")
 

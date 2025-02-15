@@ -3,6 +3,8 @@ import db
 from cogs.play import Play as play
 from cogs.classes.battle_class import Battle
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+import logging
+from logger import loggy
 
 class BattleConfig(Extension):
     def __init__(self, bot):
@@ -21,7 +23,8 @@ class BattleConfig(Extension):
         
     @listen()
     async def on_ready(self):
-        print('BattleConfig Cog is ready!')
+        # print('BattleConfig Cog is ready!')
+        loggy.info('BattleConfig Cog is ready')
 
 
     async def create_universe_battle(self, ctx, mode, universe, player, currentopponent, entrance_fee, coop_player=None):

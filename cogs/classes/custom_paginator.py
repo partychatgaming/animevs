@@ -9,6 +9,8 @@ import custom_logging
 from cogs.battle_config import BattleConfig as bc
 from cogs.quests import Quests
 import random
+import logging
+from logger import loggy
 
 import attrs
 
@@ -2676,6 +2678,8 @@ class CustomPaginator(Paginator):
         user_data = db.queryUser({'DID': str(ctx.author.id)})
         player = crown_utilities.create_player_from_data(user_data)
         db.updateUserNoFilter(player.user_query,{'$set':{'EXPLORE_LOCATION': universe_title}})
+        # family_data = 
+        # db.createFamily(player.user_query)
         acceptable = [1,2,3,4,5]
         arm_message = []
         card_message = []

@@ -37,7 +37,8 @@ class Lookup(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Lookup Cog is ready!')
+        # print('Lookup Cog is ready!')
+        loggy.info('Lookup Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

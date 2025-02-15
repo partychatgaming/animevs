@@ -27,7 +27,8 @@ import interactions
 import custom_logging
 from interactions import Client, PartialEmoji, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
-print("Crown Utilities initiated")
+loggy.info("Crown Utilities initiated")
+# print("Crown Utilities initiated")
 
 
 # Create separate caches
@@ -1754,6 +1755,9 @@ def create_player_from_data(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
 
+def create_family_from_data(family_data):
+    family = Family(family_data['HEAD'], family_data['HOUSE'], family_data['MEMBERS'], family_data['FAMILY_PET'], family_data['BANK'], family_data['WINS'], family_data['LOSSES'], family_data['BADGES'], family_data['MISSION'], family_data['COMPLETED_MISSIONS'], family_data['MEMBER_COUNT'], family_data['WAR_FLAG'], family_data['WAR_OPPONENT'], family_data['SHIELDING'])
+
 def create_tutorial_bot(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], "Starter", "Training Dummy", "Stock", "Chick", "None", player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
@@ -2948,16 +2952,16 @@ tactics = [
 
 
 class_emojis = {
-    'TANK': PartialEmoji(name='NewUI_Class_Guardian', id=1268053376407572512),
-    'HEALER': PartialEmoji(name='healer40', id=1268053648777154734),
-    'FIGHTER': PartialEmoji(name='NewUI_Class_Warrior', id=1268053426319654972),
-    'ASSASSIN': PartialEmoji(name='NewUI_Class_Assassin', id=1268053406874992734),
+    'TANK': PartialEmoji(name='NewUI_Class_Guardian', id=1268066359523410002),
+    'HEALER': PartialEmoji(name='healer40', id=1268066374014599198),
+    'FIGHTER': PartialEmoji(name='NewUI_Class_Warrior', id=1268066362861944937),
+    'ASSASSIN': PartialEmoji(name='NewUI_Class_Assassin', id=1268066469405523971),
     'MAGE': PartialEmoji(name='mage', id=1268076706292568136),
-    'RANGER': PartialEmoji(name='NewUI_Class_Hunter', id=1268053356421840988),
-    'SUMMONER': PartialEmoji(name='summon', id=1268053467088425031),
-    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268053481021767763),
-    'MONSTROSITY': PartialEmoji(name='monster', id=1268053499845935124),
-    'TACTICIAN': PartialEmoji(name='NewUI_Currency_Favor', id=1268053391402340396)
+    'RANGER': PartialEmoji(name='NewUI_Class_Hunter', id=1268066356637728780),
+    'SUMMONER': PartialEmoji(name='summon', id=1268066355400146965),
+    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268066328577703986),
+    'MONSTROSITY': PartialEmoji(name='monster', id=1268066325637632091),
+    'TACTICIAN': PartialEmoji(name='NewUI_Currency_Favor', id=1268066357354827837)
 }
 
 utility_emojis = {
