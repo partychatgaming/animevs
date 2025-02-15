@@ -20,7 +20,8 @@ from interactions import Client, ActionRow, Button, ButtonStyle, File, ActionRow
 import re
 import io
 from io import BytesIO
-
+import logging
+from logger import loggy
 
 
 
@@ -32,6 +33,7 @@ class Views(Extension):
     @listen()
     async def on_ready(self):
         print('Views Cog is ready!')
+        loggy.info('Views Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

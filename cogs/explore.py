@@ -18,6 +18,8 @@ from .classes.battle_class import Battle
 from .classes.summon_class import Summon
 from cogs.battle_config import BattleConfig
 from interactions import listen, slash_command, InteractionContext, OptionType, slash_option, AutocompleteContext, Embed, Extension
+import logging
+from logger import loggy
 
 class Explore(Extension):
     def __init__(self, bot):
@@ -25,7 +27,8 @@ class Explore(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Explore Cog is ready!')
+        # print('Explore Cog is ready!')
+        loggy.info('Explore Cog is ready')
 
 
     async def cog_check(self, ctx):

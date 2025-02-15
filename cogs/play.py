@@ -30,7 +30,8 @@ class Play(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Play Cog is ready!')
+        # print('Play Cog is ready!')
+        loggy.info('Play Cog is ready')
 
 
     async def cog_check(self, ctx):

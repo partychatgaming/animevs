@@ -9,6 +9,8 @@ import custom_logging
 from cogs.battle_config import BattleConfig as bc
 from cogs.quests import Quests
 import random
+import logging
+from logger import loggy
 
 import attrs
 

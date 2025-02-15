@@ -3,6 +3,8 @@ import db
 import messages as m
 from interactions import User
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+import logging
+from logger import loggy
 
 class Hall(Extension):
     def __init__(self, bot):
@@ -12,7 +14,8 @@ class Hall(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Hall Cog is ready!')
+        # print('Hall Cog is ready!')
+        loggy.info('Hall Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

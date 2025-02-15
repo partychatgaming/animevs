@@ -39,75 +39,9 @@ class Profile(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Profile Cog is ready!')
-
-    
-    @slash_command(description="Delete your account")
-    async def deleteaccount(self, ctx):
-        _uuid = uuid.uuid4()
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            await ctx.send("You are not registered. Please register with /register")
-        
-        player = crown_utilities.create_player_from_data(a_registered_player)
-        accept_buttons = [
-            Button(
-                style=ButtonStyle.GREEN,
-                label="Yes",
-                custom_id=f"{_uuid}|yes"
-            ),
-            Button(
-                style=ButtonStyle.BLUE,
-                label="No",
-                custom_id=f"{_uuid}|no"
-            )
-        ]
-        accept_buttons_action_row = ActionRow(*accept_buttons)
-
-        team = db.queryTeam({'TEAM_NAME': player.guild.lower()})
-
-        msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?", components=[accept_buttons_action_row])
-
-        def check(component: Button) -> bool:
-            return component.ctx.author == ctx.author
-
-        try:
-            button_ctx = await self.bot.wait_for_component(components=[accept_buttons_action_row], timeout=300, check=check)
-
-            if button_ctx.ctx.custom_id == f"{_uuid}|no":
-                embed = Embed(title="Account Not Deleted", description="Your account has not been deleted.", color=0x00ff00)
-                await button_ctx.ctx.send(embed=[embed])
-                return
-
-            if button_ctx.ctx.custom_id == f"{_uuid}|yes":
-                loggy.info(f"Delete account command executed by {ctx.author}")
-                delete_user_resp = db.deleteUser(player.did)
-                if player.guild != "PCG":
-                    transaction_message = f"{player.did} left the game."
-                    team_query = {'TEAM_NAME': player.guild}
-                    new_value_query = {
-                        '$pull': {
-                            'MEMBERS': player.did,
-                            'OFFICERS': player.did,
-                            'CAPTAINS': player.did,
-                        },
-                        '$addToSet': {'TRANSACTIONS': transaction_message},
-                        '$inc': {'MEMBER_COUNT': -1}
-                        }
-                    response = db.deleteTeamMember(team_query, new_value_query, str(ctx.author.id))
-                market_items = db.queryAllMarketByParam({'ITEM_OWNER': player.did})
-                if market_items:
-                    for market_item in market_items:
-                        db.deleteMarketEntry({"ITEM_OWNER": player.did, "MARKET_CODE": market_item['MARKET_CODE']})
-                embed = Embed(title="Account Deleted", description="Your account has been deleted. Thank you for playing!", color=0x00ff00)
-                await button_ctx.ctx.send(embed=embed)
-        except Exception as ex:
-            loggy.critical(ex)
-            custom_logging.debud(ex)
-            embed = Embed(title="Error", description="Something went wrong. Please try again later.", color=0xff0000)
-            await ctx.send(embed=embed)
-
-            
+        # print('Profile Cog is ready!')
+        loggy.info('Profile Cog is ready!')
+ 
     @slash_command(description="View your or a player's current build", options=[
         SlashCommandOption(
             name="player",

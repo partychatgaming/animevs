@@ -50,7 +50,8 @@ class GameModes(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Anime 🆚+ Cog is ready!')
+        # print('Anime 🆚+ Cog is ready!')
+        loggy.info('Anime 🆚+ Cog is ready!')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

@@ -27,7 +27,8 @@ import interactions
 import custom_logging
 from interactions import Client, PartialEmoji, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
-print("Crown Utilities initiated")
+loggy.info("Crown Utilities initiated")
+# print("Crown Utilities initiated")
 
 
 # Create separate caches
@@ -2954,16 +2955,16 @@ tactics = [
 
 
 class_emojis = {
-    'TANK': PartialEmoji(name='NewUI_Class_Guardian', id=1268053376407572512),
-    'HEALER': PartialEmoji(name='healer40', id=1268053648777154734),
-    'FIGHTER': PartialEmoji(name='NewUI_Class_Warrior', id=1268053426319654972),
-    'ASSASSIN': PartialEmoji(name='NewUI_Class_Assassin', id=1268053406874992734),
+    'TANK': PartialEmoji(name='NewUI_Class_Guardian', id=1268066359523410002),
+    'HEALER': PartialEmoji(name='healer40', id=1268066374014599198),
+    'FIGHTER': PartialEmoji(name='NewUI_Class_Warrior', id=1268066362861944937),
+    'ASSASSIN': PartialEmoji(name='NewUI_Class_Assassin', id=1268066469405523971),
     'MAGE': PartialEmoji(name='mage', id=1268076706292568136),
-    'RANGER': PartialEmoji(name='NewUI_Class_Hunter', id=1268053356421840988),
-    'SUMMONER': PartialEmoji(name='summon', id=1268053467088425031),
-    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268053481021767763),
-    'MONSTROSITY': PartialEmoji(name='monster', id=1268053499845935124),
-    'TACTICIAN': PartialEmoji(name='NewUI_Currency_Favor', id=1268053391402340396)
+    'RANGER': PartialEmoji(name='NewUI_Class_Hunter', id=1268066356637728780),
+    'SUMMONER': PartialEmoji(name='summon', id=1268066355400146965),
+    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268066328577703986),
+    'MONSTROSITY': PartialEmoji(name='monster', id=1268066325637632091),
+    'TACTICIAN': PartialEmoji(name='NewUI_Currency_Favor', id=1268066357354827837)
 }
 
 utility_emojis = {
