@@ -788,12 +788,7 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
 
     
 async def cardlevel(user, mode: str, extra_exp = 0):
-    print(mode)
     try:
-        # if mode == "RPG":
-        #     player = create_player_from_data(db.queryUser({'DID': user.did}))
-            
-        # else:
         player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
         card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
         card.set_card_level_buffs(player.card_levels)
@@ -803,7 +798,6 @@ async def cardlevel(user, mode: str, extra_exp = 0):
             return
 
         number_of_level_ups, card = await update_experience(card, player, exp_gain, lvl_req)
-        # print(f"Number of Level Ups - {number_of_level_ups}")
 
         if number_of_level_ups > 0:
             loggy.info(f"Card Leveling - {user} - {number_of_level_ups} Level Ups")
@@ -903,11 +897,11 @@ def get_level_up_exp_req(card):
 def get_exp_gain(player, mode, card, extra_exp):
     try:
         lvl_req = get_level_up_exp_req(card)
-        difficulty_exp = 0 if not player.difficulty == "HARD" else 3
+        difficulty_exp = 0 if not player.difficulty == "HARD" else 20
         exp_gain = 0
-        t_exp_gain = (9000 * difficulty_exp) + (player.rebirth) + player.prestige_buff
-        d_exp_gain = (((50000 * difficulty_exp) + player.prestige_buff) * (1 + player.rebirth))
-        b_exp_gain = (1500000 * difficulty_exp) + ((100 + player.prestige_buff) * (1 + player.rebirth))
+        t_exp_gain = (200 * difficulty_exp) + (player.rebirth) + player.prestige_buff
+        d_exp_gain = (((2000 * difficulty_exp) + player.prestige_buff) * (1 + player.rebirth))
+        b_exp_gain = (150000 * difficulty_exp) + ((100 + player.prestige_buff) * (1 + player.rebirth))
 
         if mode in DUNGEON_M:
             exp_gain = d_exp_gain + extra_exp

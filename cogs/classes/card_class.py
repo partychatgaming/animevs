@@ -1952,14 +1952,6 @@ class Card:
                 abilitypower = attackpower - defensepower
                 if abilitypower <= 0:
                     abilitypower = ap + bonus_damage
-                # print("Card Name: ", self.name)
-                # print("__Engagement Checks__")
-                # print("Attack", self.attack)
-                # print("AP: ", ap)
-                # print("Opponent Defense: ", _opponent_card.defense)
-                # print("Attack Power: ", attackpower)
-                # print("Defense Power: ", defensepower)
-                # print("Ability Power: ", abilitypower) 
 
                 #Engagement Checks
                 dmg = abilitypower

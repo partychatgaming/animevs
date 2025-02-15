@@ -3517,32 +3517,6 @@ async def updatecharacters(ctx):
    return
 
 
-
-# async def restart_bot():
-#     await bot.stop()
-#     await bot.start()
-
-
-# @Task.create(IntervalTrigger(minutes=5))
-# async def check_heartbeat():
-#       try:
-#          # Get the bot's latency
-#          latency = bot.latency
-#          loggy.info(f'Heartbeat check - latency: {latency}')
-#          # Check if latency is within acceptable range (e.g., below 2 seconds)
-#          if latency and latency > 9.0:
-#                loggy.warning('High latency detected, restarting bot...')
-#                await restart_bot()
-#       except Exception as e:
-#          loggy.error(f'Error during heartbeat check: {e}')
-#          await restart_bot()
-
-
-
-# # Run the bot
-# bot.start()
-
-
 @listen()
 async def on_disconnect():
     loggy.warning("Bot disconnected. Attempting to reconnect...")
