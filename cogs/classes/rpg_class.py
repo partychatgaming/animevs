@@ -1845,6 +1845,7 @@ class RPG:
                 else:
                     #The animal is friendly and leaves a item for the player using the drop system
                     self.previous_moves.append(f"({npc}) The {emoji_labels[npc]} left a gift!")
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🃏", npc_position, direction)
             elif npc in self.remains:
                 if npc == "💀":
