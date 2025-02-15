@@ -2202,6 +2202,7 @@ class RPG:
                     embedVar.add_field(name=f"[🎁)] They have a gift for you!", value=f"Check out your new stuff!")
                     self.battling = False
                     self.encounter = False
+                    self.loot_drop = True
                     await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎁", npc_position)
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 elif random_number <= 90:
@@ -2209,18 +2210,19 @@ class RPG:
                         self.previous_moves.append(f"(🗺️) They have a quest for you!")
                         self.quest_message_list.append(f"({npc}) You have a quest!")
                         embedVar.add_field(name=f"[🗺️)] They have a quest for you!", value=f"Check out your new quest!")
-                        await self.generate_quest(ctx, private_channel, npc, npc_position)
+                        await self.generate_quest(ctx, private_channel, '🔎', npc_position)
                     else:
                         self.previous_moves.append(f"({self.my_quest}) They give you some information about your quest!")
                         embedVar.add_field(name=f"[🗺️)] You already have a quest!", value=f"Check out your current quest!")
                     self.battling = False
                     self.encounter = False
-                    await self.generate_quest(ctx, private_channel, self._player.player_position, '🆚', npc_position)
+                    #await self.generate_quest(ctx, private_channel, self._player.player_position, '🔎', npc_position)
                 elif random_number <= 100:
                     self.previous_moves.append(f"(🎰) They have a rare item for you!")
                     embedVar.add_field(name=f"[🎰)] They have a rare item for you!", value=f"Lets earn some loot!")
                     self.battling = False
                     self.encounter = False
+                    self.loot_drop = True
                     await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎰", npc_position)
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 talk_msg = await private_channel.send(embed=embedVar)
@@ -3343,7 +3345,7 @@ emoji_labels = {
             "🎒": "Lost Loot", "🦾": "Arm Drop", "🆙": "Xp Drop", "🎴": "Card Drop", "🧬": "Summon Drop", 
             "🎗️": "Title Drop", "🎲": "Loot Roll", "🃏": "Loot Box", "🎰": "Jackpot Roll", "🏊": "Swimming Skill", 
             "🪜": "Climbing Gear", "🪓": "Chopping Axe", "🎣": "Fishing Pole","⛏️": "Pickaxe", "🔨": "Hammer", "⚒️": "Engineer Kit" , "💀": "Remains", "🦴": "Remains", "☠️": "Remains", 
-            "🥩": "Food", "🍖": "Food", "🥕": "Food", "⚔️": "Combat Encounter", "🏴‍☠️": "Combat Encounter","🆚": "Vs+ Encounter", '🧱': "Ore",'🪨': "Rock",'🌵': 'Cactus',
+            "🥩": "Food", "🍖": "Food", "🥕": "Food", "⚔️": "Combat Encounter", "🏴‍☠️": "Combat Encounter","🆚": "Vs+ Encounter", "💫": "Random Encounter", '🧱': "Ore",'🪨': "Rock",'🌵': 'Cactus',
             "🏜️": "Looted Cactus","🥋" : "Training Dummy", "None": "Nothing", "🎯" : "Elimination Quest", "🔎" : "Investigation Quest", f"<a:Shiney_Gold_Coins_Inv:1085618500455911454>" : "Gold",
             "🗡️": "Attack Up!","🛡️": "Defense Up!","💗":"Health Up!", "🚗": "Car", "🪦":"Grave", "🛣️":"Motorway","Car": "🚗"
             
