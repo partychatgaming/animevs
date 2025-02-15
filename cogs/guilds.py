@@ -3,7 +3,7 @@ import db
 import classes as data
 import messages as m
 from cogs.quests import Quests
-from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, SlashCommandOption, OptionType, Embed, Extension, cooldown, Buckets
+from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, SlashCommandOption, OptionType, Embed, Extension, cooldown, Buckets, SlashCommandChoice
 import uuid
 import asyncio
 import logging

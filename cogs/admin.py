@@ -57,7 +57,7 @@ class Admin(Extension):
 
     ], scopes=crown_utilities.guild_ids)
     @slash_default_member_permission(Permissions.ADMINISTRATOR)
-    async def createcode(ctx, code_input, coin=None, gems=None, card=None, exp_to_give=0):
+    async def createcode(self, ctx, code_input, coin=None, gems=None, card=None, exp_to_give=0):
         is_creator = db.queryUser({'DID': str(ctx.author.id)})['CREATOR']
         if not is_creator:
             await ctx.send("Creator only command.", ephemeral=True)
@@ -97,7 +97,7 @@ class Admin(Extension):
     SlashCommandOption(name="field_type", description="Field Type", type=OptionType.STRING, required=True),
     ], scopes=crown_utilities.guild_ids)
     @slash_default_member_permission(Permissions.ADMINISTRATOR)
-    async def addfield(ctx, collection, new_field, field_type):
+    async def addfield(self, ctx, collection, new_field, field_type):
         if ctx.author.id not in [306429381948211210, 263564778914578432]:
             await ctx.send("🛑 You know damn well this command isn't for you.")
             return
@@ -175,10 +175,9 @@ class Admin(Extension):
         await ctx.send("Update completed.")
 
 
-
     @slash_command(description="admin only", scopes=crown_utilities.guild_ids)
     @slash_default_member_permission(Permissions.ADMINISTRATOR)
-    async def combinegems(ctx):
+    async def combinegems(self, ctx):
         if ctx.author.id not in [306429381948211210, 263564778914578432]:
             await ctx.send("🛑 You know damn well this command isn't for you.")
             return
@@ -194,7 +193,7 @@ class Admin(Extension):
 
     @slash_command(description="admin only", scopes=crown_utilities.guild_ids)
     @slash_default_member_permission(Permissions.ADMINISTRATOR)
-    async def fixspaces(ctx):
+    async def fixspaces(self, ctx):
         await ctx.defer()
         if ctx.author.id not in [306429381948211210, 263564778914578432]:
             await ctx.send("🛑 You know damn well this command isn't for you.")
@@ -240,7 +239,7 @@ class Admin(Extension):
     ], required=True)
     @slash_option(name="scenario_universe", description="Universe to create scenarios for", opt_type=OptionType.STRING, required=True, autocomplete=True)
     @slash_default_member_permission(Permissions.ADMINISTRATOR)
-    async def createscenarios(ctx: InteractionContext, mode, scenario_universe: str=""):
+    async def createscenarios(self, ctx: InteractionContext, mode, scenario_universe: str=""):
         loggy.info("createscenarios command")
 
         if ctx.author.id not in [306429381948211210, 263564778914578432]:
@@ -347,7 +346,7 @@ class Admin(Extension):
 
 
     @createscenarios.autocomplete("scenario_universe")
-    async def createscenarios_autocomplete(ctx: AutocompleteContext):
+    async def createscenarios_autocomplete(self, ctx: AutocompleteContext):
         choices = []
         options = crown_utilities.get_cached_universes()
         """
@@ -375,7 +374,7 @@ class Admin(Extension):
 
     # this command will take in a universe parameter
     @slash_command(description="update characters with descriptions", scopes=crown_utilities.guild_ids)
-    async def updatecharacters(ctx):
+    async def updatecharacters(self, ctx):
         await ctx.defer()
         if ctx.author.id not in [306429381948211210, 263564778914578432]:
             await ctx.send("🛑 You know damn well this command isn't for you.")
@@ -396,3 +395,7 @@ class Admin(Extension):
         await ctx.send(f"Updated {count} characters with descriptions.")
         return
 
+
+
+def setup(bot):
+    Admin(bot)
