@@ -179,152 +179,91 @@ def calculate_speed_modifier(speed):
         return -1
     else:
         return 0
-
-
-async def summonlevel(player, player_card):    
-    xp_inc = 1
-    bxp_inc = 1
-    protections = ['BARRIER', 'PARRY']
-    # if player.family != 'PCG':
-    #     family_info = db.queryFamily({'HEAD':str(player.did)})
-    #     familysummon = family_info['SUMMON']
-    #     if familysummon['NAME'] == str(player.equipped_summon):
-    #         xp_inc = 2
-    #         bxp_inc = 5
-    #         summon_object = familysummon
-    #         summon_name = summon_object['NAME']
-    #         summon_ability = ""
-    #         summon_ability_power = 0
-    #         for key in summon_object:
-    #             if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
-    #                 summon_ability_power = summon_object[key]
-    #                 summon_ability = key
-    #         summon_type = summon_object['TYPE']
-    #         summon_lvl = summon_object['LVL']
-    #         summon_exp = summon_object['EXP']
-    #         summon_bond = summon_object['BOND']
-    #         summon_bond_exp = summon_object['BONDEXP']
-    #         bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
-    #         if bond_req <= 0:
-    #             bond_req = 5
-    #         lvl_req = (int(summon_lvl) * 25) * (1 + summon_bond)
-    #         if lvl_req <= 0:
-    #             lvl_req = 25
-            
-    #         power = ((1 + summon_bond) * summon_lvl) + int(summon_ability_power)
-    #         if summon_type in protections:
-    #             power = summon_bond + int(summon_ability_power)
-                
-    #         summon_path = summon_object['PATH']
-    #         # lvl = familysummon['LVL']  # To Level Up -(lvl * 10 = xp required)
-    #         # lvl_req = lvl * 10
-    #         # exp = familysummon['EXP']
-    #         # summon_name
-    #         # petmove_text = list(familysummon.keys())[3]  # Name of the ability
-    #         # petmove_ap = list(familysummon.values())[3]  # Ability Power
-    #         # petmove_type = familysummon['TYPE']
-    #         # bond = familysummon['BOND']
-    #         # bondexp = familysummon['BONDEXP']
-    #         # bond_req = ((petmove_ap * 5) * (bond + 1))
-    #         summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-    #         query = {'HEAD':str(family_info['HEAD'])}
-            
-    #         if summon_lvl< 10:
-    #             # Non Level Up Code
-    #             if summon_exp < (lvl_req - 1):
-    #                 #print("yay!")
-    #                 summon_exp = summon_exp + xp_inc
-    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-    #                 transaction_message = f"🧬 | {player.disname} trained {summon_name}."
-    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-    #                 response = db.updateFamily(query, update_query)
-
-    #             # Level Up Code
-    #             if summon_exp >= (lvl_req - 1):
-    #                 summon_exp = 0
-    #                 summon_lvl = summon_lvl + 1
-    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-    #                 transaction_message = f"🧬 | {player.disname} trained {summon_name} to Level **{summon_lvl}**."
-    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-    #                 response = db.updateFamily(query, update_query)
-
-    #         if summon_bond < 3:
-    #             # Non Bond Level Up Code
-    #             if summon_bond_exp < (bond_req - 1):
-    #                 #print("bonding")
-    #                 summon_bond_exp = summon_bond_exp + bxp_inc
-                    
-    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-    #                 transaction_message = f"🧬 | {player.disname} bonded with {summon_name}."
-    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-    #                 response = db.updateFamily(query, update_query)
-
-    #             # Bond Level Up Code
-    #             if summon_bond_exp >= (bond_req - 1):
-    #                 summon_bond_exp = 0
-    #                 summon_bond = summon_bond + 1
-    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                    
-    #                 transaction_message = f"🧬 | {player.disname} bonded with {summon_name} to Level **{summon_bond}**."
-    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-    #                 response = db.updateFamily(query, update_query)
-    #         #return False
     
+
+def get_summon_xp(card):
+    if card.card_lvl <= 10:
+        return 1
+    if card.card_lvl <= 100:
+        return 2
+    if card.card_lvl <= 250:
+        return 5
+    if card.card_lvl <= 500:
+        return 10
+    if card.card_lvl <= 750:
+        return 20
+    if card.card_lvl <= 1000:
+        return 25
+    if card.card_lvl <= 1500:
+        return 50
+    if card.card_lvl <= 2000:
+        return 100
+    if card.card_lvl <= 2500:
+        return 150
+    if card.card_lvl <= 3000:
+        return 250
+    if card.card_lvl >= 3001:
+        return 300
+    
+
+
+async def summonlevel(player, player_card, battle_config):    
+    xp_inc = get_summon_xp(player_card)
+    bxp_inc = get_summon_xp(player_card)
+    if battle_config.is_easy_difficulty:
+        xp_inc = 1
+        bxp_inc = 1
+    
+    protections = ['BARRIER', 'PARRY']
     try:
         protections = ['BARRIER', 'PARRY']
         query = {'DID': str(player.did)}
         summon_type = player_card.summon_type
-        lvl_req = ((player_card.summon_lvl * (1 + player_card.summon_bond)) * (player_card.summon_bond + 1)) +  round(.10 * player_card.base_summon_power)
+
+        lvl_req = get_lvl_req(player_card.summon_lvl, player_card.summon_bond, player_card.summon_power)
         if lvl_req <= 0:
             lvl_req = 25
+
         bond_req = ((player_card.summon_power * (player_card.summon_bond + 1)))
         if summon_type in protections:
             bond_req = ((player_card.summon_power + player_card.summon_bond)) * (player_card.summon_bond + 1)
         if bond_req <= 0:
             bond_req = 100
+
         new_ap = player_card.summon_power  
         level_message = f"Level: {player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
         bond_message = f"Bond: {player_card.summon_bond}"
+        #loggy.info(f"Summon Level {player_card.summon_lvl} | {player_card.summon_exp}/{lvl_req}")
 
         if player_card.summon_lvl <= 100:
-            # Non Level Up Code
-            if player_card.summon_exp < (lvl_req - 1):
-                update_query = {'$inc': {'PETS.$[type].' + "EXP": xp_inc}}
-                filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
-                response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: {player_card.summon_lvl} | XP: +🆙{player_card.summon_exp}/{lvl_req}"
-                player_card.summon_exp = player_card.summon_exp + xp_inc
-
+            player_card.summon_exp += xp_inc
+            level_message = f"Level: {player_card.summon_lvl} | XP🆙:{player_card.summon_exp}/{lvl_req}"
+            bonded = False
+            level_up_log = [f"🧬 | **{player.disname}** trained **{player_card.summon_name}[+{xp_inc}XP]**."]
+            number_of_level_ups = 0
             # Level Up Code
             if player_card.summon_exp >= (lvl_req):
-                update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
+                number_of_level_ups, player_card, level_message, bond_message, bonded, level_up_log, initial_power = await update_summon_experience(query, player_card, player, xp_inc, lvl_req)
+                new_ap = calculate_summon__ability_power(initial_power, player_card.summon_lvl, player_card.summon_bond)
+            else:
+                update_query = {'$set': {'PETS.$[type].' + "EXP": player_card.summon_exp}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: +🆙{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
-                new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
-        if player_card.summon_lvl % 10 == 0 and player_card.summon_lvl != 0:
-            if player_card.summon_bond < 10:
-                # Non Bond Level Up Code
-                # if player_card.summon_bondexp < (bond_req - 1):
-                #     update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": bxp_inc}}
-                #     filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
-                #     response = db.updateUser(query, update_query, filter_query)
-                # Bond Level Up Code
-                # if player_card.summon_bondexp >= (bond_req - 1):
-                update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
-                filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
-                response = db.updateUser(query, update_query, filter_query)
-                bond_message = f"Bond: +🆙{player_card.summon_bond}"
-                new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
-                
+                level_up_log =  "\n\n".join(level_up_log)
         
+
+        level_up_message = "You summon gained experience!"
+        if number_of_level_ups > 0: 
+            level_up_message = "Your summon leveled up!"
+        if bonded:
+            level_up_message = "Your summon bonded with you!"
 
         if player_card.summon_bond >= 10:
             bond_message = "🌟"
         if player_card.summon_lvl  >= 100:
             level_message = "⭐"
         ap_message = f"{new_ap}"
-        summon_level_message = f"{bond_message} | {level_message}\n{player_card.summon_name} | {player_card.summon_emoji}{ap_message}"
+        summon_level_message = f"{bond_message} | {level_message}\n{player_card.summon_name} |  *{player_card.summon_emoji}{player_card.summon_ability_name} - {ap_message}*\n**Level Up Log**\n{level_up_log}"
         return summon_level_message
 
     except Exception as ex:
@@ -344,10 +283,92 @@ async def summonlevel(player, player_card):
         }))
         return
     
-def calculate_summon__ability_power(ability_power_potential, level, bond):
-        ability_power = round(ability_power_potential * (1 + level / 18.25) * (1 + bond / 18.25))
-        return ability_power
+def get_lvl_req(lvl, bond, power):
+    lvl_req = ((lvl * (1 + bond)) * (bond + 1)) +  round(.10 * power)
+    if lvl_req <= 0:
+        lvl_req = 25
+    return lvl_req
 
+
+def calculate_summon__ability_power(ability_power_potential, level, bond):
+    ability_power = round((ability_power_potential * (bond + 1)) * (1 + level / 18.25) * (1 + bond / 18.25))
+    return ability_power
+
+
+async def update_summon_experience(query, player_card, player, exp, lvl_req):
+    bond_increase = False
+    level_increase = False
+    level_up_log = [f"📋 | **{player.disname}** trained **{player_card.summon_name}[+{exp}XP]**."]
+    if player_card.summon_bondexp == 0:
+        player_card.summon_bondexp = (player_card.summon_bond + 1) * 10
+    #loggy.info(f"Summon Bond EXP: {player_card.summon_bondexp}")
+    try:
+        total_exp_gain = player_card.summon_exp
+        remaining_exp = total_exp_gain
+        initial_level = player_card.summon_lvl
+        # initial_power = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
+        s = db.querySummon({'PET': player_card.summon_name})
+        summon = create_summon_from_data(s)
+        initial_power = summon.ability_power
+        initial_summon_power = calculate_summon__ability_power(initial_power, player_card.summon_lvl, player_card.summon_bond)
+        initial_bond = player_card.summon_bond
+        #loggy.info(f"Total Exp Gain: {total_exp_gain}")
+        #loggy.info(f"Initial Level: {initial_level} | Initial Power: {initial_power} | Initial Bond: {initial_bond}")
+        exp_for_next_level = get_lvl_req(player_card.summon_lvl, player_card.summon_bond, player_card.summon_power)
+        #loggy.info(f"Exp for Next Level: {exp_for_next_level}")
+
+
+        level_message = f"Level: {player_card.summon_lvl} | XP: {player_card.summon_exp}/{exp_for_next_level}"
+        bond_message = f"Bond: {player_card.summon_bond}"
+        # Calculate new level and remaining exp
+        while total_exp_gain >= exp_for_next_level and player_card.summon_lvl < MAX_SUMMON_LEVEL:
+            if not level_increase:
+                level_increase = True
+           # loggy.info(f"Increasing level for {player_card.summon_name}")
+            total_exp_gain -= exp_for_next_level
+            player_card.summon_lvl += 1
+            player_card.summon_power = calculate_summon__ability_power(initial_power, player_card.summon_lvl, player_card.summon_bond)
+            exp_for_next_level = get_lvl_req(player_card.summon_lvl, player_card.summon_bond, player_card.summon_power)
+            if player_card.summon_lvl % 10 == 0 and player_card.summon_lvl != 0:
+                #loggy.info(f"Increasing bond for {player_card.summon_name}")
+                player_card.summon_bond += 1
+                player_card.summon_bondexp = 10 * (1 + player_card.summon_bond)
+                if not bond_increase:
+                    bond_increase = True
+            remaining_exp = total_exp_gain
+        
+
+
+        player_card.summon_exp = remaining_exp
+        # Prepare update query
+        
+
+        if bond_increase:
+            level_up_log.append(f"💞 | **{player_card.summon_name}** increaed bond to **{player_card.summon_bond}** with **{player.disname}**.")
+        level_up_log.append(f"🆙 | **{player_card.summon_name}** gained  {player_card.summon_lvl - initial_level} Level.")
+        level_up_log.append(f"🔗 | **{player_card.summon_name}** carried over {remaining_exp} exp.")
+        level_up_log.append(f"Gained {player_card.summon_power - initial_summon_power} {player_card.summon_emoji}{player_card.summon_ability_name}AP!")
+
+        new_lvl_req = get_lvl_req(player_card.summon_lvl, player_card.summon_bond, player_card.summon_power)
+
+        level_message = f"Level: {player_card.summon_lvl} | XP🆙:{player_card.summon_exp}/{new_lvl_req}"
+        if level_increase:
+            level_message = f"Level🆙: {player_card.summon_lvl} | XP: {player_card.summon_exp}/{new_lvl_req}"
+        if bond_increase:
+            bond_message = f"Bond💞:{player_card.summon_bond}"
+        level_up_log_msg =  "\n\n".join(level_up_log)
+
+        update_query = {'$set': {'PETS.$[type].' + "EXP": remaining_exp,'PETS.$[type].' + "LVL": player_card.summon_lvl,'PETS.$[type].' + "BONDEXP": player_card.summon_bondexp,'PETS.$[type].' + "BOND": player_card.summon_bond}}
+        filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
+        response = db.updateUser(query, update_query, filter_query)
+
+        await asyncio.sleep(2)
+
+        return player_card.summon_lvl - initial_level, player_card, level_message, bond_message, bond_increase, level_up_log_msg, initial_power
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return 0, player_card
+    
 
 async def updateRetry(player_id, mode, math_calc):
     player_info = db.queryUser({'DID' : str(player_id)})
@@ -1754,9 +1775,6 @@ def create_player_from_data(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
 
-def create_family_from_data(family_data):
-    family = Family(family_data['HEAD'], family_data['HOUSE'], family_data['MEMBERS'], family_data['FAMILY_PET'], family_data['BANK'], family_data['WINS'], family_data['LOSSES'], family_data['BADGES'], family_data['MISSION'], family_data['COMPLETED_MISSIONS'], family_data['MEMBER_COUNT'], family_data['WAR_FLAG'], family_data['WAR_OPPONENT'], family_data['SHIELDING'])
-
 def create_tutorial_bot(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], "Starter", "Training Dummy", "Stock", "Chick", "None", player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
@@ -3055,8 +3073,11 @@ TUTORIAL = "Tutorial"
 RPG = "RPG"
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
+BOND_LEVELS = [10,20,30,40,50,60,70,80,90,100]
 
 MAX_LEVEL = 3000
+
+MAX_SUMMON_LEVEL = 100
 
 
 

@@ -1165,7 +1165,7 @@ class Profile(Extension):
                     embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** gained {levels_gained} levels!\nCost: {icon}{price:,}\nYou have {icon}{gems_left:,} gems left.", color=0xf1c40f)
                     milestone_message = await Quests.milestone_check(user, "BLACKSMITH", 1)
                     if milestone_message:
-                        embed.add_field(name="🏆 **Milestone**", value=milestone_message)
+                        embed.add_field(name="🏆 **Milestone**", value="\n".join(milestone_message))
                     await msg.edit(embed=embed, components=[])
 
                 elif option == '5':

@@ -90,7 +90,8 @@ class Summon:
                 self.exp_to_bond_up = ((self.ability_power_potential * (self.bond + 1)))
                 if self.ability in self.protections:
                     self.exp_to_bond_up = ((self.ability_power_potential + self.bond)) * (self.bond + 1)
-                self.exp_to_level_up = ((int(self.level) * (1 + self.bond)) * (int(self.bond) + 1)) + round(.10 * self.ability_power_potential)
+                modified_ap = crown_utilities.calculate_summon__ability_power(self.ability_power_potential, self.level, self.bond)
+                self.exp_to_level_up = crown_utilities.get_lvl_req(self.level, self.bond, modified_ap)
                 if self.exp_to_level_up <= 0:
                     self.exp_to_level_up = 20
                 if self.exp_to_bond_up <= 0:

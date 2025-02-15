@@ -137,7 +137,7 @@ class Register(Extension):
                                 available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                                 
                                 embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
-                                **{available}** Select A Starting Universe!**
+                                **{available}** Select A Starting Universe!
                                 Select a universe to earn *3* 🎴 Cards and 🦾 Arms to begin! 
 
                                 [ℹ️]__Don't overthink it!__

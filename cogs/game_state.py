@@ -296,12 +296,12 @@ class GameState(Extension):
 
                 p1_win_rewards = await battle_config.get_non_drop_rewards(battle_config.player1)
                 # questlogger = await quest(user1, battle_config.player2_card, battle_config.mode)
-                petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
-                cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
+                petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card, battle_config)
+                cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode, battle_config)
 
                 if not battle_config.is_easy_difficulty:
-                    petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
-                    cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
+                    # petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
+                    # cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
                     talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
                     arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
                     if arm_durability_message != False:
@@ -457,7 +457,7 @@ class GameState(Extension):
                     battle_stats_embed.add_field(name=f"❤️‍🩹 | Healing",
                                     value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.damage_healed}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.damage_healed}")
                     #Pet Level Embed
-                    pet_level_embed = Embed(title=f"🧬 Summon Level", description=f"View the summon xp", color=0x1abc9c)
+                    pet_level_embed = Embed(title=f"🧬 Summon Level", description=f"View summon xp", color=0x1abc9c)
                     pet_level_embed.add_field(name=f"🧬 | {battle_config.player1_card.summon_name}'s Growth",
                                     value=petlogger)
                     return win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed

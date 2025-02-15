@@ -19,7 +19,7 @@ class House(Extension):
 
     @listen()
     async def on_ready(self):
-        print('House Cog is ready!')
+        #print('House Cog is ready!')
         loggy.info('House Cog is ready')
 
     async def cog_check(self, ctx):
