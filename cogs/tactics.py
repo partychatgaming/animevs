@@ -4,7 +4,7 @@ from cogs.universe_traits.one_piece import observation_haki
 from cogs.universe_traits.chainsawman import devilization
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config, activate_solo_leveling_trait
 from cogs.universe_traits.fairytail import fairy_tail_recovery
-from cogs.universe_traits.jujutsu_kaisen import domain_expansion_check, get_domain_turns
+from cogs.universe_traits.jujutsu_kaisen import get_domain_turns
 from cogs.universe_traits.aot import calculate_titan
 import asyncio
 import random

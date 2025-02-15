@@ -1,4 +1,3 @@
-import crown_utilities
 import random
 
 def quirk_awakening(player_card, battle_config, player_title):
