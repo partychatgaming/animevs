@@ -20,7 +20,7 @@ class Options(Extension):
             return await self.bot.validate_user(ctx)
         
         @slash_command(name="autosave", description="Toggles Autosave on Battle Start.", scopes=crown_utilities.guild_ids)
-        async def autosave(ctx):
+        async def autosave(self, ctx):
             try:
                 player = db.queryUser({"DID": str(ctx.author.id)})
                 autosave_on = player.get("AUTOSAVE", False)
@@ -52,7 +52,7 @@ class Options(Extension):
                 await ctx.send("There's an issue with your Autosave. Seek support in the Anime 🆚+ support server", ephemeral=True)
         
         @slash_command(name="battleview", description="Toggles Opponent Stats in Battle", scopes=crown_utilities.guild_ids)
-        async def battleview(ctx):
+        async def battleview(self, ctx):
             try:
                 player = db.queryUser({"DID": str(ctx.author.id)})
                 opponent_info = player.get("RIFT", 0)
@@ -110,7 +110,7 @@ class Options(Extension):
                             ]
                 ,scopes=crown_utilities.guild_ids)
         @cooldown(Buckets.USER, 1, 10)
-        async def difficulty(ctx, mode):
+        async def difficulty(self, ctx, mode):
             try:
                 query = {'DID': str(ctx.author.id)}
                 player = db.queryUser(query)
@@ -153,7 +153,7 @@ class Options(Extension):
                             ]
         )], scopes=crown_utilities.guild_ids)
         @cooldown(Buckets.USER, 1, 10)
-        async def battlehistory(ctx, history: int):
+        async def battlehistory(self, ctx, history: int):
             try:
                 user_query = {"DID": str(ctx.author.id)}
                 update_query = {"$set": {"BATTLE_HISTORY": history}}
@@ -162,3 +162,10 @@ class Options(Extension):
             except Exception as e:
                 await ctx.send(e)
             
+def setup(bot):
+    Options(bot)
+
+
+
+
+

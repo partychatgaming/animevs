@@ -1335,23 +1335,23 @@ def choose_boss_room():
     else:
         return get_boss_room_3()
     
-print("Here")
+# print("Here")
 default_map['south_exits'] = get_eerie_graveyard()
 default_map['door_exit'] = get_large_tunnel()
 default_map['north_exits'] = get_pocket_dimension()
-print("here 2")
+# print("here 2")
 frosty_peaks['door_exit'] = get_mountain_mines()
 frosty_peaks['west_exits'] = get_pocket_dimension()
 frosty_peaks['north_exits'] = get_north_pole()
 frosty_peaks['south_exits'] = get_frozen_lake()
 frosty_peaks['east_exits'] = get_winter_forest()
-print("here 3")
+# print("here 3")
 scorched_lands['door_exit'] = get_desert_dunes()
 scorched_lands['east_exits'] = get_pocket_dimension()
 scorched_lands['north_exits'] = get_ancient_ruins()
 scorched_lands['south_exits'] = get_deep_desert()
 scorched_lands['west_exits'] = get_oasis()
-print("here 4")
+# print("here 4")
 
 
 city_time = choose_map_time()
@@ -1359,7 +1359,7 @@ pocket_dimension['north_exits'] = copy.deepcopy(city_time)
 pocket_dimension['south_exits'] = get_damp_woodlands()
 pocket_dimension['east_exits'] = get_frosty_peaks()
 pocket_dimension['west_exits'] = get_scorched_lands()
-print("here 5")
+# print("here 5")
 
 default_map = copy.deepcopy(default_map)
 

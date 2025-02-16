@@ -18,173 +18,253 @@ class Help(Extension):
     def __init__(self,bot):
         self.bot = bot
 
-        @listen()
-        async def on_ready(self):
-            # self.bot.logger.info(f"Help cog loaded at {now}")
-            loggy.info('Help Cog is ready')
+    @listen()
+    async def on_ready(self):
+        # self.bot.logger.info(f"Help cog loaded at {now}")
+        loggy.info('Help Cog is ready')
+    
+    async def cog_check(self, ctx):
+        return await self.bot.validate_user(ctx)
+            
+    @slash_command(name="help", description="Learn the commands", options=[
+                            SlashCommandOption(
+                                    name="selection",
+                                    description="select an option you need help with",
+                                    type=OptionType.STRING,
+                                    required=True,
+                                    autocomplete=True
+                                )
+                            ]
+        ,scopes=crown_utilities.guild_ids)
+    async def help(self, ctx, selection: str):
+        avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
+        language = self.bot.language_cache.get_user_language(db.users_col, ctx.author.id)
         
-        async def cog_check(self, ctx):
-            return await self.bot.validate_user(ctx)
+        if selection == "menu":
+            #Create a paginator using the embed list above
+            # {bot.get_text(ctx.author.id, "help.commands.ctap_commands", language)}
+            embed1 = Embed(title=f"🎒 | Build Commands", description=h.CTAP_COMMANDS, color=0x7289da)
+            embed1.set_thumbnail(url=avatar)
+
+            embed2 = Embed(title=f"🏪 | Shop Commands", description=h.SHOP_COMMANDS, color=0x7289da)
+            embed2.set_thumbnail(url=avatar)
+
+            embed3 = Embed(title=f"💱 | Trade Commands", description=h.TRADE_COMMANDS, color=0x7289da)
+            embed3.set_thumbnail(url=avatar)
+
+            embed4 = Embed(title=f"⌨️ | Rewards Commands", description=h.REWARDS_COMMANDS, color=0x7289da)
+            embed4.set_thumbnail(url=avatar)
+
+            embed_list = [embed1, embed2, embed3, embed4]
+            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+            paginator.show_select_menu = True
+            await paginator.send(ctx)
+            # return
+
+        if selection == "legend":
+            #Create a paginator using the embed list above
+            embed1 = Embed(title=f"🎴 | Card Emojis", description=h.CARD_LEGEND, color=0x7289da)
+            embed1.set_thumbnail(url=avatar)
+
+            embed2 = Embed(title=f"🎒 | Equipment Emojis", description=h.EQUIPMENT_LEGEND, color=0x7289da)
+            embed2.set_thumbnail(url=avatar)
+
+            embed3 = Embed(title=f"🪙 | Currency Emojis", description=h.CURRENCY_LEGEND, color=0x7289da)
+            embed3.set_thumbnail(url=avatar)
+
+            embed_list = [embed1, embed2, embed3]
+            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+            paginator.show_select_menu = True
+            await paginator.send(ctx)
+
+        if selection == "elements":
+            embed_list = []
+            for i in range(0, len(h.ELEMENTS_LIST), 5):
+                    sublist = h.ELEMENTS_LIST[i:i + 5]
+                    embedVar = Embed(title=f"What does each element do?",description="\n".join(sublist), color=0x7289da)
+                    embedVar.set_footer(text=f"/play - to access the battle tutorial")
+                    embed_list.append(embedVar)
+
+            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+            paginator.show_select_menu = True
+            await paginator.send(ctx)
+
+        if selection == "play":
+            #Create a paginator using the embed list above
+            embed1 = Embed(title=f"🆕 | Account Register, Delete & Lookup", description=h.CROWN_UNLIMITED_GAMES, color=0x7289da)
+            embed1.set_thumbnail(url=avatar)
+
+            embed2 = Embed(title=f"♾️ | PVE Game Modes", description=h.PVE_MODES, color=0x7289da)
+            embed2.set_thumbnail(url=avatar)
+
+            embed3 = Embed(title=f"🆚 | PVP Game Modes", description=h.PVP_MODES, color=0x7289da)
+            embed3.set_thumbnail(url=avatar)
+
+            embed_list = [embed1, embed2, embed3]
+            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+            paginator.show_select_menu = True
+            await paginator.send(ctx)
+
+        if selection == "universe":
+            embedVar = Embed(title=f"🌍 Universe Info!", description=h.UNIVERSE_STUFF, color=0x7289da)
+            embedVar.set_thumbnail(url=avatar)
+            embedVar.set_footer(text=f"/play - to access the battle tutorial")
+            await ctx.send(embed=embedVar)
+            return
+
+        if selection == "teams":
+            #Create a paginator using the embed list above
+            embed1 = Embed(title=f"🪖 | Guild Information", description=h.BOT_COMMANDS, color=0x7289da)
+            embed1.set_thumbnail(url=avatar)
+
+            embed2 = Embed(title=f"👨‍👩‍👧‍👦 | Family Information", description=h.FAMILY_COMMANDS, color=0x7289da)
+            embed2.set_thumbnail(url=avatar)
+
+            embed3 = Embed(title=f"🎏 | Association Information", description=h.ASSOCIATION_COMMANDS, color=0x7289da)
+            embed3.set_thumbnail(url=avatar)
+
+            embed_list = [embed1, embed2, embed3]
+            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+            paginator.show_select_menu = True
+            await paginator.send(ctx)
         
-@slash_command(name="help", description="Learn the commands", options=[
-                        SlashCommandOption(
-                                name="selection",
-                                description="select an option you need help with",
-                                type=OptionType.STRING,
-                                required=True,
-                                autocomplete=True
-                            )
-                        ]
-    ,scopes=crown_utilities.guild_ids)
-async def help(self, ctx: InteractionContext, selection: str):
-    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
-    language = self.bot.language_cache.get_user_language(db.users_col, ctx.author.id)
-    
-    if selection == "menu":
-        #Create a paginator using the embed list above
-        # {bot.get_text(ctx.author.id, "help.commands.ctap_commands", language)}
-        embed1 = Embed(title=f"🎒 | Build Commands", description=h.CTAP_COMMANDS, color=0x7289da)
-        embed1.set_thumbnail(url=avatar)
+        if selection == "options":
+            embedVar = Embed(title=f"Play your way!", description=h.OPTION_COMMANDS, color=0x7289da)
+            embedVar.set_thumbnail(url=avatar)
+            embedVar.set_footer(text=f"/play - to access the battle tutorial")
+            await ctx.send(embed=embedVar)
+            return
 
-        embed2 = Embed(title=f"🏪 | Shop Commands", description=h.SHOP_COMMANDS, color=0x7289da)
-        embed2.set_thumbnail(url=avatar)
-
-        embed3 = Embed(title=f"💱 | Trade Commands", description=h.TRADE_COMMANDS, color=0x7289da)
-        embed3.set_thumbnail(url=avatar)
-
-        embed4 = Embed(title=f"⌨️ | Rewards Commands", description=h.REWARDS_COMMANDS, color=0x7289da)
-        embed4.set_thumbnail(url=avatar)
-
-        embed_list = [embed1, embed2, embed3, embed4]
-        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-        paginator.show_select_menu = True
-        await paginator.send(ctx)
-        # return
-
-    if selection == "legend":
-        #Create a paginator using the embed list above
-        embed1 = Embed(title=f"🎴 | Card Emojis", description=h.CARD_LEGEND, color=0x7289da)
-        embed1.set_thumbnail(url=avatar)
-
-        embed2 = Embed(title=f"🎒 | Equipment Emojis", description=h.EQUIPMENT_LEGEND, color=0x7289da)
-        embed2.set_thumbnail(url=avatar)
-
-        embed3 = Embed(title=f"🪙 | Currency Emojis", description=h.CURRENCY_LEGEND, color=0x7289da)
-        embed3.set_thumbnail(url=avatar)
-
-        embed_list = [embed1, embed2, embed3]
-        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-        paginator.show_select_menu = True
-        await paginator.send(ctx)
-
-    if selection == "elements":
-        embed_list = []
-        for i in range(0, len(h.ELEMENTS_LIST), 5):
-                sublist = h.ELEMENTS_LIST[i:i + 5]
-                embedVar = Embed(title=f"What does each element do?",description="\n".join(sublist), color=0x7289da)
-                embedVar.set_footer(text=f"/play - to access the battle tutorial")
-                embed_list.append(embedVar)
-
-        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-        paginator.show_select_menu = True
-        await paginator.send(ctx)
-
-    if selection == "play":
-        #Create a paginator using the embed list above
-        embed1 = Embed(title=f"🆕 | Account Register, Delete & Lookup", description=h.CROWN_UNLIMITED_GAMES, color=0x7289da)
-        embed1.set_thumbnail(url=avatar)
-
-        embed2 = Embed(title=f"♾️ | PVE Game Modes", description=h.PVE_MODES, color=0x7289da)
-        embed2.set_thumbnail(url=avatar)
-
-        embed3 = Embed(title=f"🆚 | PVP Game Modes", description=h.PVP_MODES, color=0x7289da)
-        embed3.set_thumbnail(url=avatar)
-
-        embed_list = [embed1, embed2, embed3]
-        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-        paginator.show_select_menu = True
-        await paginator.send(ctx)
-
-    if selection == "universe":
-        embedVar = Embed(title=f"🌍 Universe Info!", description=h.UNIVERSE_STUFF, color=0x7289da)
-        embedVar.set_thumbnail(url=avatar)
-        embedVar.set_footer(text=f"/play - to access the battle tutorial")
-        await ctx.send(embed=embedVar)
-        return
-
-    if selection == "teams":
-        #Create a paginator using the embed list above
-        embed1 = Embed(title=f"🪖 | Guild Information", description=h.BOT_COMMANDS, color=0x7289da)
-        embed1.set_thumbnail(url=avatar)
-
-        embed2 = Embed(title=f"👨‍👩‍👧‍👦 | Family Information", description=h.FAMILY_COMMANDS, color=0x7289da)
-        embed2.set_thumbnail(url=avatar)
-
-        embed3 = Embed(title=f"🎏 | Association Information", description=h.ASSOCIATION_COMMANDS, color=0x7289da)
-        embed3.set_thumbnail(url=avatar)
-
-        embed_list = [embed1, embed2, embed3]
-        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-        paginator.show_select_menu = True
-        await paginator.send(ctx)
-    
-    if selection == "options":
-        embedVar = Embed(title=f"Play your way!", description=h.OPTION_COMMANDS, color=0x7289da)
-        embedVar.set_thumbnail(url=avatar)
-        embedVar.set_footer(text=f"/play - to access the battle tutorial")
-        await ctx.send(embed=embedVar)
-        return
-
-    if selection == "classes":
-        await classes(ctx)
-        return
-    
-    if selection == "titles":
-        await titles(ctx)
-        return
-
-    if selection =="arms":
-        await arms(ctx)
-        return
-
-    if selection == "enhancers":
-        await enhancers(ctx)
-        return
+        if selection == "classes":
+            await classes(ctx)
+            return
         
-    if selection == "manual":
-        await animevs(ctx)
-        return
+        if selection == "titles":
+            await titles(ctx)
+            return
+
+        if selection =="arms":
+            await arms(ctx)
+            return
+
+        if selection == "enhancers":
+            await enhancers(ctx)
+            return
+            
+        if selection == "manual":
+            await animevs(ctx)
+            return
 
 
-@help.autocomplete("selection")
-async def help_autocomplete(self, ctx: AutocompleteContext):
-    """Dynamically generate choices based on user's language"""
-    # Get user's language preference
-    user_language = self.bot.language_cache.get_user_language(db.users_col, ctx.author.id)
-    
-    # Get all possible choices for user's language
-    options = ChoicesManager.get_help_choices(self.bot.translator, user_language)
-    choices = []
+    @help.autocomplete("selection")
+    async def help_autocomplete(self, ctx: AutocompleteContext):
+        """Dynamically generate choices based on user's language"""
+        # Get user's language preference
+        user_language = self.bot.language_cache.get_user_language(db.users_col, ctx.author.id)
+        
+        # Get all possible choices for user's language
+        options = ChoicesManager.get_help_choices(self.bot.translator, user_language)
+        choices = []
 
-    # Iterate over the options and append matching ones to the choices list
-    for option in options:
-        if not ctx.input_text:
-            # If input_text is empty, append the first 24 options to choices
-            if len(choices) < 24:
-                choices.append(option)
-            else:
-                break
-        else:
-            # If input_text is not empty, append the first 24 options that match the input to choices
-            if option["name"].lower().startswith(ctx.input_text.lower()):
-                choices.append(option)
-                if len(choices) == 24:
+        # Iterate over the options and append matching ones to the choices list
+        for option in options:
+            if not ctx.input_text:
+                # If input_text is empty, append the first 24 options to choices
+                if len(choices) < 24:
+                    choices.append(option)
+                else:
                     break
+            else:
+                # If input_text is not empty, append the first 24 options that match the input to choices
+                if option["name"].lower().startswith(ctx.input_text.lower()):
+                    choices.append(option)
+                    if len(choices) == 24:
+                        break
 
-    await ctx.send(choices=choices)
+        await ctx.send(choices=choices)
 
 
-async def enhancers(self, ctx):
+    @slash_command(name="traits", description="List of Universe Traits", scopes=crown_utilities.guild_ids)
+    @slash_option(
+    name="universe",
+    description="Universe to list traits for",
+    opt_type=OptionType.STRING,
+    required=False,
+    autocomplete=True
+    )
+    async def traits(self, ctx: InteractionContext, universe: str = ""):
+        try: 
+            traits = ut.formatted_traits
+
+            if not universe:
+                embed_list = []
+                for trait in traits:
+                    universe = db.queryUniverse({'TITLE': trait['NAME']})
+                    embedVar = Embed(
+                    title=f"{trait['NAME']} Trait",
+                    description=textwrap.dedent(f"""
+                    **{trait['EFFECT']}**:
+                    {trait['TRAIT']}
+                    """)
+                    )
+
+                    embed_list.append(embedVar)
+
+                paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+                paginator.show_select_menu = True
+                await paginator.send(ctx)
+            else:
+                universe = db.queryUniverse({'TITLE': universe})
+                if not universe:
+                    await ctx.send("That universe does not exist.")
+                    return
+                for trait in traits:
+                    if trait['NAME'] == universe['TITLE']:
+                        embedVar = Embed(
+                            title=f"{trait['NAME']} Trait",
+                            description=textwrap.dedent(f"""
+                            **{trait['EFFECT']}**:
+                            {trait['TRAIT']}
+                            """)
+                        )
+                    await ctx.send(embed=embedVar)
+                    return
+                return
+        except Exception as ex:
+            loggy.error(f"Error in Traits command: {ex}")
+            await ctx.send("There's an issue with your Traits List. Check with support.", ephemeral=True)
+            return
+
+
+    @traits.autocomplete("universe")
+    async def traits_autocomplete(ctx: AutocompleteContext):
+        choices = []
+        options = crown_utilities.get_cached_universes()
+        """
+        for option in options
+        if ctx.input_text is empty, append the first 24 options in the list to choices
+        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
+        """
+            # Iterate over the options and append matching ones to the choices list
+        for option in options:
+                if not ctx.input_text:
+                    # If input_text is empty, append the first 24 options to choices
+                    if len(choices) < 24:
+                        choices.append(option)
+                    else:
+                        break
+                else:
+                    # If input_text is not empty, append the first 24 options that match the input to choices
+                    if option["name"].lower().startswith(ctx.input_text.lower()):
+                        choices.append(option)
+                        if len(choices) == 24:
+                            break
+
+        await ctx.send(choices=choices)
+
+
+
+async def enhancers(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
 
    try:
@@ -271,7 +351,7 @@ async def enhancers(self, ctx):
             await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
             return
 
-async def titles(self, ctx):
+async def titles(ctx):
     avatar = "https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
     try:
         # Boosts
@@ -388,7 +468,7 @@ async def titles(self, ctx):
                 await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
                 return
 
-async def arms(self, ctx):
+async def arms(ctx):
     avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
     try:
         embedVar10 = Embed(title=f"Arm Enhancer Type: Ability",color=0x7289da)
@@ -433,7 +513,7 @@ async def arms(self, ctx):
                 await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
                 return
 
-async def classes(self, ctx):
+async def classes(ctx):
     avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
         
     class_descriptions = [
@@ -936,100 +1016,11 @@ async def animevs(ctx):
         await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
         return
 
-@slash_command(name="traits", description="List of Universe Traits", scopes=crown_utilities.guild_ids)
-@slash_option(
-   name="universe",
-   description="Universe to list traits for",
-   opt_type=OptionType.STRING,
-   required=False,
-   autocomplete=True
-)
-async def traits(self, ctx: InteractionContext, universe: str = ""):
-   try: 
-      traits = ut.formatted_traits
 
-      if not universe:
-         embed_list = []
-         for trait in traits:
-            universe = db.queryUniverse({'TITLE': trait['NAME']})
-            embedVar = Embed(
-               title=f"{trait['NAME']} Trait",
-               description=textwrap.dedent(f"""
-               **{trait['EFFECT']}**:
-               {trait['TRAIT']}
-               """)
-            )
-
-            embed_list.append(embedVar)
-
-         paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-         paginator.show_select_menu = True
-         await paginator.send(ctx)
-      else:
-         universe = db.queryUniverse({'TITLE': universe})
-         if not universe:
-            await ctx.send("That universe does not exist.")
-            return
-         for trait in traits:
-            if trait['NAME'] == universe['TITLE']:
-               embedVar = Embed(
-                  title=f"{trait['NAME']} Trait",
-                  description=textwrap.dedent(f"""
-                  **{trait['EFFECT']}**:
-                  {trait['TRAIT']}
-                  """)
-               )
-               await ctx.send(embed=embedVar)
-               return
-         return
-   except Exception as ex:
-      loggy.error(f"Error in Traits command: {ex}")
-      # trace = []
-      # tb = ex.__traceback__
-      # while tb is not None:
-      #    trace.append({
-      #          "filename": tb.tb_frame.f_code.co_filename,
-      #          "name": tb.tb_frame.f_code.co_name,
-      #          "lineno": tb.tb_lineno
-      #    })
-      #    tb = tb.tb_next
-      # print(str({
-      #    'type': type(ex).__name__,
-      #    'message': str(ex),
-      #    'trace': trace
-      # }))
-      await ctx.send("There's an issue with your Traits List. Check with support.", ephemeral=True)
-      return
+def setup(bot):
+    Help(bot)
 
 
-@traits.autocomplete("universe")
-async def traits_autocomplete(ctx: AutocompleteContext):
-   choices = []
-   options = crown_utilities.get_cached_universes()
-   """
-   for option in options
-   if ctx.input_text is empty, append the first 24 options in the list to choices
-   if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
-   """
-    # Iterate over the options and append matching ones to the choices list
-   for option in options:
-        if not ctx.input_text:
-            # If input_text is empty, append the first 24 options to choices
-            if len(choices) < 24:
-                choices.append(option)
-            else:
-                break
-        else:
-            # If input_text is not empty, append the first 24 options that match the input to choices
-            if option["name"].lower().startswith(ctx.input_text.lower()):
-                choices.append(option)
-                if len(choices) == 24:
-                    break
-
-   await ctx.send(choices=choices)
 
 
-# @slash_command(name="allowance", description="Gift Family member an allowance", options=[
-#    SlashCommandOption(name="player", description="Player to give allowance to", type=OptionType.USER, required=True),
-# ], scopes=crown_utilities.guild_ids)
-# @cooldown(Buckets.USER, 1, 60)
+
