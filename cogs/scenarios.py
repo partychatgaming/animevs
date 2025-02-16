@@ -124,7 +124,7 @@ async def create_scenario_embed(scenario, player):
             {type_of_battle}
             {enemey_level_message}
             {gold_reward_message}
-
+            *Use /difficulty to update your Rewards!*
             {difficulty_message}
 
             ⚔️ {str(number_of_fights)} Opponents

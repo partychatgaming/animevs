@@ -522,21 +522,6 @@ class GameModes(Extension):
             # if mode in crown_utilities.BOSS:
             #     print("boss")
 
-
-            # if player1.get_locked_feature(mode):
-            #     await ctx.send(player1._locked_feature_message)
-            #     return
-
-            # universe_selection = await select_universe(self, ctx, registered_player, mode, None)
-            
-            # if universe_selection == None:
-            #     return
-
-            # battle = Battle(mode, player1)
-
-            # battle.set_universe_selection_config(universe_selection)
-                
-            # await battle_commands(self, ctx, battle, player1, None, player2=None, player3=None)
         except Exception as ex:
             player.make_available()
             custom_logging.debug(ex)
