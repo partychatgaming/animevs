@@ -372,7 +372,7 @@ class GameModes(Extension):
 
     # @slash_command(description="🗺️ RPG game mode")
     @cooldown(Buckets.USER, 1, 15)
-    async def rpg(self, ctx: InteractionContext):
+    async def rpg(self, ctx: InteractionContext, universe=None):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
@@ -384,7 +384,9 @@ class GameModes(Extension):
 
             # Create a unique RPG instance
             rpg_id = str(uuid.uuid4())
-            player.create_rpg_instance(RPG(self.bot, player))
+            if universe:
+                loggy.info(f"RPG command initiated by {registered_player['DID']} with universe: {universe}")
+            player.create_rpg_instance(RPG(self.bot, player, universe))
             # player.rpg_instance = RPG(self.bot, player)
             rpg_instance = player.rpg_instance
             loggy.info(f"Created RPG instance with ID: {rpg_id}")
@@ -460,14 +462,6 @@ class GameModes(Extension):
             # Create embed that says to select a universe 
             universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
-        # if universe and mode == "RPG":
-        #     #Create a small embed to show updating explore location
-        #     embed = Embed(title=f"🗺️ | {universe} Adventure", description=f"🌌 | *Updating your explore location to {universe}*", color=0x696969)
-        #     player.set_explore(universe)
-        #     rpg_embed = await ctx.send(embed=embed)
-        #     await rpg_embed.delete(delay=2)
-        #     #return
-
         """
         This command will be used to send all modes to either unvierse selection or battle commands
         If sent to unvierse selection the battle will be created inside the pagination of the universe selection
@@ -496,6 +490,9 @@ class GameModes(Extension):
             #     await abyss(self, ctx, registered_player, mode)
             #     return
             if mode == crown_utilities.RPG:
+                if universe:
+                    await self.rpg(ctx, universe)
+                    return
                 await self.rpg(ctx)
                 return
             

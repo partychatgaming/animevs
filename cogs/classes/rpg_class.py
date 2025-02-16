@@ -33,7 +33,7 @@ def query_rpg_cards(universe, start, end, difficulty):
 #     return await rpg_story(player_name, universe, list(combatants_tuple), map_name)
 
 class RPG:
-    def __init__(self,bot, _player):
+    def __init__(self,bot, _player, universe):
         self._uuid = None
         self.bot = bot
         self.mode = "RPG"
@@ -114,10 +114,17 @@ class RPG:
         self.player_atk_boost = False
         self.player_def_boost = False
         self.player_hp_boost = False
-
+        
+        self.selected_universe = universe
+        loggy.info(f"Selected Universe: {self.selected_universe}")
 
         #self.universe = self.player_card_data.universe
-        self.universe = self._player.explore_location
+        if self.selected_universe == None:
+            self.universe = self._player.explore_location
+        elif self.selected_universe == "Unbound":
+            self.universe = self.player_card_universe
+        else:
+            self.universe = self.selected_universe
         self.universe_data = db.queryUniverse({'TITLE': self.universe})
         if self.universe in ['NULL','Null','null']:
             self.universe = "Unbound"
@@ -681,7 +688,7 @@ class RPG:
         """
         if not map_dict:
             max_attempts = 2
-            universe = player.explore_location.lower()  # Use player's explore_location
+            universe = self.universe.lower()  # Use player's explore_location
             for attempt in range(max_attempts):
                 try:
                     # Dynamically import the correct maps module
