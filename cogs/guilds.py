@@ -332,7 +332,7 @@ class Teams(Extension):
     SlashCommandOption(name="amount", description="Amount to pay", type=OptionType.INTEGER, required=True),
     ], scopes=crown_utilities.guild_ids)
     @cooldown(Buckets.USER, 1, 10)
-    async def pay(ctx, player, amount):
+    async def pay(self, ctx, player, amount):
         await ctx.defer()
         try:
             user = db.queryUser({'DID': str(ctx.author.id)})
@@ -433,7 +433,7 @@ class Teams(Extension):
     )
     ],
     scopes=crown_utilities.guild_ids)
-    async def guildoperations(ctx, player, operation: str):
+    async def guildoperations(self, ctx, player, operation: str):
         await ctx.defer()
         try:
             user = crown_utilities.create_player_from_data(db.queryUser({"DID": str(ctx.author.id)}))
@@ -557,7 +557,7 @@ class Teams(Extension):
     SlashCommandOption(name="amount", description="Amount to donate", type=OptionType.INTEGER, required=True),
     ], scopes=crown_utilities.guild_ids)
     @cooldown(Buckets.USER, 1, 60)
-    async def donate(ctx, amount):
+    async def donate(self, ctx, amount):
         await ctx.defer()
         try:
             user = crown_utilities.create_player_from_data(db.queryUser({"DID": str(ctx.author.id)}))

@@ -556,7 +556,8 @@ class RPG:
             self._player.player_position = self._player.map['spawn_portal']
             self._player.new_map = True
             # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-            await self.place_emojis()
+            if new_map['exit_points'] != "Boss":
+                await self.place_emojis()
 
 
         # Set the player token on the map at the player's position
@@ -718,7 +719,9 @@ class RPG:
 
                     if hasattr(maps_module, "default_map"):
                         # map_dict = random.choice(map_dicts)
-                        map_dict = maps_module.default_map
+                        map_choice = ['default_map', 'scorched_lands', 'frosty_peaks', 'pocket_dimension', 'eerie_graveyard']
+                        choice = random.choice(map_choice)
+                        map_dict = getattr(maps_module, choice)
                         loggy.info(f"Loaded default map from unbound.py: {map_dict['map_name']}")
                         break
 
@@ -733,11 +736,12 @@ class RPG:
         # Save the entire map dictionary to the player's profile
         player.map = deepcopy(map_dict)
         loggy.info(f"Map configured and saved for player {player.disname}: {player.map['map_name']}")
-        x, y = self.spawn_portal
+        x, y = player.map['spawn_portal']
         if player.map["map"][x][y] in self.passable_points:
             loggy.info(f"Player token placed at spawn portal: {player.map['map'][x][y]}{player.map['spawn_portal']}")
             player.map["map"][x][y] = f"{self.player_token}"
             self._player.standing_on = player.map["standing_on"]
+            self._player.player_position = player.map['spawn_portal']
 
         self._player.map_level = self.rpg_universe_level_check()
     
@@ -2005,7 +2009,7 @@ class RPG:
                     gems_gained = random.randint(1,500) + miner_bonus
                     if npc in self.gems:
                         gems_gained = gems_gained * 2
-                        self.previous_moves.append(f"({npc}) You found Raw Gems!")
+                        self.previous_moves.append(f"({npc}) You found Raw Crystal!")
                     else:
                         self.previous_moves.append(f"({npc}) You found Gemstone!")
                     self.player_gems += gems_gained
@@ -3137,7 +3141,7 @@ class RPG:
         buildEmbed.set_footer(text="🗺️ Adventure Map on the next page!")
 
 
-        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self._player.map['map_name']}*\n**🗺️** | *{self._player.map['map_area']}*\n{self.get_map_message()}", color=0xFFD700)
+        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self.universe}*\n**🗺️** | *{self._player.map['map_name']}*\n{self.get_map_message()}", color=0xFFD700)
         map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
 
         quest_embed = Embed(title=f"🔍Adventure Mission Progress...", description="*Your Mission & Quest progress will be shown below*", color=0xFFD700)
@@ -3221,7 +3225,7 @@ class RPG:
         buildEmbed.set_footer(text="🗺️ Adventure Map on the next page!")
 
 
-        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self._player.map['map_name']}*\n**🗺️** | *{self._player.map['map_area']}*\n{self.get_map_message()}", color=0x00FF00)
+        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self.universe}*\n**🗺️** | *{self._player.map['map_name']}*\n{self.get_map_message()}", color=0xFFD700)
         if self.mission_completed:
             map_embed = Embed(title=f"🪜 Floor {self._player.map_level} Completed!", description="🏆 Good luck on the next floor!\n🗺️*Your Adventure Map will be shown below*", color=0xFFD700)
             map_embed.add_field(name=f"**🗺️ Final Map", value=f"{self.get_map_message()}")
@@ -3347,7 +3351,7 @@ emoji_labels = {
             "🪜": "Climbing Gear", "🪓": "Chopping Axe", "🎣": "Fishing Pole","⛏️": "Pickaxe", "🔨": "Hammer", "⚒️": "Engineer Kit" , "💀": "Remains", "🦴": "Remains", "☠️": "Remains", 
             "🥩": "Food", "🍖": "Food", "🥕": "Food", "⚔️": "Combat Encounter", "🏴‍☠️": "Combat Encounter","🆚": "Vs+ Encounter", "💫": "Random Encounter", '🧱': "Ore",'🪨': "Rock",'🌵': 'Cactus',
             "🏜️": "Looted Cactus","🥋" : "Training Dummy", "None": "Nothing", "🎯" : "Elimination Quest", "🔎" : "Investigation Quest", f"<a:Shiney_Gold_Coins_Inv:1085618500455911454>" : "Gold",
-            "🗡️": "Attack Up!","🛡️": "Defense Up!","💗":"Health Up!", "🚗": "Car", "🪦":"Grave", "🛣️":"Motorway","Car": "🚗"
+            "🗡️": "Attack Up!","🛡️": "Defense Up!","💗":"Health Up!", "🚗": "Car", "🪦":"Grave", "🛣️":"Motorway","Car": "🚗", "💎": "Raw Crystal"
             
         }
 

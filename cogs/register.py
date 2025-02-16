@@ -25,7 +25,6 @@ class Register(Extension):
     @listen()
     async def on_ready(self):
         loggy.info('Register cog is ready')
-        print('Register cog is ready')
     
     @slash_command(description="Register for Anime VS+", scopes=crown_utilities.guild_ids)
     async def register(self, ctx):

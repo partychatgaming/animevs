@@ -1226,6 +1226,15 @@ def queryRPGCards(args, map_level, number_of_cards):
         selected_cards = data  # If less than 7 cards are available, return all of them
     return selected_cards
 
+def queryRPGBosses(args, map_level, number_of_cards):
+    data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["BOSS"]}}))
+    # Shuffle the data and select 7 cards
+    if len(data) > number_of_cards:
+        selected_cards = random.sample(data, number_of_cards)
+    else:
+        selected_cards = data  # If less than 7 cards are available, return all of them
+    return selected_cards
+
 
 def queryExclusiveDropCards(args):
     data = cards_col.find({'UNIVERSE': args, 'EXCLUSIVE': True, 'AVAILABLE': True, 'HAS_COLLECTION': False, 'IS_SKIN': False, 'TIER': {'$in': acceptable}})
