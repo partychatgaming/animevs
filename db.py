@@ -1223,7 +1223,7 @@ def queryRPGCards(args, map_level, number_of_cards, difficulty):
     elif difficulty == 'NORMAL':
         data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}}))
     elif difficulty == 'HARD':
-        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS", "SCENARIO", "RAID"]}}))
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["DUNGEONS", "SCENARIO"]}}))
     # Shuffle the data and select 7 cards
     if len(data) > number_of_cards:
         selected_cards = random.sample(data, number_of_cards)
