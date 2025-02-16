@@ -1216,9 +1216,14 @@ def querySpecificDropCards(args):
     data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}})
     return data 
 
-def queryRPGCards(args, map_level, number_of_cards):
+def queryRPGCards(args, map_level, number_of_cards, difficulty):
 
-    data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}}))
+    if difficulty == 'EASY':
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES"]}}))
+    elif difficulty == 'NORMAL':
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}}))
+    elif difficulty == 'HARD':
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS", "SCENARIO", "RAID"]}}))
     # Shuffle the data and select 7 cards
     if len(data) > number_of_cards:
         selected_cards = random.sample(data, number_of_cards)

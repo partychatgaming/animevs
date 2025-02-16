@@ -24,8 +24,8 @@ from copy import deepcopy
 
 
 @lru_cache(maxsize=128)
-def query_rpg_cards(universe, start, end):
-    return db.queryRPGCards(universe, start, end)
+def query_rpg_cards(universe, start, end, difficulty):
+    return db.queryRPGCards(universe, start, end, difficulty)
 
 # @lru_cache(maxsize=32)
 # async def cached_rpg_story(player_name, universe, combatants_tuple, map_name):
@@ -650,8 +650,8 @@ class RPG:
 
     async def fetch_combatants(self, number_of_combatants):
         if self.universe == "Unbound":
-            return query_rpg_cards(self.player_card_universe, 1, number_of_combatants)
-        return query_rpg_cards(self.universe, 1, number_of_combatants)
+            return query_rpg_cards(self.player_card_universe, 1, number_of_combatants, self.difficulty)
+        return query_rpg_cards(self.universe, 1, number_of_combatants, self.difficulty)
 
 
     def remove_combatant(self):
