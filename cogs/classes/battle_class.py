@@ -433,6 +433,7 @@ class Battle:
             if self.is_tales_game_mode:
                 self.list_of_opponents_by_name = self.selected_universe_full_data['CROWN_TALES']
                 self.total_number_of_opponents = len(self.list_of_opponents_by_name)
+                print(self.total_number_of_opponents)
 
             if self.is_boss_game_mode:
                 self.name_of_boss = universe_selection_object['BOSS_NAME']

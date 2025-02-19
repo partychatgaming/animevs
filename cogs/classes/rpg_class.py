@@ -3167,8 +3167,8 @@ class RPG:
         gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold):,} Coins"
         gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {round(self.player_gems):,} Gems"
         if self.mission_completed:
-            gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold * 10):,} Coins"
-            gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {round(self.player_gems * 10):,} Gems"
+            gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold):,} Coins"
+            gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {round(self.player_gems):,} {self.universe} Gems"
         
         inventory_message = "No Items Aquired"
         skills_message = "No Skills Aquired"
@@ -3180,7 +3180,7 @@ class RPG:
             skills_message = ""
             for skill in self.player_skills:
                 skills_message += f"|{skill}"
-
+        
 
         
         

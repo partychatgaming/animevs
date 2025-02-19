@@ -81,16 +81,16 @@ def decrease_solo_leveling_temp_values(player_card, protection, opponent_card, b
             opponent_card._parry_value = opponent_card.temp_opp_parry_value
             opponent_card.temp_opp_arm_parry_active = True
             opponent_card.temp_opp_parry_value = 0
-
-        battle_config.add_to_battle_log(f"♾️ {opponent_card.name} arise, ressurrecting your arm")
+    
+        #battle_config.add_to_battle_log(f"♾️ {opponent_card.name} arise, ressurrecting your arm")
 
 
 def activate_solo_leveling_trait(player_card, battle_config, opponent_card):
     # Make sure that if opponent shield, barrier, or parry breaks you gain that temp value
     if player_card.universe == "Solo Leveling":
-        if opponent_card.temp_opp_arm_shield_active and not opponent_card.shield_active:
+        if opponent_card.temp_opp_arm_shield_active and player_card.shield_arise and not opponent_card.shield_active:
             if player_card.shield_active:
-                player_card._shield_value = player_card._shield_value + opponent_card._shield_value
+                player_card._shield_value = player_card._shield_value + opponent_card.temp_opp_shield_value
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} arise, {opponent_card.name}'s shield is now yours")
                 player_card.solo_leveling_trait_swapped = True
             elif not player_card.shield_active:
@@ -98,19 +98,21 @@ def activate_solo_leveling_trait(player_card, battle_config, opponent_card):
                 player_card._shield_value = opponent_card.temp_opp_shield_value
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} arise, {opponent_card.name}'s shield is now yours")
                 player_card.solo_leveling_trait_swapped = True
-        
-        elif opponent_card.temp_opp_arm_parry_active and not opponent_card.barrier_active:
+            opponent_card.temp_opp_arm_shield_active = False
+            opponent_card.temp_opp_shield_value = 0
+
+        elif opponent_card.temp_opp_arm_barrier_active and player_card.barrier_arise and not opponent_card.barrier_active:
             if player_card.barrier_active:
                 player_card._barrier_value = player_card._barrier_value + opponent_card.temp_opp_barrier_value
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} arise, {opponent_card.name}'s parry is now yours'")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} arise, {opponent_card.name}'s barrier is now yours'")
                 player_card.solo_leveling_trait_swapped = True
             elif not player_card.barrier_active:
                 player_card.barrier_active = True
                 player_card._barrier_value = opponent_card.temp_opp_barrier_value
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} arise, {opponent_card.name}'s parry is now yours")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} arise, {opponent_card.name}'s barrier is now yours")
                 player_card.solo_leveling_trait_swapped = True
         
-        elif opponent_card.temp_opp_arm_parry_active and not opponent_card._parry_value:
+        elif opponent_card.temp_opp_arm_parry_active and player_card.parry_arise and not opponent_card._parry_value:
             if player_card.parry_active:
                 player_card._parry_value = player_card._parry_value + opponent_card.temp_opp_parry_value
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} arise, {opponent_card.name}'s parry is now yours")
