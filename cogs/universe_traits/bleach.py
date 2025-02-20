@@ -236,4 +236,7 @@ def spiritual_pressure(player_card, battle_config, opponent_card):
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} attacked with their spiritual pressure")
         player_card.activate_element_check(battle_config, dmg, opponent_card)
 
-
+soul_reaper = "**Soul Reaper:**\n*Shikai*: On Resolve: Gain +ATK/DEF × Blitz Count\n*Bankai*: Execute: (Turn × Blitz × Tier) true dmg"
+quincy = " **Quincy:**\n*Vollständig*: On Resolve: If player Blitzed during battle gain, 2×Ult AP; else +50% AP. -25% DEF\n*Schrift*: Execute: Full heal"
+hollow = "**Hollow:**\n*Resurrección*: On Resolve: Gain AP, ATK, DEF by LVL\n*Segunda Etapa*: Execute: Critical Strikes >50% HP"
+fullbringer = "**Fullbringer:**\n*Fullbring Activation*: On Resolve: Gain +200 Stamina, Extend Focus Buffs\n*Fullbring Completion*: Execute: +ATK/DEF by Stamina × Tier"

@@ -15,6 +15,7 @@ from interactions.ext.paginators import Paginator
 from interactions import ActionRow, Button, ButtonStyle, File, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, cooldown, Buckets, Embed, Extension, slash_option, AutocompleteContext
 
 
+
 emojis = ['👍', '👎']
 
 class Profile(Extension):
