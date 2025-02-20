@@ -3418,7 +3418,7 @@ class Card:
             if hits_remaining > 0:
                 message = f"[{hits_remaining} more {'hit' if hits_remaining == 1 else 'hits'} until {opponent_card.name} freezes]"
             else:
-                message = f"[{opponent_card.name} is frozen {opponent_card.name} lost {round(dmg['DMG'] * .50):,} attack and defense]"
+                message = f"[{opponent_card.name} is frozen and lost 🔻{round(dmg['DMG'] * .50):,} attack and defense]"
                 self.freeze_enh = True
                 self.ice_duration = self.ice_buff_value
                 self.ice_counter = 0
@@ -3438,7 +3438,6 @@ class Card:
         )
         battle_log_message += f"\n{message}"
         battle_config.add_to_battle_log(battle_log_message)
-        battle_config.add_to_battle_log()
 
     def gun_effect_handler(self, battle_config, dmg, opponent_card):
         opponent_card.health = opponent_card.health - dmg['DMG']
@@ -3954,12 +3953,14 @@ class Card:
                 if not any([enhancer_used, attack_missed]):
                     self.attack_handler(battle_config, dmg, opponent_card)
                 battle_config.turn_total = battle_config.turn_total + 1
+                return
             else:
                 print("Something broke in the above code")
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
                 battle_config.repeat_turn()
         except Exception as e:
             print(e)
+            print("Here")
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
             battle_config.next_turn()
 

@@ -648,8 +648,9 @@ class Player:
                 response = db.updateUserNoFilter(self.user_query, update_query)
 
 
-            for card in self.card_levels:
-                if card['ID'] == card.card_id:
+            for card_lvl in self.card_levels:
+                #print(card)
+                if card_lvl['ID'] == card.card_id:
                     update_query = {'$pull': {'CARD_LEVELS': card}}
                     response = db.updateUserNoFilter(self.user_query, update_query)
 
