@@ -19,7 +19,7 @@ from cogs.universe_traits.one_piece import conquerors_haki, armament
 from cogs.universe_traits.yuyu_hakusho import spirit_resolved, meditation
 from cogs.universe_traits.my_hero_academia import plus_ultra, quirk_awakening
 from cogs.universe_traits.aot import titan_mode, rally, omnigear
-from cogs.universe_traits.bleach import first_release, spiritual_pressure
+from cogs.universe_traits.bleach import first_release, spiritual_pressure, character_type, soul_reaper, quincy, hollow, fullbringer
 from cogs.universe_traits.god_of_war import acension
 from cogs.universe_traits.fate import command_seal
 from cogs.universe_traits.pokemon import evolutions
@@ -736,8 +736,22 @@ class Card:
                         self.pokemon_universe = True
                         if trait['NAME'] == 'Pokemon':
                             mytrait = trait
+
+                if self.universe == "Bleach":
+                    for character in character_type:
+                        if character['NAME'] == self.name:
+                            release_type = f"{character['FIRST_RELEASE']}"
+                            if release_type == "SHIKAI":
+                                mytrait['TRAIT'] = soul_reaper
+                            if release_type == "VOLLSTANDIG":
+                                mytrait['TRAIT'] = quincy
+                            if release_type == "FULLBRING ACTIVATION":
+                                mytrait['TRAIT'] = fullbringer
+                            if release_type == "RESURRECCION":
+                                mytrait['TRAIT'] = hollow
+
                 if mytrait:
-                    self.traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
+                    self.traitmessage = f"{mytrait['EFFECT']}:\n{mytrait['TRAIT']}"
                 else:
                     self.traitmessage = ""
 
