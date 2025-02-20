@@ -443,29 +443,31 @@ class GameState(Extension):
                     battle_stats_embed = Embed(title=f"📊 Battle Stats", description=f"View the battle stats here", color=0x1abc9c)
 
                     def get_stat_emoji(p1,p2):
+                        if p1 == 0 and p2 == 0:
+                            return "-"
                         if p1 > p2:
-                            return "👑"
+                            return "🆚"
                         elif p1 == p2:
                             return "🤝"
                         else:
-                            return " "
+                            return "-"
 
                     #Most Focus
                     f_message = battle_config.get_most_focused(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"🌀 | Focus Count",
-                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.focus_count} {get_stat_emoji(battle_config.player2_card.focus_count,battle_config.player1_card.focus_count)}\n*{battle_config.player1_card.name}*: {battle_config.player1_card.focus_count} {get_stat_emoji(battle_config.player1_card.focus_count,battle_config.player2_card.focus_count)}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.focus_count} {get_stat_emoji(battle_config.player2_card.focus_count,battle_config.player1_card.focus_count)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.focus_count} {get_stat_emoji(battle_config.player1_card.focus_count,battle_config.player2_card.focus_count)}")
                     #Most Blitz
                     b_message = battle_config.get_most_blitzed(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"💢 | Blitz Count",
-                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.blitz_count} {get_stat_emoji(battle_config.player2_card.blitz_count,battle_config.player1_card.blitz_count)}\n*{battle_config.player1_card.name}*: {battle_config.player1_card.blitz_count} {get_stat_emoji(battle_config.player1_card.focus_count,battle_config.player2_card.focus_count)}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.blitz_count} {get_stat_emoji(battle_config.player2_card.blitz_count,battle_config.player1_card.blitz_count)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.blitz_count} {get_stat_emoji(battle_config.player1_card.blitz_count,battle_config.player2_card.blitz_count)}")
                     #Most Damage Dealth
                     d_message = battle_config.get_most_damage_dealt(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"💥 | Damage Dealt",
-                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.damage_dealt} {get_stat_emoji(battle_config.player2_card.damage_dealt,battle_config.player1_card.damage_dealt)}\n*{battle_config.player1_card.name}*: {battle_config.player1_card.damage_dealt} {get_stat_emoji(battle_config.player1_card.focus_count,battle_config.player2_card.focus_count)}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.damage_dealt} {get_stat_emoji(battle_config.player2_card.damage_dealt,battle_config.player1_card.damage_dealt)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.damage_dealt} {get_stat_emoji(battle_config.player1_card.damage_dealt,battle_config.player2_card.damage_dealt)}")
                     #Most Healed
                     h_message = battle_config.get_most_damage_healed(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"❤️‍🩹 | Healing",
-                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.damage_healed} {get_stat_emoji(battle_config.player2_card.damage_healed,battle_config.player1_card.damage_healed)}\n*{battle_config.player1_card.name}*: {battle_config.player1_card.damage_healed} {get_stat_emoji(battle_config.player1_card.focus_count,battle_config.player2_card.focus_count)}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.damage_healed} {get_stat_emoji(battle_config.player2_card.damage_healed,battle_config.player1_card.damage_healed)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.damage_healed} {get_stat_emoji(battle_config.player1_card.damage_healed,battle_config.player2_card.damage_healed)}")
                     #Pet Level Embed
                     pet_level_embed = Embed(title=f"🧬 Summon Progression", description=f"View summon xp", color=0x1abc9c)
                     pet_level_embed.add_field(name=f"🧬 | {battle_config.player1_card.summon_name}'s Growth",

@@ -1239,16 +1239,6 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         if selected_move in [1, 2, 3, 4, 7]:
             damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
 
-            # This is unnecessary and causes the monstrosity effect to run multiple times
-            # if selected_move != 7:
-            #     if turn_card._monstrosity_active and turn_card.used_resolve:
-            #         turn_card._monstrosity_value = turn_card._monstrosity_value - 1
-            #         if turn_card._monstrosity_value <= 0:
-            #             turn_card._monstrosity_active = False
-            #             turn_card._monstrosity_value = 0
-            #         battle_config.add_to_battle_log(f"{turn_card.name} has {turn_card._monstrosity_value} double strikes left")
-            #         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
-
         if selected_move == 5:
             await turn_card.resolving(battle_config, turn_title, opponent_card, turn_player)
             if battle_config.is_boss_game_mode:

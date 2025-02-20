@@ -1072,40 +1072,43 @@ class Profile(Extension):
             max_level_cost = sum(get_level_values(lvl)[2] for lvl in range(card.card_lvl, max_level, 10))
 
             tier_values = {i: 200000 * (2 ** (i-2)) for i in range(2, 11)}
-            level_up_card_tier_message = f"⭐ **Increase Card Tier**: 💸 **{tier_values.get(card.card_tier + 1, 0):,}**" if card.card_tier < 10 else "🌟 Your card has max tiers"
+            level_up_card_tier_message = f"🔋 ⭐ | **Increase Card Tier**: 💸 **{tier_values.get(card.card_tier + 1, 0):,}**" if card.card_tier < 10 else "🌟 | Your card has max tiers"
 
             buttons = [
                 [
                     Button(style=ButtonStyle.GREEN, label="🔋 1️⃣", custom_id=f"{_uuid}|1"),
-                    Button(style=ButtonStyle.BLUE, label="🔋 2️⃣", custom_id=f"{_uuid}|2"),
-                    Button(style=ButtonStyle.RED, label="🔋 3️⃣", custom_id=f"{_uuid}|3"),
-                    Button(style=ButtonStyle.RED, label="⚒️ 4️⃣", custom_id=f"{_uuid}|5"),
-                    Button(style=ButtonStyle.BLURPLE, label="Max Level", custom_id=f"{_uuid}|max")
+                    Button(style=ButtonStyle.GREEN, label="🔋 2️⃣", custom_id=f"{_uuid}|2"),
+                    Button(style=ButtonStyle.GREEN, label="🔋 3️⃣", custom_id=f"{_uuid}|3"),
+                    Button(style=ButtonStyle.BLUE, label="⚒️ 4️⃣", custom_id=f"{_uuid}|5"),
+                    Button(style=ButtonStyle.GREY, label="🔋👑Max Level", custom_id=f"{_uuid}|max")
                 ],
                 [
-                    Button(style=ButtonStyle.GREY, label="⭐ Increase Card Tier", custom_id=f"{_uuid}|6"),
+                    Button(style=ButtonStyle.GREY, label="🔋⭐ Increase Card Tier", custom_id=f"{_uuid}|6"),
                     Button(style=ButtonStyle.GREY, label="Gabe's Preset 🔖", custom_id=f"{_uuid}|7"),
-                    Button(style=ButtonStyle.GREY, label="Cancel", custom_id=f"{_uuid}|cancel")
+                    Button(style=ButtonStyle.RED, label="Cancel", custom_id=f"{_uuid}|cancel")
                 ]
             ]
 
             embed = Embed(
-                title=f"{card.universe_crest} {card.universe} Blacksmith - {icon}{balance:,}\n{user.balance_icon} {user.balance:,}",
+                title=f"{card.universe_crest} {card.universe} Blacksmith",
                 description=textwrap.dedent(f"""\
                 Welcome {ctx.author.mention}!
-                Use Universe Gems to purchase **Card XP** and **Arm Durability**!
+                Use **{card.universe}** Universe Gems to craft **Card XP** and **Arm Durability**!
+                {icon} Gems: {balance:,}
+                {user.balance_icon} Coins: {user.balance:,}
                 🎴 Card:  🀄️**{card.card_tier}** **{card.name}** {licon}**{card.card_lvl}**
                 🦾 Arm: **{arm.name}** ⚒️*{arm.durability}*
-                
-                **Card Level Boost**
-                🔋 1️⃣ **10 Levels** for {icon} **{ten_levels:,}**
-                🔋 2️⃣ **30 Levels** for {icon} **{thirty_levels:,}**
-                🔋 3️⃣ **100 Levels** for {icon} **{hundred_levels:,}**
-                🔋 Max **{levels_needed} Levels** for {icon} **{max_level_cost:,}**
-                ⚒️ 4️⃣ **50 Durability** for {icon} **{durability_message}**
-                
-                **Miscellaneous Upgrades**
+
+                **Card Upgrades**
+                🔋 1️⃣ | Gain **10 Levels** for {icon} **{ten_levels:,}**
+                🔋 2️⃣ | Gain **30 Levels** for {icon} **{thirty_levels:,}**
+                🔋 3️⃣ | Gain **100 Levels** for {icon} **{hundred_levels:,}**
+                🔋 👑 | **{levels_needed:,} Levels** for {icon} **{max_level_cost:,}**
                 {level_up_card_tier_message}
+
+                **Arm Durability**
+                ⚒️ 4️⃣ | Gain **50 Durability** for {icon} **{durability_message}**
+                **Preset Upgrades**
                 🔖 **Gabe's Preset Upgrade**: 💸 **{preset_message}**
                 
                 What would you like to buy?

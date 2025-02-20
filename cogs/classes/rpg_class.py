@@ -126,8 +126,6 @@ class RPG:
         else:
             self.universe = self.selected_universe
         self.universe_data = db.queryUniverse({'TITLE': self.universe})
-        if self.universe in ['NULL','Null','null']:
-            self.universe = "Unbound"
         self.player1_title = self.player1.equipped_title    
         self.player_title_data = crown_utilities.create_title_from_data(db.queryTitle({'TITLE': self.player1_title}))
 
