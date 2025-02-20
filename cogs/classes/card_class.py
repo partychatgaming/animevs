@@ -3953,14 +3953,12 @@ class Card:
                 if not any([enhancer_used, attack_missed]):
                     self.attack_handler(battle_config, dmg, opponent_card)
                 battle_config.turn_total = battle_config.turn_total + 1
-                return
             else:
                 print("Something broke in the above code")
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
                 battle_config.repeat_turn()
         except Exception as e:
             print(e)
-            print("Here")
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
             battle_config.next_turn()
 
