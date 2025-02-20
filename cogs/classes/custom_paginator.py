@@ -2,15 +2,13 @@ import asyncio
 import textwrap
 import uuid
 import db
-import classes as data
-from typing import Callable, Coroutine, List, Optional, Sequence, TYPE_CHECKING, Union
+from typing import List, Optional, TYPE_CHECKING
 import crown_utilities
 import custom_logging
 from cogs.battle_config import BattleConfig as bc
 from cogs.quests import Quests
 import random
-
-import attrs
+import logging
 
 from interactions import (
     Embed,
@@ -2675,6 +2673,9 @@ class CustomPaginator(Paginator):
         await ctx.defer()
         user_data = db.queryUser({'DID': str(ctx.author.id)})
         player = crown_utilities.create_player_from_data(user_data)
+        db.updateUserNoFilter(player.user_query,{'$set':{'EXPLORE_LOCATION': universe_title}, '$addToSet': {'GEMS': {'UNIVERSE': universe_title, 'GEMS': 5000, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+        # family_data = 
+        # db.createFamily(player.user_query)
         acceptable = [1,2,3,4,5]
         arm_message = []
         card_message = []
@@ -2741,6 +2742,9 @@ class CustomPaginator(Paginator):
                 player.save_card(card)
                 card_message.append(f"[{card.class_emoji}] **{card.name}**!")
                 count = count + 1
+                if count == 3:
+                    db.updateUserNoFilter(player.user_query,{'$set':{'CARD': card.name}})
+                    
 
 
         arm_drop_message_into_embded = "\n".join(arm_message)
@@ -2757,6 +2761,10 @@ class CustomPaginator(Paginator):
         embed5 = Embed(title="🔧 | Build and Strategize", description="Now that you have some items, it's time to **Build**. We have you covered to start with a default build that is designed to win battles. Use the **/build** command to see the default build", color=0x7289da)
         embed5.add_field(name="[ℹ️]__Build Freedom__", value="Your build is crucial to your success. Spend some time mix and matching to find what works best for you. Use the **/cards, /titles, /arms, /summons, and /talismans** and develop a winning strategy.", inline=False)
         embed5.set_footer(text="🔧 Use /build to view your current build.", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+
+        blacksmithEmbed = Embed(title="🔨 | Blacksmith", description=f"Spend **Currency** at The Blacksmith to upgrade your Build. You start with **5,000 {universe_title} Gems**💎 and **100,000 Anime Vs+ Coins**🪙", color=0x7289da)
+        blacksmithEmbed.add_field(name="[ℹ️]__Upgrade Your Build__", value="Use **/blacksmith** to craft Card Levels, Card Tier Increases, Arm Durability and other Miscellaneous Upgrades!", inline=False)
+        blacksmithEmbed.set_footer(text="🔨 Use /blacksmith to upgrade your Cards and Arms", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                           
         embed6 = Embed(title="🎒 | 📿 Talismans?🧬 Summons?", description="Oh yeah! Almost forgot. In addition to your cards, titles, and arms there are equippable summons and talismans.\n[🧬]**Summons** are companions you can call on during battle to attack or protect you!\n[📿]**Talismans** are equippables that can be used to bypass elemental resistances. Neat, right?", color=0x7289da)
         embed6.add_field(name="[ℹ️]__Summoning and Talismans__", value="Use the **/summons** command to view the summons you own and the **/talismans** command to view the talismans you own.", inline=False)
@@ -2766,7 +2774,7 @@ class CustomPaginator(Paginator):
         embed7.add_field(name="[ℹ️]__Let's Play__", value="Use the **/play** command and select the 🆘Anime VS+ Tutorial to learn the combat systems interactively.", inline=False)
         embed5.set_footer(text="ℹ️ Use /help to the Anime VS+ Manual", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
         
-        embed_list = [embed1, embed2, embed3, embed4, embed5, embed6, embed7]
+        embed_list = [embed1, embed2, embed3, embed4, embed5, blacksmithEmbed, embed6, embed7]
 
         paginator = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
         paginator.show_select_menu = True
@@ -2950,6 +2958,7 @@ class CustomPaginator(Paginator):
                 for index, card in enumerate(sorted_card_list):
                     try:
                         c = crown_utilities.create_card_from_data(card)
+                        print(c.name)
                         all_cards.append(f"{c.universe_crest} : 🀄 **{c.tier}** **{c.name}** [{c.class_emoji}] {c.move1_emoji} {c.move2_emoji} {c.move3_emoji}\n{c.drop_emoji}: {str(c.card_lvl)} ❤️ {c.health} 🗡️ {c.attack} 🛡️ {c.defense}\n")
                     except Exception as ex:
                         print(ex)

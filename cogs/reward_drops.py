@@ -1,18 +1,11 @@
-import textwrap
 import crown_utilities
 import custom_logging
 import db
-import dataclasses as data
-import messages as m
-import numpy as np
-import unique_traits as ut
-import help_commands as h
-import uuid
-import asyncio
 import random
 from logger import loggy
 from .quests import Quests
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import listen, Extension
+from logger import loggy
 
 class RewardDrops(Extension):
     def __init__(self, bot):
@@ -20,7 +13,8 @@ class RewardDrops(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Drops Cog is ready!')
+        # print('Drops Cog is ready!')
+        loggy.info('Drops Cog is ready')
 
 
     async def cog_check(self, ctx):

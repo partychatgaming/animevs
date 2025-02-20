@@ -1,10 +1,8 @@
 import crown_utilities
 import db
-import dataclasses as data
 import messages as m
-import numpy as np
-import help_commands as h
-from interactions import Client, ActionRow, Button, ButtonStyle, slash_option, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import slash_option, listen, slash_command, OptionType, Extension
+from logger import loggy
 
 class Titles(Extension):
     def __init__(self, bot):
@@ -14,7 +12,8 @@ class Titles(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Titles Cog is ready!')
+        # print('Titles Cog is ready!')
+        loggy.info('Titles Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

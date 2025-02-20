@@ -1,5 +1,4 @@
 from dataclasses import dataclass, asdict, field
-from logging import captureWarnings
 from bson.int64 import Int64
 import time
 
@@ -101,9 +100,9 @@ class USER():
                                   'PET': 'Chick', 'TALISMAN': 'NULL'},
                                  {'CARD': 'Luffy', 'TITLE': 'Strawhat Pirate', 'ARM': 'Noah', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
     CARD_LEVELS: list[str] = field(default_factory=lambda: [
-        {'CARD': 'Naruto Uzumaki', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36, 'CLASS': 'FIGHTER', 'CODE': '1A2B3F5D'},
-        {'CARD': 'Ichigo Kurosaki', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36, 'CLASS': 'SWORDSMAN', 'CODE': '1A2B3F5D'}, 
-        {'CARD': 'Luffy', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36, 'CLASS': 'FIGHTER', 'CODE': '1A2B3F5D'}])
+        {'CARD': 'Naruto Uzumaki', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36, 'CLASS': 'FIGHTER', 'ID': '1A2B3F5D'},
+        {'CARD': 'Ichigo Kurosaki', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36, 'CLASS': 'SWORDSMAN', 'ID': '1A2B3F5D'}, 
+        {'CARD': 'Luffy', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36, 'CLASS': 'FIGHTER', 'ID': '1A2B3F5D'}])
     QUESTS: list[str] = field(default_factory=lambda: [])
     DESTINY: list[str] = field(default_factory=lambda: [])
     GEMS: list[str] = field(default_factory=lambda: [])

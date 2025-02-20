@@ -7,6 +7,7 @@ from interactions import User
 from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Embed, Extension
 from cogs.classes.trade_class import Trading
 from cogs.quests import Quests
+from logger import loggy
 
 class Trade(Extension):
     def __init__(self, bot):
@@ -16,7 +17,8 @@ class Trade(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Trade Cog is ready!')
+        # print('Trade Cog is ready!')
+        loggy.info('Trade Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

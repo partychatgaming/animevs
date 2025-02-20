@@ -1,18 +1,19 @@
-import os
 from decouple import config
-import openai
+from openai import OpenAI
 import asyncio
 
 # Set up your OpenAI API key
-# openai.api_key = config('OPENAI_API')
+# client.api_key = config('OPENAI_API')
 
 
 # client = OpenAI(
 #     api_key=config('OPENAI_API')
 # )
 
-openai.api_key = config('OPENAI_API')
-
+client = OpenAI(
+    api_key=config('OPENAI_API'),
+    http_client=None
+)
 async def summarize_last_moves(messages):
     await asyncio.sleep(1)
     # Check if messages is not a list
@@ -32,8 +33,8 @@ async def summarize_last_moves(messages):
     prompt = f"Summarize the last 4 moves completed in this anime card game based on the information given in this list:\n\n{input_text}\n\nNever summarize or create information that is not in the list given. Always follow the format of '(Turn Number) - Summary'. Please be short, concise, and to the point. Do not explain that you are a bot, simply respond with the summary. If there is only one move in the list, summarize that move. If there are no moves in the list, respond with 'The match has started.'"
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
-    response = openai.chat.completions.create(
-        model="gpt-4o",
+    response = client.chat.completions.create(
+        model="gpt-4o-mini-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -60,8 +61,8 @@ async def suggested_title_scenario(universe_title, characters):
     prompt = f"I created an anime battle in which I have to defeat {character_names} from the {universe_title} universe. What is a good, short title for that battle? Only respond with the name of the title. Never add quotes around the title. Be creative and concise."
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
-    response = openai.chat.completions.create(
-        model="gpt-4o",
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -78,8 +79,8 @@ async def focus_message(your_card_name, your_card_universe, opponent_card, oppon
     prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. You are focusing intently on your strategy to win. Write a 1 sentence message to {opponent_card} to intimidate them and show your determination to win the match. Do not include quotes.  Be as raw and true to your character's nature as possible. "
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
-    response = openai.chat.completions.create(
-        model="gpt-4o",
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -97,7 +98,7 @@ async def resolve_message(your_card_name, your_card_universe, opponent_card, opp
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -114,7 +115,7 @@ async def win_message(your_card_name, your_card_universe, opponent_card, opponen
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -131,7 +132,7 @@ async def lose_message(losing_card_name, your_card_universe, winning_card_name, 
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -149,7 +150,7 @@ async def match_start_message(your_card_name, your_card_universe, opponent_card,
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -167,7 +168,7 @@ async def starting_battle_ai_message(your_card_name, your_card_universe, opponen
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -185,7 +186,7 @@ async def rpg_encounter_message(your_card_name, your_card_universe, opponent_car
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -203,7 +204,7 @@ async def rpg_start_encounter_message(your_card_name, your_card_universe, oppone
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -232,7 +233,7 @@ async def rpg_movement_ai_message(your_card_name, your_card_universe,location,  
         prompt += f" You have a train of thought that is {train_of_thought}. Use this as a foundation for your response. Ensure your response is unique from your last thought.If you last three thoughts are serious tell a situation joke or pun. Try not to repeat Adjectives or Adverbs"
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -258,7 +259,7 @@ async def rpg_action_ai_message(your_card_name, your_card_universe,location,  mo
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]

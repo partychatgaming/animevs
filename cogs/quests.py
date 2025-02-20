@@ -2,10 +2,9 @@ import crown_utilities
 import custom_logging
 from logger import loggy
 import db
-import messages as m
-from interactions import User
 import asyncio
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import listen, slash_command, Embed, Extension
+from logger import loggy
 
 class Quests(Extension):
     def __init__(self, bot):
@@ -13,7 +12,8 @@ class Quests(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Quests Cog is ready!')
+        #print('Quests Cog is ready!')
+        loggy.info('Quests Cog is ready!')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

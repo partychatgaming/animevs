@@ -14,7 +14,8 @@ from interactions import User
 from .classes.custom_paginator import CustomPaginator
 from interactions.ext.paginators import Paginator
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-
+import logging
+from logger import loggy
 
 emojis = ['👍', '👎']
 
@@ -24,7 +25,8 @@ class Family(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Family Cog is ready!')
+        # print('Family Cog is ready!')
+        loggy.info('Family Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
@@ -39,12 +41,12 @@ class Family(Extension):
         try:
             head_profile = db.queryUser({'DID': str(ctx.author.id)})
             partner_profile = db.queryUser({'DID': str(player.id)})
-            if head_profile['LEVEL'] < 31:
-                await ctx.send(f"🔓 {ctx.author.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
-                return
-            if partner_profile['LEVEL'] < 31:
-                await ctx.send(f"🔓 {player.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
-                return
+            # if head_profile['LEVEL'] < 31:
+            #     await ctx.send(f"🔓 {ctx.author.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            #     return
+            # if partner_profile['LEVEL'] < 31:
+            #     await ctx.send(f"🔓 {player.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            #     return
 
             if head_profile['DISNAME'] == partner_profile['DISNAME']:
                 await ctx.send("You cannot **Marry** yourself", delete_after=8)
@@ -638,15 +640,15 @@ class Family(Extension):
         else:
             await ctx.send(m.TEAM_DOESNT_EXIST, delete_after=5)
 
-    # @slash_command(description="Lookup player family", options=[
-    #     SlashCommandOption(
-    #         name="player",
-    #         description="Player to lookup",
-    #         type=OptionType.USER,
-    #         required=False
-    #     )
-    # ])
-    async def family(self, ctx, player = None):
+    @slash_command(description="Lookup player family", options=[
+        SlashCommandOption(
+            name="player",
+            description="Player to lookup",
+            type=OptionType.USER,
+            required=False
+        )
+    ])
+    async def tribe(self, ctx, player = None):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
@@ -701,11 +703,11 @@ class Family(Extension):
                 for kids in family['KIDS']:
                     kid_list.append(kids.split("#",1)[0])
                 icon = "🪙"
-                if savings >= 500000000:
+                if savings >= 1000000000:
                     icon = "💸"
-                elif savings >=100000000:
+                elif savings >=10000000:
                     icon = "💰"
-                elif savings >= 50000000:
+                elif savings >= 5000000:
                     icon = "💵"
 
                 if str(ctx.author.id) == head_data['DID']:
@@ -772,7 +774,7 @@ class Family(Extension):
                 #     await ctx.send({summon_data})
                     
                 first_page = Embed(title=f"👨‍👩‍👧‍👦 | {family_name}", description=textwrap.dedent(f"""
-                🧠 **Head of Household** 
+                🧠 **Tribal Leader** 
                 {head_name.split("#",1)[0]}
 
                 🫀 **Partner**
@@ -1368,6 +1370,27 @@ class Family(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
+
+
+# @slash_command(name="invest", description="Invest money in your Family", scopes=crown_utilities.guild_ids)
+# @cooldown(Buckets.USER, 1, 10)
+async def invest(ctx, amount):
+   user = db.queryUser({'DID': str(ctx.author.id)})
+   family = db.queryFamily({'HEAD': user['DID']})
+   vault = db.queryVault({'DID': str(ctx.author.id)})
+   balance = vault['BALANCE']
+   if family:
+      if balance <= int(amount):
+         await ctx.send("You do not have that amount to invest.", ephemeral=True)
+      else:
+         await crown_utilities.blessfamily_Alt(int(amount), user['DID'])
+         await crown_utilities.curse(int(amount), ctx.author.id)
+         transaction_message =f"🪙 | {user['DISNAME']} invested 🪙{amount} "
+         update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
+         await ctx.send(f"**🪙{amount}** invested into **{user['NAME']}'s Family**.")
+         return
+   else:
+      await ctx.send(f"Family does not exist")
 
 
 

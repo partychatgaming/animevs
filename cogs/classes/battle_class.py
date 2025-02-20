@@ -1,13 +1,9 @@
 import db
 import crown_utilities
-import interactions
-import datetime
 import textwrap
 import time
-from logger import loggy
 now = time.asctime()
-import unique_traits as ut
-from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import Button, ButtonStyle, Embed
 from cogs.play import Play as play
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config
 from cogs.quests import Quests
@@ -128,7 +124,7 @@ class Battle:
 
         # Messages
         self.abyss_message = ""
-
+        self.auto_battle_result_message = ""
         # Abyss / Scenario / Explore Config / RPG
         self.abyss_floor = ""
         self.abyss_card_to_earn = ""
@@ -437,6 +433,7 @@ class Battle:
             if self.is_tales_game_mode:
                 self.list_of_opponents_by_name = self.selected_universe_full_data['CROWN_TALES']
                 self.total_number_of_opponents = len(self.list_of_opponents_by_name)
+                print(self.total_number_of_opponents)
 
             if self.is_boss_game_mode:
                 self.name_of_boss = universe_selection_object['BOSS_NAME']
@@ -1397,8 +1394,9 @@ class Battle:
             picon = "🔥"
 
                 
-        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!")
-        embedVar.add_field(name="💽 | Saved Data", value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
+        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!",color=0x2ECC71)
+        embedVar.add_field(name="💽 | Saved Data",
+                                value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}")
         return embedVar
 
@@ -2527,7 +2525,7 @@ class Battle:
         if self.is_raid_game_mode:
             embedVar = Embed(title=f"🛡️ **{opponent_card.name}** defended the {self._association_name}\nMatch concluded in {self.turn_total} turns", color=0x1abc9c)
         else:
-            embedVar = Embed(title=f"💀 Try Again", color=0xe91e63)
+            embedVar = Embed(title=f"💀 Try Again\n{self.auto_battle_result_message}", color=0xe91e63)
 
 
         # Define a list of milestones to check

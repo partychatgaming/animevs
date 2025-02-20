@@ -1,23 +1,8 @@
-import textwrap
 import crown_utilities
 import db
 import dataclasses as data
-import messages as m
-import numpy as np
-import unique_traits as ut
-import help_commands as h
-import uuid
-import asyncio
-import random
-from .classes.custom_paginator import CustomPaginator
-from .classes.arm_class import Arm
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.player_class import Player
-from .classes.battle_class import Battle
-from .classes.summon_class import Summon
-from cogs.battle_config import BattleConfig
-from interactions import listen, slash_command, InteractionContext, OptionType, slash_option, AutocompleteContext, Embed, Extension
+from interactions import listen, slash_command, InteractionContext, OptionType, slash_option, AutocompleteContext, Extension
+from logger import loggy
 
 class Explore(Extension):
     def __init__(self, bot):
@@ -25,7 +10,8 @@ class Explore(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Explore Cog is ready!')
+        # print('Explore Cog is ready!')
+        loggy.info('Explore Cog is ready')
 
 
     async def cog_check(self, ctx):

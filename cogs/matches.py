@@ -1,25 +1,6 @@
-from re import T
-import db
-import dataclasses as data
-import messages as m
-import numpy as np
-import help_commands as h
-import unique_traits as ut
-import crown_utilities
-# Converters
-from PIL import Image, ImageFont, ImageDraw
-import requests
-from collections import ChainMap
-import random
-import textwrap
 from collections import Counter
-from .classes.player_class import Player
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.arm_class import Arm
-from .classes.summon_class import Summon
-from .classes.battle_class  import Battle
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import listen, Extension
+from logger import loggy
 
 emojis = ['👍', '👎']
 
@@ -29,7 +10,8 @@ class Matches(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Matches Cog is ready!')
+        #print('Matches Cog is ready!')
+        loggy.info('Matches Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

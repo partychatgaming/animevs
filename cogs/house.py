@@ -8,6 +8,8 @@ import help_commands as h
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+import logging
+from logger import loggy
 
 class House(Extension):
     def __init__(self, bot):
@@ -17,7 +19,8 @@ class House(Extension):
 
     @listen()
     async def on_ready(self):
-        print('House Cog is ready!')
+        #print('House Cog is ready!')
+        loggy.info('House Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

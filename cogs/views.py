@@ -3,24 +3,15 @@ import crown_utilities
 import custom_logging
 import db
 import messages as m
-import numpy as np
 import help_commands as h
 import unique_traits as ut
-import destiny as d
-import random
 from logger import loggy
 import uuid
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.arm_class import Arm
-from .classes.summon_class import Summon
 from interactions.ext.paginators import Paginator
 from .classes.custom_paginator import CustomPaginator
-from interactions import Client, ActionRow, Button, ButtonStyle, File, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, global_autocomplete, AutocompleteContext, slash_option
+from interactions import ActionRow, Button, ButtonStyle, File, ActionRow, Button, ButtonStyle, listen, slash_command, InteractionContext, OptionType, Embed, Extension, AutocompleteContext, slash_option
 import re
-import io
-from io import BytesIO
-
+from logger import loggy
 
 
 
@@ -31,7 +22,8 @@ class Views(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Views Cog is ready!')
+        #print('Views Cog is ready!')
+        loggy.info('Views Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)

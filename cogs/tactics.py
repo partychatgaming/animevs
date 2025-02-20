@@ -1,24 +1,15 @@
-import textwrap
-import crown_utilities
 from cogs.universe_traits.my_hero_academia import activate_my_hero_academia_trait
 from cogs.universe_traits.demon_slayer import activate_demon_slayer_trait
 from cogs.universe_traits.one_piece import observation_haki
 from cogs.universe_traits.chainsawman import devilization
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config, activate_solo_leveling_trait
 from cogs.universe_traits.fairytail import fairy_tail_recovery
-from cogs.universe_traits.jujutsu_kaisen import domain_expansion_check, get_domain_turns
+from cogs.universe_traits.jujutsu_kaisen import get_domain_turns
 from cogs.universe_traits.aot import calculate_titan
-import db
-import dataclasses as data
-import messages as m
-import numpy as np
-import unique_traits as ut
-import help_commands as h
-import uuid
 import asyncio
 import random
-import re
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import listen, Embed, Extension
+from logger import loggy
 
 class Tactics(Extension):
     def __init__(self, bot):
@@ -26,7 +17,8 @@ class Tactics(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Tactics Cog is ready!')
+        # print('Tactics Cog is ready!')
+        loggy.info('Tactics Cog is ready')
 
 
     async def cog_check(self, ctx):

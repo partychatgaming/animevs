@@ -5,11 +5,10 @@ import asyncio
 import textwrap
 from cogs.reward_drops import reward_drop, scenario_drop
 from cogs.quests import Quests
-import time
 import ai
 from interactions.ext.paginators import Paginator
-from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-
+from interactions import ActionRow, Button, ButtonStyle, listen, Embed, Extension
+from logger import loggy
 
 class GameState(Extension):
     def __init__(self, bot):
@@ -17,26 +16,7 @@ class GameState(Extension):
 
     @listen()
     async def on_ready(self):
-        print('GameState Cog is ready!')
-
-    # async def save_spot(self, player, universe_title, mode, currentopponent):
-    #     """
-    #     Update this with the bot.py function that updates save_spot as well as to not store duplicate save spots
-    #     """
-    #     try:
-    #         player.make_available()
-    #         for save_spot in player.save_spot:
-    #             if save_spot['UNIVERSE'] == universe_title and save_spot['MODE'] == mode:
-    #                 query = {"DID": player.did}
-    #                 new_value = {"$pull": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode)}}}
-    #                 db.updateUserNoFilter(query, new_value)
-
-    #         user = {"DID": str(player.did)}
-    #         query = {"$addToSet": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode), "CURRENTOPPONENT": currentopponent}}}
-    #         response = db.updateUserNoFilter(user, query)
-    #         return
-    #     except Exception as ex:
-    #         custom_logging.debug(ex)
+        loggy.info('GameState Cog is ready')
 
     async def save_spot(self, player, universe_title, mode, currentopponent):
         """
@@ -312,16 +292,18 @@ class GameState(Extension):
             if any((battle_config.is_tales_game_mode, battle_config.is_dungeon_game_mode, battle_config.is_boss_game_mode)):
                 reward_msg = await reward_drop(self, battle_config, battle_config.player1)
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                completion_earnings = 10000000 if battle_config.is_dungeon_game_mode else 2000000
+                battle_earnings = (100000 * battle_config.current_opponent_number) if battle_config.is_dungeon_game_mode else (1000000 * battle_config.current_opponent_number)
+                completion_earnings = 10000000 if battle_config.is_dungeon_game_mode else 50000000
+
 
                 p1_win_rewards = await battle_config.get_non_drop_rewards(battle_config.player1)
                 # questlogger = await quest(user1, battle_config.player2_card, battle_config.mode)
-                petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
+                petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card, battle_config)
                 cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
 
                 if not battle_config.is_easy_difficulty:
-                    petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
-                    cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
+                    # petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
+                    # cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
                     talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
                     arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
                     if arm_durability_message != False:
@@ -338,10 +320,10 @@ class GameState(Extension):
                         (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
                     ]
 
-                    if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
+                    if battle_config.current_opponent_number != (battle_config.total_number_of_opponents - 1):
                         quest_response = await Quests.quest_check(battle_config.player1, "DUNGEONS")
 
-                    if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                    if battle_config.current_opponent_number == (battle_config.total_number_of_opponents - 1):
                         quest_response = await Quests.quest_check(battle_config.player1, "FULL DUNGEONS")
                         milestones.append((battle_config.player1, "DUNGEONS_COMPLETED", 1))
                         teambank = await crown_utilities.blessteam(completion_earnings, battle_config.player1.guild)
@@ -385,10 +367,10 @@ class GameState(Extension):
                         (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
                         (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
                     ]
-                    if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
+                    if battle_config.current_opponent_number != (battle_config.total_number_of_opponents - 1):
                         quest_response = await Quests.quest_check(battle_config.player1, "TALES")
 
-                    if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                    if battle_config.current_opponent_number == (battle_config.total_number_of_opponents - 1):
                         quest_response = await Quests.quest_check(battle_config.player1, "FULL TALES")
                         milestones.append((battle_config.player1, "TALES_COMPLETED", 1))
                         teambank = await crown_utilities.blessteam(completion_earnings, battle_config.player1.guild)
@@ -424,35 +406,34 @@ class GameState(Extension):
                     return quest_embed, milestone_embed
 
                 async def compile_generic_results_embeds(reward_msg):
-                    print(reward_msg)
                     winning_message = await ai.win_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
                     losing_message = await ai.lose_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
                     
-                    win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
+                    win_embed = Embed(title=f"🎊 VICTORY\n{battle_config.auto_battle_result_message}\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
                     win_embed.set_footer(text=f"{battle_config.player1_card.name}: {winning_message}\n\n{battle_config.player2_card.name}: {losing_message}")
 
-                    if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                    if battle_config.current_opponent_number == (battle_config.total_number_of_opponents - 1):
                         if battle_config.is_dungeon_game_mode:
                             win_embed.add_field(name=f"👺 Dungeon Conquered", value=f"{reward_msg}")
                             if battle_config.selected_universe in battle_config.player1.completed_dungeons:
-                                win_embed.add_field(name="👺 Dungeon Conquered 🪙 Reward",
+                                win_embed.add_field(name="👺Conquerer's 🪙 Reward",
                                             value=f"You were awarded 🪙 {completion_earnings:,} for completing the {battle_config.selected_universe} Dungeon again!")
                             else:
                                 await crown_utilities.bless(10000000, battle_config.player1.did)
-                                win_embed.add_field(name="👺 Dungeon Conquered 🪙 Reward",
+                                win_embed.add_field(name="👺Conquerer's 🪙 Reward",
                                             value=f"You were awarded 🪙 {10000000:,} for completing the {battle_config.selected_universe} Dungeon!")
 
                         if battle_config.is_tales_game_mode:
                             win_embed.add_field(name=f"🎊 | Tales Conquered", value=f"{reward_msg}")
                             if battle_config.selected_universe in battle_config.player1.completed_tales:
-                                win_embed.add_field(name="🎊 Tales Conquered 🪙 Reward",
+                                win_embed.add_field(name="🎊 Conquerer's 🪙 Reward",
                                             value=f"You were awarded 🪙 {completion_earnings:,} for completing the {battle_config.selected_universe} Tales again!")
                             else:
                                 await crown_utilities.bless(500000, battle_config.player1.did)
-                                win_embed.add_field(name="🎊 Tales Conquered 🪙 Reward",
+                                win_embed.add_field(name="🎊Conquerer's 🪙 Reward",
                                             value=f"You were awarded 🪙 {500000:,} for completing the {battle_config.selected_universe} Tales!")
                     
-                    reward_embed = Embed(title=f"🎁 Rewards", description=f"{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence", color=0x1abc9c)
+                    reward_embed = Embed(title=f"🎁 Battle Rewards", description=f"{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence", color=0x1abc9c)
                     reward_embed.add_field(name=f"{p1_win_rewards['RANDOM_ELEMENT']} Essence", value=f"You now have {battle_config.player1.get_new_essence_value_from_rewards(p1_win_rewards['RANDOM_ELEMENT'], p1_win_rewards['ESSENCE'])} {p1_win_rewards['RANDOM_ELEMENT']} Essence")
                     
                     battle_history_embed = Embed(title=f"📜 Match History", description=f"View the match history here", color=0x1abc9c)
@@ -461,29 +442,39 @@ class GameState(Extension):
                     
                     battle_stats_embed = Embed(title=f"📊 Battle Stats", description=f"View the battle stats here", color=0x1abc9c)
 
+                    def get_stat_emoji(p1,p2):
+                        if p1 == 0 and p2 == 0:
+                            return "-"
+                        if p1 > p2:
+                            return "🆚"
+                        elif p1 == p2:
+                            return "🤝"
+                        else:
+                            return "-"
+
                     #Most Focus
                     f_message = battle_config.get_most_focused(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"🌀 | Focus Count",
-                                    value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.focus_count}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.focus_count}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.focus_count} {get_stat_emoji(battle_config.player2_card.focus_count,battle_config.player1_card.focus_count)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.focus_count} {get_stat_emoji(battle_config.player1_card.focus_count,battle_config.player2_card.focus_count)}")
                     #Most Blitz
                     b_message = battle_config.get_most_blitzed(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"💢 | Blitz Count",
-                                    value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.blitz_count}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.blitz_count}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.blitz_count} {get_stat_emoji(battle_config.player2_card.blitz_count,battle_config.player1_card.blitz_count)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.blitz_count} {get_stat_emoji(battle_config.player1_card.blitz_count,battle_config.player2_card.blitz_count)}")
                     #Most Damage Dealth
                     d_message = battle_config.get_most_damage_dealt(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"💥 | Damage Dealt",
-                                    value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.damage_dealt}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.damage_dealt}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.damage_dealt} {get_stat_emoji(battle_config.player2_card.damage_dealt,battle_config.player1_card.damage_dealt)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.damage_dealt} {get_stat_emoji(battle_config.player1_card.damage_dealt,battle_config.player2_card.damage_dealt)}")
                     #Most Healed
                     h_message = battle_config.get_most_damage_healed(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"❤️‍🩹 | Healing",
-                                    value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.damage_healed}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.damage_healed}")
+                                    value=f"*{battle_config.player2_card.name}*: {battle_config.player2_card.damage_healed} {get_stat_emoji(battle_config.player2_card.damage_healed,battle_config.player1_card.damage_healed)} \n*{battle_config.player1_card.name}*: {battle_config.player1_card.damage_healed} {get_stat_emoji(battle_config.player1_card.damage_healed,battle_config.player2_card.damage_healed)}")
                     #Pet Level Embed
-                    pet_level_embed = Embed(title=f"🧬 Summon Level", description=f"View the summon xp", color=0x1abc9c)
+                    pet_level_embed = Embed(title=f"🧬 Summon Progression", description=f"View summon xp", color=0x1abc9c)
                     pet_level_embed.add_field(name=f"🧬 | {battle_config.player1_card.summon_name}'s Growth",
                                     value=petlogger)
                     return win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed
 
-                if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
+                if battle_config.current_opponent_number != (battle_config.total_number_of_opponents - 1):
                     win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed = await compile_generic_results_embeds(reward_msg)
                     if battle_config.is_dungeon_game_mode:
                         quest_embed, milestone_embed = await dungeon_handler()
@@ -500,27 +491,28 @@ class GameState(Extension):
                     paginator.show_select_menu = True
                     paginator._author_id = battle_config.player1.did
                     await paginator.send(ctx)
-                    battle_config.reset_game()
                     battle_config.current_opponent_number = battle_config.current_opponent_number + 1
                     battle_config.continue_fighting = True
+                    battle_config.reset_game()
+                    return
 
-
-                if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                
+                if battle_config.current_opponent_number == (battle_config.total_number_of_opponents - 1):
                     total_complete = True
-                    battle_config.continue_fighting = False
-                    win_embed, reward_embed, battle_history_embed, battle_stats_embed = await compile_generic_results_embeds(reward_msg)
+                    win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed = await compile_generic_results_embeds(reward_msg)
                     if battle_config.is_dungeon_game_mode:
                         quest_embed, milestone_embed = await dungeon_handler()
                     if battle_config.is_tales_game_mode:
                         quest_embed, milestone_embed = await tales_handler()
 
-                    embed_list = [win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed]
+                    embed_list = [win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed, pet_level_embed]
                     paginator = Paginator.create_from_embeds(self.bot, *embed_list)
                     paginator.show_select_menu = True
                     paginator._author_id = battle_config.player1.did
                     await paginator.send(ctx)
 
-                    await self.delete_save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
+                    await GameState.delete_save_spot(GameState, battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
+                    battle_config.continue_fighting = False
                     return
 
             if battle_config.is_explore_game_mode:
@@ -559,6 +551,7 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
         return True
     else:
         return False
+   
     
 async def rpg_win(self, battle_config, battle_msg, private_channel, user1):
     if battle_config.is_rpg:

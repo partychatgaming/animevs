@@ -3,6 +3,7 @@ import interactions
 from interactions import listen, Extension, slash_command, SlashContext, OptionType, slash_option, InteractionContext
 from language_cache import LanguageCache
 from translation_manager import TranslationManager
+from logger import loggy
 
 class LanguageCog(Extension):
     def __init__(self, bot):
@@ -12,7 +13,8 @@ class LanguageCog(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Language Cog is ready!')
+        #print('Language Cog is ready!')
+        loggy.info('Language Cog is ready')
         
     def get_text(self, ctx: SlashContext, key: str) -> str:
         """Get translated text for the user"""

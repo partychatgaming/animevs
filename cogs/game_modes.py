@@ -1,31 +1,20 @@
 import time
-from re import T
 import db
 import dataclasses as data
 import destiny as d
 import messages as m
 import numpy as np
-import help_commands as h
 from PIL import Image, ImageFont, ImageDraw
 import requests
 import random
 now = time.asctime()
-import base64
 from io import BytesIO
-import io
 import asyncio
 import textwrap
 import crown_utilities
 import custom_logging
 from .universe import Universe as universe_cog
 from .scenarios import Scenario as scenario_cog
-from .tactics import Tactics as tactics_cog
-from .reward_drops import RewardDrops as reward_drops_cog
-from .classes.player_class import Player
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.arm_class import Arm
-from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
 from .classes.rpg_class import RPG
 from cogs.battle_config import BattleConfig
@@ -34,7 +23,6 @@ from pilmoji import Pilmoji
 import destiny as d
 import interactions
 import uuid
-from .classes.custom_paginator import CustomPaginator
 from interactions.api.events import MessageCreate
 from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, cooldown, Embed, Extension, slash_option, AutocompleteContext
 
@@ -50,7 +38,8 @@ class GameModes(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Anime 🆚+ Cog is ready!')
+        # print('Anime 🆚+ Cog is ready!')
+        loggy.info('Anime 🆚+ Cog is ready!')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
@@ -313,40 +302,111 @@ class GameModes(Extension):
     #         custom_logging.debug(ex)
 
 
-    # @slash_command(description="testing RPG game mode")
-    # @cooldown(Buckets.USER, 1, 15)
-    # async def rpg(self, ctx: InteractionContext):
-    #     # await ctx.defer()
+    # @slash_command(description="Co-op pve to earn cards, accessories, gold, gems, and more with friends",
+    #                    options=[
+    #                        SlashCommandOption(
+    #                            name="user",
+    #                            description="player you want to co-op with",
+    #                            type=OptionType.USER,
+    #                            required=True
+    #                        ),
+    #                        SlashCommandOption(
+    #                            name="mode",
+    #                            description="Difficulty Level",
+    #                            type=OptionType.STRING,
+    #                            required=True,
+    #                            choices=[
+    #                                SlashCommandChoice(
+    #                                    name="⚔️ Co-Op Tales (Normal)",
+    #                                    value="CoopTales"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="👺 Co-Op Dungeon (Hard)",
+    #                                    value="CoopDungeon"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="👹 Co-Op Boss Enounter (Extreme)",
+    #                                    value="CBoss"
+    #                                ),
+    #                            ]
+    #                        )
+    #                    ]
+    #     )
+    # async def coop(self, ctx: InteractionContext, user: User, mode: str):
     #     registered_player = await crown_utilities.player_check(ctx)
     #     if not registered_player:
     #         return
-        
-    #     """
-    #     This command will be used to create the rpg instance
-    #     """
+
     #     try:
-    #         loggy.info(f"RPG command initiated by {registered_player['DID']}")
-    #         player = crown_utilities.create_player_from_data(registered_player)
+    #         player = db.queryUser({'DID': str(ctx.author.id)})
+    #         player3 = db.queryUser({'DID': str(user.id)})
+    #         p1 = crown_utilities.create_player_from_data(player)
+    #         p3 = crown_utilities.create_player_from_data(player3)
 
-    #         player.make_unavailable()
+    #         if not p1.is_available:
+    #             embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
 
-    #         rpg = RPG(self.bot, player)
-    #         embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
-    #         # add gif image to embedVar
-    #         embedVar.set_image(url="https://i.kym-cdn.com/photos/images/newsfeed/001/708/012/0ac.gif")
-    #         rpg_msg = await ctx.send(embed=embedVar)
-    #         await RPG.create_rpg(self, ctx, rpg, rpg_msg)
+    #         if not p3.is_available:
+    #             embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
+
+
+    #         battle = Battle(mode, p1)
+
+
+    #         universe_selection = await select_universe(self, ctx, p1, mode, p3)
+    #         if not universe_selection:
+    #             return
+    #         battle.set_universe_selection_config(universe_selection)
+    #         battle.is_co_op_mode = True
+
+    #         await battle_commands(self, ctx, battle, p1, None, None, p3)
+        
     #     except Exception as ex:
-    #         player.make_available()
     #         custom_logging.debug(ex)
-    #         loggy.critical(ex)
     #         return
+    
+
+    # @slash_command(description="🗺️ RPG game mode")
+    @cooldown(Buckets.USER, 1, 15)
+    async def rpg(self, ctx: InteractionContext, universe=None):
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
+
+        try:
+            loggy.info(f"RPG command initiated by {registered_player['DID']}")
+            player = crown_utilities.create_player_from_data(registered_player)
+            player.make_unavailable()
+
+            # Create a unique RPG instance
+            rpg_id = str(uuid.uuid4())
+            if universe:
+                loggy.info(f"RPG command initiated by {registered_player['DID']} with universe: {universe}")
+            player.create_rpg_instance(RPG(self.bot, player, universe))
+            # player.rpg_instance = RPG(self.bot, player)
+            rpg_instance = player.rpg_instance
+            loggy.info(f"Created RPG instance with ID: {rpg_id}")
+
+            embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
+            embedVar.set_image(url="https://i.kym-cdn.com/photos/images/newsfeed/001/708/012/0ac.gif")
+            rpg_msg = await ctx.send(embed=embedVar)
+            await rpg_instance.create_rpg(ctx, rpg_msg)
+
+        except Exception as ex:
+            player.make_available()
+            custom_logging.debug(ex)
+            loggy.critical(ex)
+
         
 
     @slash_command(description="pve to earn cards, accessories, gold, gems, and more as a solo player")
     @slash_option(
         name="mode",
-        description="abyss: climb ladder, tales: normal pve mode, dungeon: hard pve run, and boss: extreme encounters",
+        description="use /help to see the list of modes and descriptions",
         opt_type=OptionType.STRING,
         required=True,
         choices=[
@@ -355,8 +415,12 @@ class GameModes(Extension):
                 value="Tutorial"
             ),
             SlashCommandChoice(
-                name="⚡Randomize",
+                name="⚡ Randomize",
                 value="Random"
+            ),
+            SlashCommandChoice(
+                name="🗺️ Adventure Mode",
+                value="RPG"
             ),
             SlashCommandChoice(
                 name="⚔️ Tales Run",
@@ -385,9 +449,10 @@ class GameModes(Extension):
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
         await ctx.defer()
         registered_player = await crown_utilities.player_check(ctx)
+        
         if not registered_player:
             return
-        
+        player = crown_utilities.create_player_from_data(registered_player)
         if mode == "Random":
             mode_options = ["Tales", "Dungeon", "Scenario", "Raid_Scenario"]
             mode = random.choice(mode_options)
@@ -405,7 +470,7 @@ class GameModes(Extension):
         
         try:
             loggy.info(f"Mode: {mode} Universe: {universe} Player: {registered_player['DID']} has initiated a battle in {mode} mode.")
-            player = crown_utilities.create_player_from_data(registered_player)
+            
             if player.difficulty == "EASY" and mode == "Scenario":
                 player.difficulty = "NORMAL"
             
@@ -424,9 +489,12 @@ class GameModes(Extension):
             # if mode == crown_utilities.ABYSS:
             #     await abyss(self, ctx, registered_player, mode)
             #     return
-            # if mode == crown_utilities.RPG:
-            #     await self.rpg(ctx)
-            #     return
+            if mode == crown_utilities.RPG:
+                if universe:
+                    await self.rpg(ctx, universe)
+                    return
+                await self.rpg(ctx)
+                return
             
             if mode == crown_utilities.TUTORIAL:
                 await tutorial(self, ctx, player, mode)

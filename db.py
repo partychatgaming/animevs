@@ -1,8 +1,6 @@
 from pymongo import MongoClient
 import certifi
-import messages as m
 from decouple import config
-import re
 import random
 
 if config('ENV') == "production":
@@ -1218,9 +1216,23 @@ def querySpecificDropCards(args):
     data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}})
     return data 
 
-def queryRPGCards(args, map_level, number_of_cards):
+def queryRPGCards(args, map_level, number_of_cards, difficulty):
 
-    data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}}))
+    if difficulty == 'EASY':
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES"]}}))
+    elif difficulty == 'NORMAL':
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}}))
+    elif difficulty == 'HARD':
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["DUNGEONS", "SCENARIO"]}}))
+    # Shuffle the data and select 7 cards
+    if len(data) > number_of_cards:
+        selected_cards = random.sample(data, number_of_cards)
+    else:
+        selected_cards = data  # If less than 7 cards are available, return all of them
+    return selected_cards
+
+def queryRPGBosses(args, map_level, number_of_cards):
+    data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["BOSS"]}}))
     # Shuffle the data and select 7 cards
     if len(data) > number_of_cards:
         selected_cards = random.sample(data, number_of_cards)

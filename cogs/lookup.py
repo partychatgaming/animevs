@@ -2,28 +2,14 @@ import time
 now = time.asctime()
 import crown_utilities
 import db
-import classes as dclass
-import dataclasses as data
 from .classes.player_class import Player
-from .classes.card_class import Card
-from .classes.title_class import Title
-from .classes.arm_class import Arm
-from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
 from .classes.custom_paginator import CustomPaginator
 import messages as m
 from logger import loggy
-import numpy as np
-import help_commands as h
 import asyncio
-import requests
-from collections import ChainMap
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, User
-from io import BytesIO
-import io
-import unique_traits as ut
+from interactions import listen, slash_command, SlashCommandOption, OptionType, Embed, Extension
 import textwrap
-from .game_modes import  enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping
 from collections import Counter
 
 
@@ -37,7 +23,8 @@ class Lookup(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Lookup Cog is ready!')
+        # print('Lookup Cog is ready!')
+        loggy.info('Lookup Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
@@ -75,7 +62,8 @@ class Lookup(Extension):
             user = await self.bot.fetch_user(player_class.did)
             if player_class:
                 player_stats = await asyncio.to_thread(db.query_stats_by_player, player_class.did)
-                player_stat_distribution = stat_distribution(player_stats)
+                if player_stats:
+                    player_stat_distribution = stat_distribution(player_stats)
 
                 bal_message = f"{'{:,}'.format(player_class.balance)}"
 
@@ -156,24 +144,24 @@ class Lookup(Extension):
                 💾 | **Autosave:** {autosave_message}
                 """))
                 embed2.set_thumbnail(url=player_class.avatar)
-                
-                embed5 = Embed(title=f"{player_class.disname} Stats".format(self), description=textwrap.dedent(f"""\
-                ⚔️ | **Tales Played: **{player_stat_distribution['TALES']['MATCHES']:,}
-                ↘️ **Tales Completed: **{player_stat_distribution['TALES']['COMPLETED']:,}
-                ↘️ **Tales Damage Dealt** {player_stat_distribution['TALES']['DAMAGE_DEALT']:,}
-                ↘️ **Tales Damage Taken** {player_stat_distribution['TALES']['DAMAGE_TAKEN']:,}
+                if player_stats:
+                    embed5 = Embed(title=f"{player_class.disname} Stats".format(self), description=textwrap.dedent(f"""\
+                    ⚔️ | **Tales Played: **{player_stat_distribution['TALES']['MATCHES']:,}
+                    ↘️ **Tales Completed: **{player_stat_distribution['TALES']['COMPLETED']:,}
+                    ↘️ **Tales Damage Dealt** {player_stat_distribution['TALES']['DAMAGE_DEALT']:,}
+                    ↘️ **Tales Damage Taken** {player_stat_distribution['TALES']['DAMAGE_TAKEN']:,}
 
-                👺 | **Dungeons Played: **{player_stat_distribution['DUNGEONS']['MATCHES']:,}
-                ↘️ **Dungeons Completed: **{player_stat_distribution['DUNGEONS']['COMPLETED']:,}
-                ↘️ **Dungeon Damage Dealt** {player_stat_distribution['DUNGEONS']['DAMAGE_DEALT']:,}
-                ↘️ **Dungeon Damage Taken** {player_stat_distribution['DUNGEONS']['DAMAGE_TAKEN']:,}
+                    👺 | **Dungeons Played: **{player_stat_distribution['DUNGEONS']['MATCHES']:,}
+                    ↘️ **Dungeons Completed: **{player_stat_distribution['DUNGEONS']['COMPLETED']:,}
+                    ↘️ **Dungeon Damage Dealt** {player_stat_distribution['DUNGEONS']['DAMAGE_DEALT']:,}
+                    ↘️ **Dungeon Damage Taken** {player_stat_distribution['DUNGEONS']['DAMAGE_TAKEN']:,}
 
-                🎞️ | **Scenarios Played: **{player_stat_distribution['SCENARIOS']['MATCHES']:,}
-                ↘️ **Scenarios Completed: **{player_stat_distribution['SCENARIOS']['COMPLETED']:,}
-                ↘️ **ScenariosDamage Dealt** {player_stat_distribution['SCENARIOS']['DAMAGE_DEALT']:,}
-                ↘️ **Scenario Damage Taken** {player_stat_distribution['SCENARIOS']['DAMAGE_TAKEN']:,}
-                """))
-                embed5.set_thumbnail(url=player_class.avatar)
+                    🎞️ | **Scenarios Played: **{player_stat_distribution['SCENARIOS']['MATCHES']:,}
+                    ↘️ **Scenarios Completed: **{player_stat_distribution['SCENARIOS']['COMPLETED']:,}
+                    ↘️ **ScenariosDamage Dealt** {player_stat_distribution['SCENARIOS']['DAMAGE_DEALT']:,}
+                    ↘️ **Scenario Damage Taken** {player_stat_distribution['SCENARIOS']['DAMAGE_TAKEN']:,}
+                    """))
+                    embed5.set_thumbnail(url=player_class.avatar)
                 
                 embed3 = Embed(title=f"{player_class.disname} Equipment".format(self), description=textwrap.dedent(f"""\
                 {player_class.balance_icon} | {bal_message}
@@ -206,8 +194,10 @@ class Lookup(Extension):
                     embed4.add_field(name="Completed Tales" + " 🏅", value="No Completed Tales, yet!")
                     embed4.add_field(name="Completed Dungeons" + " 👺 ", value="No Dungeons Completed, yet!")
                     embed4.add_field(name="Boss Souls" + " 👹 ", value="No Boss Souls Collected, yet!")
-
-                embeds = [embed6, embed1, embed5, embed3, embed2, embed4]
+                if player_stats:
+                    embeds = [embed6, embed1, embed5, embed3, embed2, embed4]
+                else:
+                    embeds = [embed6, embed1, embed3, embed2, embed4]
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embeds)
                 paginator.show_select_menu = True
                 await paginator.send(ctx)

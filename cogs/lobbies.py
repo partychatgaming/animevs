@@ -3,12 +3,9 @@ from time import time
 import db
 import dataclasses as data
 import messages as m
-import numpy as np
-import help_commands as h
-from PIL import Image, ImageFont, ImageDraw
-import requests
 from collections import ChainMap
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import listen, Embed, Extension
+from logger import loggy
 
 emojis = ['👍', '👎']
 
@@ -20,7 +17,8 @@ class Lobbies(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Lobbies Cog is ready!')
+        #print('Lobbies Cog is ready!')
+        loggy.info('Lobbies Cog is ready')
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
