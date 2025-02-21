@@ -2583,20 +2583,6 @@ class CustomPaginator(Paginator):
             if self.universe_tale_start or self.universe_dungeon_start:
                 await bc.create_universe_battle(self, ctx, mode, universe, player, currentopponent, entrance_fee)
                 return
-
-            # if button_ctx.ctx.custom_id == f"{_uuid}|coop":
-            #     await button_ctx.ctx.send("Starting")
-            #     await msg.edit(components=[])
-
-            # if button_ctx.ctx.custom_id == f"{_uuid}|duo":
-            #     await button_ctx.ctx.send("Starting")
-            #     await msg.edit(components=[])
-
-            # if button_ctx.ctx.custom_id == f"{_uuid}|deletesave":
-            #     player.make_available()
-            #     await button_ctx.ctx.send("Deleting Save")
-            #     gs.delete_save_spot(player, universe['TITLE'], mode, currentopponent)
-            #     await msg.edit(components=[])
             
             else:
                 player.make_available()

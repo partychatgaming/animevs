@@ -849,6 +849,7 @@ def early_game_tactics(battle_config):
         pre_turn_zero = tactics.beginning_of_turn_stat_trait_affects(battle_config.player1_card, battle_config.player1_title, battle_config.player2_card, battle_config)
     
     pretrified_check = tactics.tactics_petrified_fear_check(battle_config.player2_card, battle_config.player1_card, battle_config)
+    battle_config.auto_battle_result_message = ""
     if not pretrified_check:
         tactics.tactics_bloodlust_check(battle_config.player2_card, battle_config)
         tactics.tactics_enrage_check(battle_config.player2_card, battle_config)
