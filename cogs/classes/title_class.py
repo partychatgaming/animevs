@@ -386,13 +386,7 @@ class Title:
     
 
     def title_active_check(self, player_card):
-        if self.universe == "Unbound":
-            self.title_active = True
-            return True
-        elif player_card.universe == "Crown Rift Awakening":
-            self.title_active = True
-            return True
-        elif (self.universe in crown_utilities.pokemon_universes and player_card.universe in crown_utilities.pokemon_universes):
+        if (self.universe in crown_utilities.pokemon_universes and player_card.universe in crown_utilities.pokemon_universes):
             self.region_trait = True
             self.title_active = True
             return True
@@ -400,8 +394,8 @@ class Title:
             self.title_active = True
             return True
         else:
-            self.title_active = False
-            return False
+            self.title_active = True
+            return True
 
              
     def activate_ability(self, ability_name, ability_power, ability_element, player_card, opponent_card, battle):
