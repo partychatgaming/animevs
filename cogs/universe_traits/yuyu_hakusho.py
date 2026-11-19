@@ -10,9 +10,9 @@ def spirit_resolved(player_card, battle_config, opponent_card, player_title):
         # Resolve Scaling
         resolve_health = round(fortitude + (.5 * player_card.resolve_value))
         resolve_attack_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
         resolve_defense_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
         
         # boost = 0
         # if player_card.health >= 0.8 * player_card.max_base_health:

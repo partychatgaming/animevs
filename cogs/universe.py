@@ -144,7 +144,7 @@ class Universe(Extension):
             await paginator.send(ctx)
         except Exception as ex:
             print(ex)
-            player.make_available()
+            await asyncio.to_thread(player.make_available)
             custom_logging.debug(ex)
 
 
@@ -171,7 +171,7 @@ class Universe(Extension):
             if not universe:
                 embed = Embed(title= f"{universe_title} does not exist.", description="You may have misspelled the universe name. Please try again.")
                 await ctx.send(embed=embed)
-                player.make_available()
+                await asyncio.to_thread(player.make_available)
                 return
             # if mode in crown_utilities.DUNGEON_M and player.level <= 40:
             #     dungeon_unavailable_response = create_dungeon_locked_embed()
@@ -263,14 +263,14 @@ class Universe(Extension):
                         await msg.edit(components=[])
 
                     if button_ctx.ctx.custom_id == f"{_uuid}|deletesave":
-                        player.make_available()
+                        await asyncio.to_thread(player.make_available)
                         # await button_ctx.ctx.send("Deleting Save")
                         embed = Embed(title= f"{universe['TITLE']} Save Deleted.", description="You have deleted your save data for this Universe.")
                         await gs.delete_save_spot(self, player, universe['TITLE'], mode, 0)
                         await msg.edit(embeds=[embed],components=[])
                     
                     if button_ctx.ctx.custom_id == f"{_uuid}|quit":
-                        player.make_available()
+                        await asyncio.to_thread(player.make_available)
                         embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process.")
                         await button_ctx.ctx.send(embed=embed)
                         await msg.edit(components=[])
@@ -283,10 +283,10 @@ class Universe(Extension):
             else:
                 embed = Embed(title= f"{universe_title} does not exist.", description="You may have misspelled the universe name. Please try again.")
                 await ctx.send(embed=embed)
-                player.make_available()
+                await asyncio.to_thread(player.make_available)
                 return
         except Exception as ex:
-            player.make_available()
+            await asyncio.to_thread(player.make_available)
             custom_logging.debug(ex)
             loggy.error(ex)
             embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process.")

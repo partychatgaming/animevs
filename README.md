@@ -39,3 +39,17 @@ The marketplace allows for buying and selling cards, arms, and summons. Players 
 Guilds offer additional bonuses and a community aspect. Players can create, join, and donate to guilds, earning extra rewards and buffs. Guild roles include owner, officer, captain, and member, each with specific privileges.
 
 By understanding these elements, players can strategically navigate Anime VS+, maximize their card potential, and enjoy immersive multiverse adventures.
+
+## Developer tools
+
+### Battle simulator
+`tools/battle_simulator.py` plays hundreds of battles headlessly through the real game code (every mode, including Adventure) against an in-memory database of generated cards, titles, arms and summons, pressing random buttons. It never connects to Discord, MongoDB or OpenAI. Every error is reported, including ones the game catches and only prints, and the exit code is 1 if anything crashed.
+
+```bash
+pip install mongomock
+python tools/battle_simulator.py --battles 500            # all modes
+python tools/battle_simulator.py --modes RPG --battles 200
+python tools/battle_simulator.py --render --battles 20    # also draw the real card images
+python tools/battle_simulator.py --detail ZeroDivision    # full tracebacks for matching errors
+```
+Run it after changing battle code. A clean run prints only the summary and coverage lines; anything else is a problem to look at.

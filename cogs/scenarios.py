@@ -26,7 +26,7 @@ class Scenario(Extension):
         try:
             scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse, universe_title)
             if not scenarios:
-                player.make_available()
+                await asyncio.to_thread(player.make_available)
                 embed = Embed(title=f"{universe_title} Scenarios", description="There are no Scenarios available for this Universe. Check back later!", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
@@ -47,11 +47,11 @@ class Scenario(Extension):
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
-                player.make_available()
+                await asyncio.to_thread(player.make_available)
                 embed = Embed(title=f"{universe_title} Scenarios", description="No suitable scenarios available for this Universe. Check back later!", color=0x7289da)
                 await ctx.send(embed=embed)
         except Exception as ex:
-            player.make_available()
+            await asyncio.to_thread(player.make_available)
             loggy.error(f"Error creating scenario embed: {ex}")
             custom_logging.debug(ex)
 
@@ -64,7 +64,7 @@ class Scenario(Extension):
             scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse, universe_title)
 
             if not scenarios:
-                player.make_available()
+                await asyncio.to_thread(player.make_available)
                 embed = Embed(title=f"{universe_title} Raids", description="There are no Raids available for this Universe. Check back later!", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
@@ -85,12 +85,12 @@ class Scenario(Extension):
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
-                player.make_available()
+                await asyncio.to_thread(player.make_available)
                 embed = Embed(title=f"{universe_title} Raids", description="No suitable raids available for this Universe. Check back later!", color=0x7289da)
                 await ctx.send(embed=embed)
         except Exception as ex:
             loggy.error(f"Error creating raid embed: {ex}")
-            player.make_available()
+            await asyncio.to_thread(player.make_available)
             custom_logging.debug(ex)
 
 
@@ -140,7 +140,7 @@ async def create_scenario_embed(scenario, player):
 
     except Exception as ex:
         loggy.error(f"Error creating scenario embed: {ex}")
-        player.make_available()
+        await asyncio.to_thread(player.make_available)
         custom_logging.debug(ex)
 
 

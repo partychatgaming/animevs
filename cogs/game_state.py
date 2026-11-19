@@ -1,3 +1,4 @@
+import random
 import db
 import custom_logging
 import crown_utilities
@@ -5,10 +6,31 @@ import asyncio
 import textwrap
 from cogs.reward_drops import reward_drop, scenario_drop
 from cogs.quests import Quests
-import ai
 from interactions.ext.paginators import Paginator
 from interactions import ActionRow, Button, ButtonStyle, listen, Embed, Extension
 from logger import loggy
+
+async def close_loss_screen(battle_config, end_msg):
+    """Replace the loss screen's buttons with the saved-game / closing summary."""
+    try:
+        if battle_config.player1.autosave and battle_config.match_can_be_saved:
+            embed = battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card)
+        else:
+            embed = battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card)
+        await end_msg.edit(embed=embed, components=[])
+    except Exception as ex:
+        custom_logging.debug(ex)
+
+
+async def safe_delete_later(message, delay=2):
+    """Remove a finished battle message after a short pause; a missing message is fine."""
+    if message is None:
+        return
+    try:
+        await message.delete(delay=delay)
+    except Exception:
+        pass
+
 
 class GameState(Extension):
     def __init__(self, bot):
@@ -23,7 +45,7 @@ class GameState(Extension):
         Update this with the bot.py function that updates save_spot as well as to not store duplicate save spots
         """
         try:
-            player.make_available()
+            await asyncio.to_thread(player.make_available)
 
             # Remove existing save spot if it exists
             query = {
@@ -39,7 +61,7 @@ class GameState(Extension):
                     }
                 }
             }
-            db.updateUserNoFilter(query, update)
+            await asyncio.to_thread(db.updateUserNoFilter, query, update)
 
             # Add new save spot
             query = {"DID": player.did}
@@ -52,7 +74,7 @@ class GameState(Extension):
                     }
                 }
             }
-            db.updateUserNoFilter(query, update)
+            await asyncio.to_thread(db.updateUserNoFilter, query, update)
             
         except Exception as ex:
             custom_logging.debug(ex)
@@ -67,7 +89,7 @@ class GameState(Extension):
                 if save_spot['UNIVERSE'] == universe_title and save_spot['MODE'] == mode:
                     query = {"DID": player.did}
                     new_value = {"$pull": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode)}}}
-                    db.updateUserNoFilter(query, new_value)
+                    await asyncio.to_thread(db.updateUserNoFilter, query, new_value)
 
             return
         except Exception as ex:
@@ -78,11 +100,11 @@ class GameState(Extension):
         try:
             if battle_config.is_pvp_game_mode:
                 total_complete = False
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                battle_config.player2_card.stats_handler(battle_config, battle_config.player2, total_complete)
-                battle_config.player1.make_available()
-                talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
-                arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player2_card.stats_handler, battle_config, battle_config.player2, total_complete)
+                await asyncio.to_thread(battle_config.player1.make_available)
+                talisman_response = await asyncio.to_thread(crown_utilities.decrease_talisman_count, battle_config.player1.did, battle_config.player1.equipped_talisman)
+                arm_durability_message = await asyncio.to_thread(crown_utilities.update_arm_durability, battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
                 
                 battle_config.continue_fighting = False
 
@@ -98,8 +120,8 @@ class GameState(Extension):
                         pvp_response = await battle_config.pvp_victory_embed(gameClock, battle_config.player2, battle_config.player2_card, battle_config.player2_arm, battle_config.player2_title, battle_config.player1, battle_config.player1_card)
 
                 if not battle_config.is_tutorial_game_mode and battle_config.is_co_op_mode:
-                    co_op_talisman_response = crown_utilities.decrease_talisman_count(battle_config.player2.did, battle_config.player2.equipped_talisman)
-                    co_op_arm_durability_message = crown_utilities.update_arm_durability(battle_config.player2, battle_config.player2_arm, battle_config.player2_card)
+                    co_op_talisman_response = await asyncio.to_thread(crown_utilities.decrease_talisman_count, battle_config.player2.did, battle_config.player2.equipped_talisman)
+                    co_op_arm_durability_message = await asyncio.to_thread(crown_utilities.update_arm_durability, battle_config.player2, battle_config.player2_arm, battle_config.player2_card)
                     if co_op_arm_durability_message != False:
                         await private_channel.send(f"{co_op_arm_durability_message}")
 
@@ -118,8 +140,8 @@ class GameState(Extension):
     async def you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None):
         if battle_config.player2_wins:
             total_complete = False
-            battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-            battle_config.player1.make_available()
+            await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
+            await asyncio.to_thread(battle_config.player1.make_available)
             battle_config.rematch_buff = False
 
             play_again_buttons = [
@@ -136,7 +158,7 @@ class GameState(Extension):
             ]
             
             if battle_config.player1.guild != 'PCG':
-                team_info = db.queryTeam({'TEAM_NAME': str(battle_config.player1.guild.lower())})
+                team_info = await asyncio.to_thread(db.queryTeam, {'TEAM_NAME': str(battle_config.player1.guild.lower())})
                 guild_buff_info = team_info['ACTIVE_GUILD_BUFF']
                 if guild_buff_info == 'Rematch':
                     battle_config.rematch_buff =True
@@ -163,14 +185,14 @@ class GameState(Extension):
 
             play_again_buttons_action_row = ActionRow(*play_again_buttons)
 
-            talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
-            arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
+            talisman_response = await asyncio.to_thread(crown_utilities.decrease_talisman_count, battle_config.player1.did, battle_config.player1.equipped_talisman)
+            arm_durability_message = await asyncio.to_thread(crown_utilities.update_arm_durability, battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
             if arm_durability_message != False:
                 await private_channel.send(f"{arm_durability_message}")
             if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                 if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
-                    co_op_talisman_response = crown_utilities.decrease_talisman_count(battle_config.player3.did, battle_config.player3.equipped_talisman)
-                    co_op_arm_durability_message = crown_utilities.update_arm_durability(battle_config.player3, battle_config.player3_arm, battle_config.player3_card)
+                    co_op_talisman_response = await asyncio.to_thread(crown_utilities.decrease_talisman_count, battle_config.player3.did, battle_config.player3.equipped_talisman)
+                    co_op_arm_durability_message = await asyncio.to_thread(crown_utilities.update_arm_durability, battle_config.player3, battle_config.player3_arm, battle_config.player3_card)
                     if co_op_arm_durability_message != False:
                         await private_channel.send(f"{co_op_arm_durability_message}")
                 loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
@@ -187,6 +209,13 @@ class GameState(Extension):
 
             try:
                 button_ctx  = await self.bot.wait_for_component(components=play_again_buttons_action_row, timeout=300, check=check)
+                # Acknowledge the click right away (otherwise Discord shows "This interaction failed").
+                await button_ctx.ctx.defer(edit_origin=True, suppress_error=True)
+                if button_ctx.ctx.custom_id != f"{battle_config._uuid}|play_again_no":
+                    try:
+                        await end_msg.edit(components=[])   # the choice is made; the buttons are spent
+                    except Exception:
+                        pass
 
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|play_again_no":
                     if battle_config.is_rpg:
@@ -195,19 +224,9 @@ class GameState(Extension):
                         battle_config.rpg_config.encounter = False
                         battle_config.rpg_config.previous_moves.append(f"💨You Lose! Fleeing Encounter...!")
                         await end_msg.delete(delay=3)
-                    if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                        loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
-                    else:
-                        loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, None)
-                    # await battle_msg.delete()
-                    await end_msg.edit(embed=loss_response, components=[])
-                    
-                    
-                    if battle_config.player1.autosave and battle_config.match_can_be_saved:
-                        await end_msg.edit(embed = battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
-                        
-                    else:
-                        await end_msg.edit(embed = battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+                    # (The loss embed is not rebuilt here: building it records the match's
+                    # milestone progress, which used to be counted two or three times.)
+                    await close_loss_screen(battle_config, end_msg)
                     battle_config.continue_fighting = False
                     return
 
@@ -248,7 +267,7 @@ class GameState(Extension):
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|guild_rematch":
                     battle_config.reset_game()
                     new_info = await crown_utilities.guild_buff_update_function(str(battle_config.player1.guild.lower()))
-                    update_team_response = db.updateTeam(new_info['QUERY'], new_info['UPDATE_QUERY'])
+                    update_team_response = await asyncio.to_thread(db.updateTeam, new_info['QUERY'], new_info['UPDATE_QUERY'])
                     battle_config.continue_fighting = True
                     battle_config.player1_card.used_focus = False
                     battle_config.player1_card.used_resolve = False
@@ -264,20 +283,10 @@ class GameState(Extension):
             
             
             except Exception as ex:
-                custom_logging.debug(ex)
-                if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                    loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
-                else:
-                    loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, None)
-                # await battle_msg.delete()
-                await end_msg.edit(embed=loss_response, components=[])
-                
-                
-                if battle_config.player1.autosave and battle_config.match_can_be_saved:
-                    await end_msg.edit(embed = battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
-                    
-                else:
-                    await end_msg.edit(embed = battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+                # Usually the 5 minute wait for an answer ran out.
+                if not isinstance(ex, asyncio.TimeoutError):
+                    custom_logging.debug(ex)
+                await close_loss_screen(battle_config, end_msg)
                 battle_config.continue_fighting = False
                 return
         else:
@@ -291,7 +300,7 @@ class GameState(Extension):
 
             if any((battle_config.is_tales_game_mode, battle_config.is_dungeon_game_mode, battle_config.is_boss_game_mode)):
                 reward_msg = await reward_drop(self, battle_config, battle_config.player1)
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
                 battle_earnings = (100000 * battle_config.current_opponent_number) if battle_config.is_dungeon_game_mode else (1000000 * battle_config.current_opponent_number)
                 completion_earnings = 10000000 if battle_config.is_dungeon_game_mode else 50000000
 
@@ -304,8 +313,8 @@ class GameState(Extension):
                 if not battle_config.is_easy_difficulty:
                     # petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
                     # cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
-                    talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
-                    arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
+                    talisman_response = await asyncio.to_thread(crown_utilities.decrease_talisman_count, battle_config.player1.did, battle_config.player1.equipped_talisman)
+                    arm_durability_message = await asyncio.to_thread(crown_utilities.update_arm_durability, battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
                     if arm_durability_message != False:
                         await private_channel.send(f"{arm_durability_message}")
         
@@ -332,7 +341,7 @@ class GameState(Extension):
                             upload_query = {'DID': str(battle_config.player1.did)}
                             new_upload_query = {'$addToSet': {'DUNGEONS': battle_config.selected_universe},
                                                 '$set': {'BOSS_FOUGHT' : False}}
-                            r = db.updateUserNoFilter(upload_query, new_upload_query)
+                            r = await asyncio.to_thread(db.updateUserNoFilter, upload_query, new_upload_query)
 
 
                     # Check milestones and add messages to the embed
@@ -379,7 +388,7 @@ class GameState(Extension):
                             upload_query = {'DID': str(battle_config.player1.did)}
                             new_upload_query = {'$addToSet': {'CROWN_TALES': battle_config.selected_universe},
                                                 '$set': {'BOSS_FOUGHT' : False}}
-                            r = db.updateUserNoFilter(upload_query, new_upload_query)
+                            r = await asyncio.to_thread(db.updateUserNoFilter, upload_query, new_upload_query)
 
                     # Check milestones and add messages to the embed
                     milestone_embed = Embed(title="🏆 Milestones", description="Your milestone response is below", color=0x1abc9c)
@@ -406,11 +415,7 @@ class GameState(Extension):
                     return quest_embed, milestone_embed
 
                 async def compile_generic_results_embeds(reward_msg):
-                    winning_message = await ai.win_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
-                    losing_message = await ai.lose_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
-                    
-                    win_embed = Embed(title=f"🎊 VICTORY\n{battle_config.auto_battle_result_message}\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
-                    win_embed.set_footer(text=f"{battle_config.player1_card.name}: {winning_message}\n\n{battle_config.player2_card.name}: {losing_message}")
+                    win_embed = Embed(title=crown_utilities.clip(f"🎊 VICTORY\n{battle_config.auto_battle_result_message}\nThe game lasted {battle_config.turn_total} rounds.", 256), color=0x1abc9c)
 
                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents - 1):
                         if battle_config.is_dungeon_game_mode:
@@ -437,7 +442,7 @@ class GameState(Extension):
                     reward_embed.add_field(name=f"{p1_win_rewards['RANDOM_ELEMENT']} Essence", value=f"You now have {battle_config.player1.get_new_essence_value_from_rewards(p1_win_rewards['RANDOM_ELEMENT'], p1_win_rewards['ESSENCE'])} {p1_win_rewards['RANDOM_ELEMENT']} Essence")
                     
                     battle_history_embed = Embed(title=f"📜 Match History", description=f"View the match history here", color=0x1abc9c)
-                    battle_history_embed.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
+                    battle_history_embed.set_footer(text=crown_utilities.clip_tail(f"{battle_config.get_previous_moves_embed()}", 2048))
 
                     
                     battle_stats_embed = Embed(title=f"📊 Battle Stats", description=f"View the battle stats here", color=0x1abc9c)
@@ -474,6 +479,11 @@ class GameState(Extension):
                                     value=petlogger)
                     return win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed
 
+                # Bosses have no quest/milestone pages (only Tales and Dungeons do).
+                quest_embed = milestone_embed = None
+                if battle_config.is_boss_game_mode:
+                    await battle_config.set_boss_win(battle_config.player1, battle_config.player2_card)
+
                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents - 1):
                     win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed = await compile_generic_results_embeds(reward_msg)
                     if battle_config.is_dungeon_game_mode:
@@ -481,12 +491,9 @@ class GameState(Extension):
                     if battle_config.is_tales_game_mode:
                         quest_embed, milestone_embed = await tales_handler()
 
-                    
-                    await battle_msg.delete(delay=2)
-                    await asyncio.sleep(2)
-                    # battle_msg = await private_channel.send(embed=embedVar)
+                    await safe_delete_later(battle_msg)
 
-                    embed_list = [win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed, pet_level_embed]
+                    embed_list = [e for e in (win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed, pet_level_embed) if e is not None]
                     paginator = Paginator.create_from_embeds(self.bot, *embed_list)
                     paginator.show_select_menu = True
                     paginator._author_id = battle_config.player1.did
@@ -505,7 +512,7 @@ class GameState(Extension):
                     if battle_config.is_tales_game_mode:
                         quest_embed, milestone_embed = await tales_handler()
 
-                    embed_list = [win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed, pet_level_embed]
+                    embed_list = [e for e in (win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed, pet_level_embed) if e is not None]
                     paginator = Paginator.create_from_embeds(self.bot, *embed_list)
                     paginator.show_select_menu = True
                     paginator._author_id = battle_config.player1.did
@@ -517,7 +524,7 @@ class GameState(Extension):
 
             if battle_config.is_explore_game_mode:
                 total_complete = True
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
                 if battle_config.is_rpg:
                     self.combat_victory = True
                     await rpg_win(self, battle_config, battle_msg, private_channel, user1)
@@ -526,7 +533,7 @@ class GameState(Extension):
 
             if battle_config.is_raid_game_mode:
                 total_complete = True
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
                 await raid_win(battle_config, battle_msg, private_channel, user1)
 
             if battle_config.is_scenario_game_mode:
@@ -577,7 +584,7 @@ async def rpg_win(self, battle_config, battle_msg, private_channel, user1):
 
 async def raid_win(battle_config, battle_msg, gameClock,  private_channel, user1):
     if battle_config.is_raid_game_mode:
-        shield_response = battle_config.raid_victory()
+        shield_response = await asyncio.to_thread(battle_config.raid_victory)
         raid_response = await battle_config.pvp_victory_embed(gameClock, battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
         await battle_msg.delete(delay=2)
         await asyncio.sleep(2)
@@ -596,7 +603,7 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
         if battle_config.is_scenario_game_mode:
             total_complete = False
             if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
                 cardlogger = await crown_utilities.cardlevel(user1, "Tales")
 
                 embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
@@ -632,14 +639,14 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
             
             if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                 battle_config.continue_fighting = False
-                battle_config.player1.make_available()
+                await asyncio.to_thread(battle_config.player1.make_available)
                 total_complete = True
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
 
                 response = await scenario_drop(battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
 
-                save_scen = battle_config.player1.save_scenario(battle_config.scenario_data['TITLE'])
-                unlock_message = battle_config.get_unlocked_scenario_text()
+                save_scen = await asyncio.to_thread(battle_config.player1.save_scenario, battle_config.scenario_data['TITLE'])
+                unlock_message = await asyncio.to_thread(battle_config.get_unlocked_scenario_text)
                 embedVar = Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
                 Good luck on your next adventure!
 
@@ -684,6 +691,7 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
             return False
     except Exception as ex:
         custom_logging.debug(ex)
+        battle_config.continue_fighting = False
         return
 
 
@@ -692,7 +700,7 @@ async def abyss_win(battle_config, battle_msg, private_channel, user1):
         if battle_config.is_abyss_game_mode:
             total_complete = False
             if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
                 embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
                 {battle_config.get_previous_moves_embed()}
                 
@@ -710,9 +718,9 @@ async def abyss_win(battle_config, battle_msg, private_channel, user1):
             
             if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                 total_complete = True
-                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await asyncio.to_thread(battle_config.player1_card.stats_handler, battle_config, battle_config.player1, total_complete)
                 await battle_config.save_abyss_win(user1, battle_config.player1, battle_config.player1_card)
-                abyss_message = await abyss_level_up_message(battle_config.player1.did, battle_config.abyss_floor, battle_config.player2_card.name, battle_config.player2_title.name, battle_config.player2_arm.name)
+                abyss_message = await abyss_level_up_message(battle_config.player1, battle_config.abyss_floor, battle_config.abyss_card_to_earn or battle_config.player2_card.name, battle_config.player2_title.name, battle_config.player2_arm.name)
                 abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
                 prestige = battle_config.player1.prestige
                 aicon = ":new_moon:"
@@ -772,22 +780,98 @@ async def abyss_win(battle_config, battle_msg, private_channel, user1):
             return False
     except Exception as ex:
         custom_logging.debug(ex)
+        battle_config.continue_fighting = False
         return
+
+
+ABYSS_UNLOCK_MESSAGES = {
+    3: "🎊 Congratulations! 🎊 You unlocked **PVP and Guilds**. Use /pvp to battle another player or join together to form a Guild! Use /help to learn more.!",
+    10: "🎊 Congratulations! 🎊 You unlocked **Trading**. Use the **/trade** command to Trade Cards, Titles and Arms with other players!",
+    15: "🎊 Congratulations! 🎊 You unlocked **Associations**. Use the **/oath** to create an association with another Guild Owner!",
+    20: "🎊 Congratulations! 🎊 You unlocked **Gifting**. Use the **/gift** command to gift players money!",
+    25: "🎊 Congratulations! 🎊 You unlocked **Explore Mode**. Explore Mode allows for Cards to spawn randomly with Bounties! If you defeat the Card you will earn that Card + it's Bounty! Happy Hunting!",
+    30: "🎊 Congratulations! 🎊 You unlocked **Marriage**. You're now able to join Families!Share summons and purchase houses.Use /help to learn more about  Family commands!",
+    40: "🎊 Congratulations! 🎊 You unlocked **Dungeons**. Use the **/solo** command and select Dungeons to battle through the Hard Mode of Universes to earn super rare Cards, Titles, and Arms!",
+    60: "🎊 Congratulations! 🎊 You unlocked **Bosses**. Use the **/solo** command and select Boss to battle Universe Bosses too earn ultra rare Cards, Titles, and Arms!",
+}
+
+
+async def abyss_level_up_message(player, floor, card_name, title_name, arm_name):
+    """
+    Rewards for clearing an Abyss floor: the floor's card, title and arm on reward
+    floors, plus the unlock message for new game modes.  (The coins are paid by
+    Battle.save_abyss_win.)  Never raises: the floor is already cleared.
+    """
+    message = ""
+    new_unlock = False
+    drop_message = []
+    try:
+        floor_val = int(floor)
+    except (TypeError, ValueError):
+        floor_val = 0
+    coin_drop = round(100000 + (floor_val * 10000))
+
+    try:
+        if floor_val in crown_utilities.ABYSS_REWARD_FLOORS:
+            card_data, title_data, arm_data = await asyncio.gather(
+                asyncio.to_thread(db.queryCard, {'NAME': str(card_name)}),
+                asyncio.to_thread(db.queryTitle, {'TITLE': str(title_name)}),
+                asyncio.to_thread(db.queryArm, {'ARM': str(arm_name)}),
+            )
+            if card_data:
+                if card_name in player.cards or card_name in (player.storage or []):
+                    drop_message.append(f"You already own 🎴 **{card_name}**!")
+                else:
+                    card = crown_utilities.create_card_from_data(card_data)
+                    response = (await asyncio.to_thread(player.save_card, card)) if card else False
+                    drop_message.append(f"You earned 🎴 **{card_name}**!" if response is True else "You are maxed out on 🎴 Cards!")
+            if title_data:
+                if title_name in player.titles:
+                    drop_message.append(f"You already own 🎗️ **{title_name}**!")
+                else:
+                    await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(player.did)}, {'$addToSet': {'TITLES': title_name}})
+                    drop_message.append(f"You earned 🎗️ **{title_name}**!")
+            if arm_data:
+                arm = crown_utilities.create_arm_from_data(arm_data)
+                if arm:
+                    arm.durability = random.randint(75, 125)
+                    response = await asyncio.to_thread(player.save_arm, arm)
+                    if response is True:
+                        drop_message.append(f"You earned 🦾 **{arm_name}** with ⚒️**{arm.durability} Durability**!")
+                    elif response is False:
+                        drop_message.append(f"You already own 🦾 **{arm_name}**!")
+                    else:
+                        drop_message.append("You are maxed out on 🦾 Arms!")
+        drop_message.append(f"🪙 **{coin_drop:,}** has been added to your balance!")
+
+        prestige = int(getattr(player, "prestige", 0) or 0)
+        if prestige < 1 and floor_val in ABYSS_UNLOCK_MESSAGES:
+            message = ABYSS_UNLOCK_MESSAGES[floor_val]
+            new_unlock = True
+        if prestige < 10 and floor_val == (100 - (10 * prestige)):
+            message = "🎊 Congratulations! 🎊 You unlocked **Soul Exchange**. Use the **/exchange** command and Exchange any boss souls for cards from their respective universe! This will Reset your Abyss Level!"
+            new_unlock = True
+    except Exception as ex:
+        custom_logging.debug(ex)
+        if not drop_message:
+            drop_message.append(f"🪙 **{coin_drop:,}** has been added to your balance!")
+
+    return {"MESSAGE": message or "-", "NEW_UNLOCK": new_unlock, "DROP_MESSAGE": drop_message}
 
 
 async def movecrest(universe, guild):
     guild_name = guild
     universe_name = universe
     guild_query = {'GNAME': guild_name}
-    guild_info = db.queryGuildAlt(guild_query)
+    guild_info = await asyncio.to_thread(db.queryGuildAlt, guild_query)
     if guild_info:
         alt_query = {'FDID': guild_info['FDID']}
         crest_list = guild_info['CREST']
         pull_query = {'$pull': {'CREST': universe_name}}
-        pull = db.updateManyGuild(pull_query)
+        pull = await asyncio.to_thread(db.updateManyGuild, pull_query)
         update_query = {'$push': {'CREST': universe_name}}
-        update = db.updateGuild(alt_query, update_query)
-        universe_guild = db.updateUniverse({'TITLE': universe_name}, {'$set': {'GUILD': guild_name}})
+        update = await asyncio.to_thread(db.updateGuild, alt_query, update_query)
+        universe_guild = await asyncio.to_thread(db.updateUniverse, {'TITLE': universe_name}, {'$set': {'GUILD': guild_name}})
     else:
         print("Association not found: Crest")
 

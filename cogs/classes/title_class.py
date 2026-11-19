@@ -344,8 +344,8 @@ class Title:
             elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_title==True):
                 self.title_message = f"🎗️ | {self.name}"
                         
-        except:
-            print("error setting title message")
+        except Exception as ex:
+            custom_logging.debug(ex)
 
 
     def get_title_icon(self, card_universe):
@@ -358,8 +358,8 @@ class Title:
             else:
                 return self.title_icon
                         
-        except:
-            print("error setting title message")
+        except Exception as ex:
+            custom_logging.debug(ex)
 
 
     def set_title_embed_message(self):

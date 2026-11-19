@@ -1,3 +1,4 @@
+import asyncio
 import unique_traits as ut
 import crown_utilities
 import custom_logging
@@ -8,6 +9,7 @@ import textwrap
 import ai
 import db
 import random
+import render_cache
 from PIL import Image, ImageFont, ImageDraw
 from pilmoji import Pilmoji
 from io import BytesIO
@@ -40,6 +42,19 @@ from cogs.universe_traits.fma import equivalent_exchange, equivalent_exchange_re
 from cogs.universe_traits.soul_eater import soul_eater, soul_resonance, meister
 
 class Card:
+    # Max health is drained by rot, death, life, growth, fear and several universe
+    # traits, and it is a divisor all over the battle code (health ratios, AI
+    # decisions, health bars).  It used to reach 0 and crash the battle with a
+    # ZeroDivisionError a few turns in.  A card at 0 health is dead whatever its
+    # max health is, so the floor of 1 changes nothing else.
+    @property
+    def max_health(self):
+        return self._max_health
+
+    @max_health.setter
+    def max_health(self, value):
+        self._max_health = value if value >= 1 else 1
+
     try:
         def __init__(self, name, path, price, available, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, card_type, passive, speed, universe, tier, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss, card_class, drop_style, descriptions):
             self.name = name
@@ -920,10 +935,14 @@ class Card:
         else:
             self.prestige_difficulty = 0   
         # print(self.prestige_difficulty)
-        if mode == "Abyss" or mode == "SCENARIO" or mode == "RAID" or mode == "EXPLORE":
+        fixed_level_modes = {"ABYSS", "SCENARIO", "RAID", "RAID_SCENARIO", "EXPLORE", "RPG"}
+        if str(mode).upper() in fixed_level_modes:
             self.card_lvl = ai_lvl_buff
         else:
             self.card_lvl = self.get_ai_card_level(ai_lvl_buff, mode)
+        if self.card_lvl is None:
+            # a mode without its own scaling rule: use the configured level as-is
+            self.card_lvl = ai_lvl_buff or 0
         # print(self.card_lvl)
         # print(self.move1ap)
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
@@ -945,6 +964,9 @@ class Card:
 
 
     def get_ai_card_level(self, card_lvl, mode):
+        # Auto / co-op / duo variants scale like their base mode.
+        mode = {"ATales": "Tales", "ADungeon": "Dungeon", "CTales": "CoopTales", "DTales": "DuoTales",
+                "CDungeon": "CoopDungeon"}.get(mode, mode)
         if mode == "Tales":
             if card_lvl >= 210:
                 return 200
@@ -1000,6 +1022,7 @@ class Card:
             return 1000
         elif mode == "CBoss":
             return 1000
+        return card_lvl
     
     
     def set_raid_defense_buff(self, hall_defense):
@@ -1071,7 +1094,7 @@ class Card:
                     self.move1ap = self.move1ap + self.card_lvl_ap_buff
                     self.move2ap = self.move2ap + self.card_lvl_ap_buff
                     self.move3ap = self.move3ap + self.card_lvl_ap_buff
-                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+                    update_team_response = await asyncio.to_thread(db.updateTeam, guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
         except Exception as ex:
             custom_logging.debug(ex)
@@ -1406,11 +1429,10 @@ class Card:
 
     def set_rot_hit(self, battle_config, opponent_card):
         if opponent_card.rot_dmg:
-            self.max_health = self.max_health - opponent_card.rot_dmg
-            # self.max_health = self.max_health - opponent_card.poison_dmg
-            if self.health <  0 or self.max_health < 0:
+            rotted_max_health = self.max_health - opponent_card.rot_dmg
+            self.max_health = rotted_max_health
+            if self.health < 0 or rotted_max_health < 0:
                 self.health = 0
-                self.max_health = 0
             self.damage_received = self.damage_received + round(opponent_card.rot_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.rot_dmg)
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩻 {self.name} was inflicted with {round(opponent_card.rot_dmg):,} rot damage to their max health")
@@ -1477,84 +1499,55 @@ class Card:
         return self.evasion_message
 
 
-    def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle", encounter=False):   
-        try:    
+    def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle", encounter=False):
+        """Render this card as an in-memory PNG.
+
+        Always returns a rewound ``BytesIO``.  Art, fonts, star sprites and emoji
+        come from ``render_cache`` (no per-turn downloads), and if anything fails
+        while drawing a plain fallback card is returned instead of ``None`` so a
+        render problem can never end a battle.
+        """
+        try:
             if self.health <= 0:
-                im = get_card(self.path, self.name, "base")
-                im.save("image.png")
-                return interactions.File("image.png")
+                return render_cache.encode_png(get_card(self.path, self.name, "base"))
+
+            if self.used_resolve:
+                im = get_card(self.rpath, self.rname, "resolve")
+            elif self.used_focus and self.fpath:
+                im = get_card(self.fpath, self.name, "focus")
             else:
-                if self.used_resolve:
-                    im = get_card(self.rpath, self.rname, "resolve")
-                elif self.used_focus:
-                    if self.fpath:
-                        im = get_card(self.fpath, self.name, "focus")
-                    else:
-                        im = get_card(self.path, self.name, "base")
-                else:
-                    im = get_card(self.path, self.name, "base")
+                im = get_card(self.path, self.name, "base")
 
+            font = render_cache.get_font
+            with render_cache.RENDER_LOCK:
                 draw = ImageDraw.Draw(im)
-
-                if self.tier == 9:
-                    star = Image.open("PURPLE STARS.png")
-
-                if self.tier >= 7 and self.tier <= 8:
-                    star = Image.open("RED STARS.png")
-                
-                if self.tier >= 4 and self.tier <= 6:
-                    star = Image.open("BLUE STARS.png")
-
-                if self.tier >= 1 and self.tier <= 3:
-                    star = Image.open("STARS.png")
-
-                if self.tier >= 10:
-                    star = Image.open("DARK STARS.png")
-
-
-
-                paste_stars(im, star, self.tier)
+                paste_stars(im, render_cache.get_star(self.tier), self.tier)
 
                 name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size = calculate_font_sizes(self.name, self.rname, self.used_resolve)
                 universe_font_size = 35
                 if self.universe == "That Time I Got Reincarnated as a Slime":
                     universe_font_size = 26
-                card_message = f""
-                
-                # Evasion
-                evasion = self.get_evasion()
-                evasion_message = f"{self.speed}"
-                if self.speed >= 70 or self.speed <=30:
-                    evasion_message = f"{self.speed} *{self.evasion}%*"
 
-                if arm != "none":
-                    arm_message = f"{arm.passive_type.title()} | {arm.passive_value}"
-                    if arm.passive_type in crown_utilities.ABILITY_ARMS:
-                        arm_element_icon = crown_utilities.set_emoji(arm.element)
-                        arm_message = f"🦾 {arm_element_icon} {arm.passive_type.title()}"
-                        #self.element = arm.element
-                    
+                self.get_evasion()
+
                 ebasic, especial, eultimate, engagement_basic, engagement_special, engagement_ultimate = calculate_engagement_levels(opponent_card_defense, mode, self)
                 move1_text, move2_text, move3_text, move_enhanced_text, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size = calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eultimate)
 
-                # header = ImageFont.truetype("fonts/Yakin-MVe6w.ttf", name_font_size)
-
-                header = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", name_font_size)
-                title_font = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", title_font_size)
-                passive_font = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", universe_font_size)
-                lvl_font = ImageFont.truetype("fonts/Neuton-Bold.ttf", 60)
-                health_and_stamina_font = ImageFont.truetype("fonts/Neuton-Light.ttf", 41)
-                attack_and_shield_font = ImageFont.truetype("fonts/Neuton-Bold.ttf", 48)
-                moveset_font_1 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", basic_font_size)
-                moveset_font_2 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", super_font_size)
-                moveset_font_3 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", ultimate_font_size)
-                moveset_font_4 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", enhancer_font_size)
-                encounter_font = ImageFont.truetype("fonts/Jersey20-Regular.ttf", 33)
-                
+                header = font("YesevaOne-Regular.ttf", name_font_size)
+                title_font = font("YesevaOne-Regular.ttf", title_font_size)
+                passive_font = font("YesevaOne-Regular.ttf", universe_font_size)
+                lvl_font = font("Neuton-Bold.ttf", 60)
+                health_and_stamina_font = font("Neuton-Light.ttf", 41)
+                attack_and_shield_font = font("Neuton-Bold.ttf", 48)
+                moveset_font_1 = font("Jersey20-Regular.ttf", basic_font_size)
+                moveset_font_2 = font("Jersey20-Regular.ttf", super_font_size)
+                moveset_font_3 = font("Jersey20-Regular.ttf", ultimate_font_size)
+                moveset_font_4 = font("Jersey20-Regular.ttf", enhancer_font_size)
+                encounter_font = font("Jersey20-Regular.ttf", 33)
 
                 health_bar, character_name = get_character_name_and_health_bar(self, draw, header, title_size)
 
-                lvl_sizing = get_lvl_sizing(self, draw, lvl_font)
+                get_lvl_sizing(self, draw, lvl_font)
 
                 # Health & Stamina
                 rift_universes = ['Crown Rift Awakening']
@@ -1579,21 +1572,18 @@ class Card:
                 if int(self.defense) > 999:
                     d_sizing = (1040, 515)
 
-
                 draw.text(a_sizing, f"{format_number(round(self.attack))}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
                         stroke_fill=(0, 0, 0), align="center")
                 draw.text(d_sizing, f"{format_number(round(self.defense))}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
                         stroke_fill=(0, 0, 0), align="center")
 
-                with Pilmoji(im) as pilmoji:
-                    # pilmoji.text((945, 445), crown_utilities.class_emojis[self.card_class], (0, 0, 0), font=health_and_stamina_font, align="left")
+                with Pilmoji(im, source=render_cache.EMOJI_SOURCE, cache=False) as pilmoji:
                     pilmoji.text((602, 133), f"{crown_utilities.class_emojis[self.card_class]} {self.class_message}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
                     pilmoji.text((602, 180), f"{self.universe_crest} {self.universe}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
                     if mode == "RPG" and encounter:
-                        ai_encounter_message =  self.ai_encounter_message
-                        wrapped_message = wrap_text(ai_encounter_message, 40)
+                        wrapped_message = wrap_text(self.ai_encounter_message or "", 40)
                         pilmoji.text((602, 230), wrapped_message, (255, 255, 255), font=encounter_font, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
                     else:
                         pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
@@ -1605,14 +1595,11 @@ class Card:
                         pilmoji.text((600, 370), move_enhanced_text.strip(), (255, 255, 255), font=moveset_font_4, stroke_width=2,
                                     stroke_fill=(0, 0, 0))
 
-
-                image_binary = BytesIO()
-                im.save(image_binary, "PNG")
-                image_binary.seek(0)
-                return image_binary
+            return render_cache.encode_png(im)
 
         except Exception as ex:
             custom_logging.debug(ex)
+            return fallback_card_png(self)
 
     async def set_ai_encounter_message(self, opponent_card, location):
         ai_encounter_message =  await ai.rpg_encounter_message(self.name, self.universe, opponent_card, location)
@@ -2568,9 +2555,9 @@ class Card:
             self.defense = 25
         resolve_health = round(fortitude + (.5 * self.resolve_value))
         resolve_attack_value = round(
-            (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
+            (.60 * self.resolve_value))
         resolve_defense_value = round(
-            (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
+            (.60 * self.resolve_value))
 
         title_message = ""
 
@@ -2635,13 +2622,14 @@ class Card:
 
             jjk_resolve = domain_expansion(self, battle_config, player_title, opponent_card)
 
-            if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve, fma_resolve]):
+            if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve, fma_resolve, slime_resolve, jjk_resolve]):
                 self.standard_resolve_effect(battle_config, opponent_card, player_title)
 
             if player_title.synthesis_effect:
-                self.health = self.health + player_title.synthesis_damage_stored
+                synthesis_heal = player_title.synthesis_damage_stored
+                self.health = self.health + synthesis_heal
                 player_title.synthesis_damage_stored = 0
-                battle_config.add_to_battle_log(f"🎗️ [{self.name} is synthesizing, gaining {player_title.synthesis_value} health]")
+                battle_config.add_to_battle_log(f"🎗️ [{self.name} is synthesizing, gaining {synthesis_heal:,} health]")
             if self.overwhelming_power:
                 self.parry_active = True
                 self._parry_value = round(random.randint(10, 20))
@@ -3242,6 +3230,15 @@ class Card:
 
         draconic_basic_element = self.move1_element
         draconic_special_element = self.move2_element
+        draconic_basic_label, draconic_special_label = draconic_basic_element, draconic_special_element
+        draconic_basic_emoji = crown_utilities.set_emoji(draconic_basic_element)
+        draconic_special_emoji = crown_utilities.set_emoji(draconic_special_element)
+        # A draconic move made of draconic parts (draconic arms, Souls phase 2)
+        # would call itself forever; such a part simply deals its share of damage.
+        if draconic_basic_element == "DRACONIC":
+            draconic_basic_element = "DRACONIC_RAW"
+        if draconic_special_element == "DRACONIC":
+            draconic_special_element = "DRACONIC_RAW"
 
         # Splitting the Damage for Two Elemental Effects
         basic_dmg_var = dmg.copy()  # Create a copy of the dmg dictionary
@@ -3259,14 +3256,14 @@ class Card:
 
         # Option 2: Also update the MESSAGE to show the new damage type.
         basic_dmg_var['MESSAGE'] = (
-            f"{crown_utilities.set_emoji(draconic_basic_element)}: {basic_dmg:,} {draconic_basic_element} Damage Dealt"
+            f"{draconic_basic_emoji}: {basic_dmg:,} {draconic_basic_label} Damage Dealt"
         )
         special_dmg_var['MESSAGE'] = (
-            f"{crown_utilities.set_emoji(draconic_special_element)}: {special_dmg:,} {draconic_special_element} Damage Dealt"
+            f"{draconic_special_emoji}: {special_dmg:,} {draconic_special_label} Damage Dealt"
         )
 
         
-        battle_config.add_to_battle_log(f"({battle_config.turn_total})🐲 {self.name} blast {opponent_card.name} with combined elements! [{draconic_basic_element} & {draconic_special_element}]")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total})🐲 {self.name} blast {opponent_card.name} with combined elements! [{draconic_basic_label} & {draconic_special_label}]")
         self.activate_element_check(battle_config, basic_dmg_var, opponent_card)
         self.activate_element_check(battle_config, special_dmg_var, opponent_card)
 
@@ -3722,7 +3719,7 @@ class Card:
                     self._barrier_value = 0
                     self._arm_message = ""
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} disengaged their barrier to engage with an attack")
-                    self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
+                    decrease_solo_leveling_temp_values(self, 'BARRIER', opponent_card, battle_config)
             if opponent_card._barrier_value > 1:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {attacker} hits {opponent_card.name} barrier 💠 [{opponent_card._barrier_value - 1} barriers left]")
                 if opponent_card.barrier_active and dmg['ELEMENT'] == "PSYCHIC":
@@ -3968,12 +3965,13 @@ class Card:
                     self.attack_handler(battle_config, dmg, opponent_card)
                 battle_config.turn_total = battle_config.turn_total + 1
             else:
-                print("Something broke in the above code")
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
                 battle_config.repeat_turn()
         except Exception as e:
-            print(e)
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
+            # A bug in an effect handler: log it properly instead of hiding it
+            # behind a misleading "not enough stamina" message.
+            custom_logging.debug(e)
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s move had no effect")
             battle_config.next_turn()
 
     
@@ -4132,28 +4130,31 @@ class Card:
         if self._is_boss or battle_config.is_raid_scenario:
             self.tactics = battle_config._tactics
             if self.tactics:
-                if "ENRAGED" in self.tactics:
+                # Accept both spellings: "DAMAGE CHECK" (how tactics are stored and
+                # shown to players) and "DAMAGE_CHECK".
+                names = {str(t).upper().replace("_", " ").strip() for t in self.tactics}
+                if "ENRAGE" in names or "ENRAGED" in names:
                     self.enraged = True
-                if "OVERWHELMING_POWER" in self.tactics:
+                if "OVERWHELMING POWER" in names:
                     self.overwhelming_power = True
-                if "REGENERATION" in self.tactics:
+                if "REGENERATION" in names:
                     self.regeneration = True
-                if "DEATH_BLOW" in self.tactics:
+                if "DEATH BLOW" in names:
                     self.death_blow = True
-                if "ALMIGHTY_WILL" in self.tactics:
+                if "ALMIGHTY WILL" in names:
                     self.almighty_will = True
                     self.almighty_will_turns = [1, 5, 9, 10, 14, 15, 19, 20, 24, 25, 40, 45, 53, 54, 55, 74, 75, 95, 98, 100, 101]
-                if "STAGGER" in self.tactics:
+                if "STAGGER" in names:
                     self.stagger = True
-                if "INTIMIDATION" in self.tactics:
+                if "INTIMIDATION" in names:
                     self.intimidation = True
                     self.intimidation_turns = random.randint(1, 5)
-                if "BLOODLUST" in self.tactics:
+                if "BLOODLUST" in names:
                     self.bloodlust = True
-                if "PETRIFIED_FEAR" in self.tactics:
+                if "PETRIFIED FEAR" in names:
                     self.petrified_fear = True
                     self.petrified_fear_turns = random.randint(1, 5)
-                if "DAMAGE_CHECK":
+                if "DAMAGE CHECK" in names:
                     self.damage_check = True
                     self.damage_check_limit = round(random.randint(1000, 3500))
 
@@ -4214,14 +4215,35 @@ class Card:
         card_dict = {}
         for key, value in self.__dict__.items():
             card_dict[key.upper()] = value
+        # max_health is a property (stored as _max_health)
+        card_dict.pop('_MAX_HEALTH', None)
+        card_dict['MAX_HEALTH'] = self.max_health
         return card_dict
 
 def get_card(url, cardname, cardtype):
-        try:
-            im = Image.open(requests.get(url, stream=True).raw)
-            return im   
-        except Exception as ex:
-            custom_logging.debug(ex)
+    """Editable copy of the card art.  Cached, time-limited, and never ``None``."""
+    return render_cache.load_image(url, fallback_label=cardname)
+
+
+def fallback_card_png(card):
+    """Plain text-only card used when the normal render fails for any reason."""
+    try:
+        with render_cache.RENDER_LOCK:
+            im = render_cache.placeholder_image(label=getattr(card, "name", ""))
+            draw = ImageDraw.Draw(im)
+            lines = [
+                f"{getattr(card, 'name', 'Card')}",
+                f"HP {format_number(round(getattr(card, 'health', 0)))} / {format_number(round(getattr(card, 'max_health', 0)))}   ST {round(getattr(card, 'stamina', 0))}",
+                f"ATK {format_number(round(getattr(card, 'attack', 0)))}   DEF {format_number(round(getattr(card, 'defense', 0)))}",
+            ]
+            y = 120
+            for line in lines:
+                draw.text((80, y), line, (255, 255, 255), font=render_cache.get_font("Neuton-Bold.ttf", 54))
+                y += 90
+        return render_cache.encode_png(im)
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return render_cache.encode_png(Image.new("RGB", (1200, 600), (28, 30, 38)))
 
 
 def calculate_font_sizes(name, rname, used_resolve):

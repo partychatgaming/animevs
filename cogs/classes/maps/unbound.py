@@ -1321,7 +1321,7 @@ def choose_map_time():
     if random_number == 1:
         return get_concrete_jungle_am()
     elif random_number == 2:
-        return get_concrete_jungle
+        return get_concrete_jungle()
     else:
         return get_concrete_jungle_pm()
     

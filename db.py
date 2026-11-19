@@ -1,7 +1,10 @@
 from pymongo import MongoClient
 import certifi
 from decouple import config
+import copy
 import random
+import threading
+import time
 
 if config('ENV') == "production":
     # PRODUCTION
@@ -45,6 +48,87 @@ codes_col = db['CODES']
 scenario_col = db['SCENARIO']
 stats_col = db['STATS']
 market_col = db['MARKET']
+
+# --------------------------------------------------------------------------- catalog cache
+# Cards, titles, arms, summons and universes are game data that rarely change,
+# but they are looked up by name over and over (every battle start, every card
+# render setup, every reward).  Each lookup is a network round trip that blocks
+# the event loop - i.e. every battle on every server - while it runs.  Exact-name
+# lookups are cached here for a few minutes.  Writes made through this module
+# clear the cache for that collection; edits made directly in Atlas show up
+# within CATALOG_TTL_SECONDS.  Callers always get their own copy, so mutating a
+# returned document cannot corrupt the cache.
+CATALOG_TTL_SECONDS = 600
+CATALOG_MAX_ENTRIES = 6000
+_catalog_cache = {}
+_catalog_lock = threading.Lock()
+
+
+def _catalog_key(collection_name, query):
+    if isinstance(query, dict) and len(query) == 1:
+        (field, value), = query.items()
+        if isinstance(value, str):
+            return (collection_name, field, value)
+    return None
+
+
+def _catalog_find_one(collection, collection_name, query):
+    key = _catalog_key(collection_name, query)
+    if key is None:
+        return collection.find_one(query)
+    now = time.monotonic()
+    with _catalog_lock:
+        hit = _catalog_cache.get(key)
+    if hit is not None and hit[0] > now:
+        return copy.deepcopy(hit[1])
+    doc = collection.find_one(query)
+    if doc is not None:     # misses are not cached: a newly added item must show up at once
+        with _catalog_lock:
+            if len(_catalog_cache) >= CATALOG_MAX_ENTRIES:
+                _catalog_cache.clear()
+            _catalog_cache[key] = (now + CATALOG_TTL_SECONDS, doc)
+        return copy.deepcopy(doc)
+    return doc
+
+
+def invalidate_catalog(collection_name=None):
+    """Forget cached catalog documents (all of them, or one collection's)."""
+    with _catalog_lock:
+        if collection_name is None:
+            _catalog_cache.clear()
+        else:
+            for key in [k for k in _catalog_cache if k[0] == collection_name]:
+                del _catalog_cache[key]
+
+
+def ensure_indexes():
+    """
+    Create the indexes the bot's lookups rely on (no-op for ones that exist).
+    Without them every find_one by DID / NAME scans the whole collection.
+    Safe to call on every start; never raises.
+    """
+    wanted = [
+        (users_col, "DID"), (stats_col, "DID"),
+        (cards_col, "NAME"), (cards_col, "UNIVERSE"),
+        (titles_col, "TITLE"), (titles_col, "UNIVERSE"),
+        (arm_col, "ARM"), (arm_col, "UNIVERSE"),
+        (pet_col, "PET"), (pet_col, "UNIVERSE"),
+        (universe_col, "TITLE"),
+        (boss_col, "NAME"), (boss_col, "UNIVERSE"),
+        (scenario_col, "TITLE"), (scenario_col, "UNIVERSE"),
+        (abyss_col, "FLOOR"),
+        (guild_col, "GNAME"), (teams_col, "TEAM_NAME"), (family_col, "HEAD"),
+        (market_col, "MARKET_TYPE"), (trade_col, "MERCHANT"),
+    ]
+    created = []
+    for collection, field in wanted:
+        try:
+            collection.create_index(field)
+            created.append(f"{collection.name}.{field}")
+        except Exception as ex:
+            print(f"Could not ensure index {collection.name}.{field}: {ex}")
+    return created
+
 
 acceptable = [1, 2, 3, 4]
 arm_exclude_list = ['BASIC', 'SPECIAL', 'ULTIMATE']
@@ -1213,7 +1297,7 @@ def updateAllCards(update_query):
    
 
 def querySpecificDropCards(args):
-    data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}})
+    data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEON", "DUNGEONS"]}})
     return data 
 
 def queryRPGCards(args, map_level, number_of_cards, difficulty):
@@ -1221,9 +1305,9 @@ def queryRPGCards(args, map_level, number_of_cards, difficulty):
     if difficulty == 'EASY':
         data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES"]}}))
     elif difficulty == 'NORMAL':
-        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}}))
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEON", "DUNGEONS"]}}))
     elif difficulty == 'HARD':
-        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["DUNGEONS", "SCENARIO"]}}))
+        data = list(cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["DUNGEON", "DUNGEONS", "SCENARIO"]}}))
     # Shuffle the data and select 7 cards
     if len(data) > number_of_cards:
         selected_cards = random.sample(data, number_of_cards)
@@ -1246,7 +1330,7 @@ def queryExclusiveDropCards(args):
     return data 
 
 def queryCard(query):
-    data = cards_col.find_one(query)
+    data = _catalog_find_one(cards_col, "CARDS", query)
     return data
 
 def queryCards(query):
@@ -1408,7 +1492,7 @@ def queryAllTitlesBasedOnUniverses(query):
     return data
 
 def queryTitle(query):
-    data = titles_col.find_one(query)
+    data = _catalog_find_one(titles_col, "TITLES", query)
     return data
 
 
@@ -1468,7 +1552,7 @@ def queryAllArmsBasedOnUniverses(query):
     return data
 
 def queryArm(query):
-    data = arm_col.find_one(query)
+    data = _catalog_find_one(arm_col, "ARM", query)
     if data is None:
         return False
     else:
@@ -1677,7 +1761,7 @@ def queryAllSummons():
     return data
 
 def querySummon(query):
-    data = pet_col.find_one(query)
+    data = _catalog_find_one(pet_col, "PET", query)
     return data
 
 def get_random_summon_name(query):
@@ -1805,7 +1889,7 @@ def queryExploreUniverses():
 
 def queryUniverse(query):
     try:
-        data = universe_col.find_one(query)
+        data = _catalog_find_one(universe_col, "UNIVERSE", query)
         return data
     except Exception as e:
         print(f"Error querying universe: {e}")
@@ -1963,6 +2047,16 @@ def updateUser(query, new_value, arrayFilters):
         return "Update completed."
     except:
         return False
+
+def incUserBalance(query, amount):
+    """Add (or subtract) coins in one round trip.  Returns True if the user exists.
+    Never creates a user document (updateUserNoFilter upserts)."""
+    try:
+        result = users_col.update_one(query, {"$inc": {'BALANCE': amount}})
+        return result.matched_count > 0
+    except Exception:
+        return False
+
 
 def updateUserNoFilter(query, new_value):
     try:
@@ -2224,3 +2318,25 @@ def queryTrade(query):
         return data
     except:
         return False
+
+# --------------------------------------------------------------------------- catalog cache invalidation
+def _invalidates(collection_name, func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        finally:
+            invalidate_catalog(collection_name)
+    wrapper.__name__ = func.__name__
+    wrapper.__doc__ = func.__doc__
+    return wrapper
+
+
+for _collection_name, _writers in {
+    "CARDS": ("createCard", "updateAllCards", "updateCardWithFilter", "updateCard", "updateManyCards", "deleteCard"),
+    "TITLES": ("createTitle", "updateTitle", "updateTitleWithFilter", "updateManyTitles", "deleteTitle", "deleteAllTitles"),
+    "ARM": ("createArm", "updateArm", "updateArmWithFilter", "updateManyArms", "deleteArm"),
+    "PET": ("updateSummon", "updateManySummons"),
+    "UNIVERSE": ("updateManyUniverses", "createUniverse", "updateUniverse", "deleteUniverse"),
+}.items():
+    for _writer in _writers:
+        globals()[_writer] = _invalidates(_collection_name, globals()[_writer])

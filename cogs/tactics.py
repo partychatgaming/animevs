@@ -8,6 +8,7 @@ from cogs.universe_traits.jujutsu_kaisen import get_domain_turns
 from cogs.universe_traits.aot import calculate_titan
 import asyncio
 import random
+import crown_utilities
 from interactions import listen, Embed, Extension
 from logger import loggy
 
@@ -44,7 +45,6 @@ def tactics_bloodlust_check(boss_card, battle_config):
     if boss_card.bloodlust:
         if not boss_card.bloodlust_activated:
             if boss_card.health <= (0.75 * boss_card.max_base_health):
-                print("bloodlust check")
                 boss_card.bloodlust_activated = True
                 boss_card.attack = boss_card.attack + 3000
                 bloodlust_message = f"(🆚) [{boss_card.name} is bloodlusted. Attacks will now lifesteal]"
@@ -158,10 +158,11 @@ def tactics_stagger_check(boss_card, player_card, battle_config):
 
 def tactics_almighty_will_check(boss_card, battle_config):
     if boss_card.almighty_will:
-        if battle_config.turn_total in boss_card.almighty_will_turns:
-            battle_config.is_turn = random.randint(3, 80)
+        if battle_config.turn_total in getattr(boss_card, "almighty_will_turns", boss_card.almighty_will_turn):
+            # The turn COUNTER jumps; whose turn it is (is_turn) must stay a valid seat.
+            battle_config.turn_total = random.randint(3, 80)
             boss_card.focus_count = random.randint(3, 30)
-            almighty_will_message = f"(🆚) [⏳ {boss_card.name} manipulated the flow of battle\nIt is now turn {str(battle_config.is_turn)} and {boss_card.name} has focused {str(boss_card.focus_count)} times]"
+            almighty_will_message = f"(🆚) [⏳ {boss_card.name} manipulated the flow of battle\nIt is now turn {str(battle_config.turn_total)} and {boss_card.name} has focused {str(boss_card.focus_count)} times]"
             battle_config.add_to_battle_log(almighty_will_message)
 
 
@@ -263,13 +264,14 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, player_title, 
     activate_solo_leveling_trait(player_card, battle_config, opponent_card)
             
     embedVar = Embed(title=f"➡️ Current Turn {battle_config.turn_total}", color=player_card.health_color)
-    await asyncio.sleep(2)
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
     footer_text = battle_config.get_battle_author_text(opponent_card, opponent_title, player_card, player_title, companion_card, companion_title)
     # footer_text = battle_config.get_battle_window_title_text(player_card,opponent_card)
-    embedVar.set_author(name=f"{player_card.summon_resolve_message}\n{footer_text}")
+    # Discord rejects the whole message if the author line is over 256 characters
+    # or the footer is over 2048, so both are trimmed.
+    embedVar.set_author(name=crown_utilities.clip(f"{player_card.summon_resolve_message}\n{footer_text}".strip(), 256))
     embedVar.set_footer(
-        text=f"{battle_config.get_previous_moves_embed()}")
+        text=crown_utilities.clip_tail(f"{battle_config.get_previous_moves_embed()}", 2048))
 
     if not battle_config.is_auto_battle_game_mode:
         embedVar.set_image(url="attachment://image.png")

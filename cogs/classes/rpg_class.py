@@ -1,3 +1,4 @@
+import render_cache
 import db
 import crown_utilities
 import custom_logging
@@ -23,9 +24,28 @@ import asyncio
 from copy import deepcopy
 
 
-@lru_cache(maxsize=128)
+def copy_map_level(map_dict):
+    """
+    A player's own copy of one map level.
+
+    Only the grid is edited while a player moves (tokens, loot, opened doors),
+    so only the grid is copied.  The exits are shared, read-only references to
+    the neighbouring map templates.  The old code deep-copied the whole map,
+    exits included - and the exits nest other maps that nest other maps (the
+    Pocket Dimension template holds ~16,000 nested maps).  That was ~0.5 s of
+    frozen bot and ~6 MB of memory per adventure start and per room change,
+    kept for the whole adventure.
+    """
+    level = dict(map_dict)
+    level['map'] = [list(row) for row in map_dict['map']]
+    return level
+
+
 def query_rpg_cards(universe, start, end, difficulty):
-    return db.queryRPGCards(universe, start, end, difficulty)
+    # Not cached: the adventure removes defeated enemies from this list, and a
+    # cached (shared) list was emptied that way across adventures until every
+    # encounter crashed with "Cannot choose from an empty sequence".
+    return list(db.queryRPGCards(universe, start, end, difficulty) or [])
 
 # @lru_cache(maxsize=32)
 # async def cached_rpg_story(player_name, universe, combatants_tuple, map_name):
@@ -472,7 +492,7 @@ class RPG:
     async def change_map(self, direction, location):
         self.map_change = True
         self.save_map_state(self._player.map["map_name"])  # Save the current map state before changing
-        if location == self._player.map["map_doors"]:
+        if location == self._player.map.get("map_doors") and self._player.map.get("door_exit"):
             self._player.floor += 1 
             await self.load_map(self._player.map["door_exit"])
             return True
@@ -503,7 +523,7 @@ class RPG:
         x, y = self._player.player_position
         self._player.map['map'][x][y] = self._player.standing_on
         self._player.map['spawn_portal'] = self._player.player_position
-        map_copy = deepcopy(self._player.map)
+        map_copy = copy_map_level(self._player.map)
         # Break circular references
         # map_copy['north_exits'] = None
         # map_copy['south_exits'] = None
@@ -517,6 +537,9 @@ class RPG:
     
     
     async def load_map(self, new_map):
+        if not new_map:
+            self.previous_moves.append("(🚫) That way leads nowhere.")
+            return
         # Save the current map state before loading the new map
         x, y = self._player.player_position
         self._player.map['map'][x][y] = self._player.standing_on
@@ -524,7 +547,7 @@ class RPG:
         if new_map['map_name'] in self._player.map_states:
             loggy.info(f"Loading saved map: {new_map['map_name']} - {new_map['map_area']}")
             # Load the saved state of the new map
-            saved_map = deepcopy(self._player.map_states[new_map['map_name']])
+            saved_map = copy_map_level(self._player.map_states[new_map['map_name']])
             self._player.map["standing_on"] = saved_map['standing_on']
             self._player.map["spawn_portal"] = saved_map['spawn_portal']
             self._player.map["map_name"] = saved_map['map_name']
@@ -557,7 +580,7 @@ class RPG:
             self._player.map["east_exits"] = new_map['east_exits']
             self._player.map["west_exits"] = new_map['west_exits']
             self._player.map["door_exit"] = new_map['door_exit']
-            self._player.map['map'] = new_map['map']
+            self._player.map['map'] = [list(row) for row in new_map['map']]   # never edit the shared template
             self._player.player_position = self._player.map['spawn_portal']
             self._player.new_map = True
             # This method is called when the map is configured to programmatically place "🆚" emojis on the map
@@ -654,9 +677,12 @@ class RPG:
 
 
     async def fetch_combatants(self, number_of_combatants):
-        if self.universe == "Unbound":
-            return query_rpg_cards(self.player_card_universe, 1, number_of_combatants, self.difficulty)
-        return query_rpg_cards(self.universe, 1, number_of_combatants, self.difficulty)
+        universe = self.player_card_universe if self.universe == "Unbound" else self.universe
+        combatants = await asyncio.to_thread(query_rpg_cards, universe, 1, number_of_combatants, self.difficulty)
+        if not combatants:
+            # e.g. a universe with no cards for this difficulty: fall back to any of its cards
+            combatants = await asyncio.to_thread(query_rpg_cards, universe, 1, number_of_combatants, "NORMAL")
+        return combatants
 
 
     def remove_combatant(self):
@@ -739,7 +765,7 @@ class RPG:
                 map_dict = self.get_default_map()
 
         # Save the entire map dictionary to the player's profile
-        player.map = deepcopy(map_dict)
+        player.map = copy_map_level(map_dict)
         loggy.info(f"Map configured and saved for player {player.disname}: {player.map['map_name']}")
         x, y = player.map['spawn_portal']
         if player.map["map"][x][y] in self.passable_points:
@@ -840,7 +866,7 @@ class RPG:
         if self.player_gems > 0:
             gems_earned = self.player_gems * currency_modifier
             universe_to_add_gems = self.universe
-            self.player1.save_gems(universe_to_add_gems, gems_earned)
+            await asyncio.to_thread(self.player1.save_gems, universe_to_add_gems, gems_earned)
 
         embedVar = Embed(title=f"🗺️ | {self.universe} Adventure Ended!", description=textwrap.dedent(f"""
             """))           
@@ -1164,13 +1190,16 @@ class RPG:
             if self.player_gems > 0:
                 gems_earned = self.player_gems
                 universe_to_add_gems = self.universe
-                self.player1.save_gems(universe_to_add_gems, gems_earned)
+                await asyncio.to_thread(self.player1.save_gems, universe_to_add_gems, gems_earned)
             
             embedVar = Embed(title=f"🗺️ | {self.universe} Adventure Ended!", description=textwrap.dedent(f"""
                 """))           
             embedVar.set_footer(text=f"🗺️ | Reach the end of the map to complete the adventure and earn currency Modifiers! [{currency_modifier}x]")
 
-            await rpg_msg.edit(embed=embedVar,components=[])
+            try:
+                await rpg_msg.edit(embed=embedVar,components=[])
+            except Exception:
+                await private_channel.send(embed=embedVar)
             paginator = await self.leave_adventure_embed(ctx)
             await paginator.send(ctx)
             
@@ -1180,18 +1209,16 @@ class RPG:
             self.warp_active = True
             self.previous_moves.append("👀 Checking Nearby...")
             self.closest_warp_points = self.get_closest_warp_points(self._player.player_position)
-            if self.above_position in self.world_interaction_buttons:
-                cardinal = "⬆️ In front of you"
-                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x-1][y]}{get_emoji_label(self._player.map['map'][x-1][y])}!")
-            if self.below_position in self.world_interaction_buttons:
-                cardinal = "⬇️ Behind you"
-                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x+1][y]}{get_emoji_label(self._player.map['map'][x+1][y])}!")
-            if self.left_position in self.world_interaction_buttons:
-                cardinal = "⬅️ On your left"
-                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x][y-1]}{get_emoji_label(self._player.map['map'][x][y-1])}!")
-            if self.right_position in self.world_interaction_buttons:
-                cardinal = "➡️ On your right"
-                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x][y+1]}{get_emoji_label(self._player.map['map'][x][y+1])}!")
+            await self.get_player_sorroundings()
+            for neighbour, (nx, ny), cardinal in (
+                (self.above_position, (x - 1, y), "⬆️ In front of you"),
+                (self.below_position, (x + 1, y), "⬇️ Behind you"),
+                (self.left_position, (x, y - 1), "⬅️ On your left"),
+                (self.right_position, (x, y + 1), "➡️ On your right"),
+            ):
+                if neighbour in self.world_interaction_buttons and self._on_map((nx, ny)):
+                    tile = self._player.map['map'][nx][ny]
+                    self.previous_moves.append(f"{cardinal} there is a {tile}{get_emoji_label(tile)}!")
             if self._player.standing_on in self.world_interaction_buttons:
                 self.previous_moves.append(f"You standing on a {self._player.standing_on}{get_emoji_label(self._player.standing_on)}!")
         elif direction == "u" or direction == "d" or direction == "l" or direction == "r" or direction == "s":
@@ -1560,7 +1587,7 @@ class RPG:
             if self.warp_active:
                 warp_points = self.get_closest_warp_points(self._player.player_position)
                 for i, point in enumerate(warp_points):
-                    v_label=f"{point['type']}{emoji_labels[point['type']]}"
+                    v_label=f"{point['type']}{get_emoji_label(point['type'])}"
                     if point['type'] in self.gold:
                         v_label = f"🪙Gold"
                     warp_buttons.append(
@@ -1693,7 +1720,12 @@ class RPG:
         embedVar.set_footer(text=self.get_previous_moves_embed() or "No previous moves")
 
         if rpg_msg:
-            await rpg_msg.edit(embed=embedVar, components=components)
+            try:
+                await rpg_msg.edit(embed=embedVar, components=components)
+            except Exception as ex:
+                # The adventure message was deleted (e.g. by a battle screen or a moderator): post a new one.
+                loggy.warning(f"Adventure message could not be edited ({type(ex).__name__}); sending a new one")
+                rpg_msg = await private_channel.send(embed=embedVar, components=components)
             self._rpg_msg = rpg_msg
             return rpg_msg, components
         if not rpg_msg:
@@ -1730,7 +1762,28 @@ class RPG:
                 return
         
     #Interactions
+    def _on_map(self, position):
+        """True if position is a real cell of the current map (no negative-index wrap-around)."""
+        try:
+            px, py = position
+            grid = self._player.map['map']
+            return 0 <= px < len(grid) and 0 <= py < len(grid[px])
+        except Exception:
+            return False
+
+    def _set_tile(self, position, value):
+        """Change one map cell; positions that are not on the map (e.g. shop purchases) are ignored."""
+        if position is not None and self._on_map(position):
+            self._player.map['map'][position[0]][position[1]] = value
+
     async def rpg_action_handler(self,ctx, private_channel, player_position, npc, npc_position, direction=None):
+        if npc is None or (npc_position is not None and not self._on_map(npc_position)):
+            # The tile next to the player is off the map (or the neighbour info is
+            # stale after a map change): there is nothing to interact with.
+            # (npc_position is None for shop purchases, which have no tile.)
+            await self.get_player_sorroundings()
+            self.previous_moves.append("(🚫) There is nothing there.")
+            return
         x, y = player_position
         self.encounter_position = npc_position
         if npc in self.interaction_points:
@@ -1787,15 +1840,15 @@ class RPG:
                 if self.mission_type == "COLLECT_GOLD":
                     await self.increment_mission_count(ctx, private_channel)
                 if not self.loot_drop:
-                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
+                    self._set_tile(npc_position, f"{self._player.standing_on}")
                 self.loot_drop = False
             elif npc in self.drops:
                 success = None
                 if npc == "🎴":
-                    all_available_drop_cards = db.querySpecificDropCards(self.universe)
+                    all_available_drop_cards = await asyncio.to_thread(db.querySpecificDropCards, self.universe)
                     cards = [x for x in all_available_drop_cards]
                     selected_card = crown_utilities.create_card_from_data(random.choice(cards))
-                    success = self.player1.save_card(selected_card, True)
+                    success = await asyncio.to_thread(self.player1.save_card, selected_card, True)
                     if success:
                         self._player.card_drops.append(f"|🎴{selected_card.name}")
                         self.previous_moves.append(f"You found 🎴{selected_card.name}!")
@@ -1809,8 +1862,8 @@ class RPG:
                 #         self.previous_moves.append(f"You found 🎗️{title_drop} but you already have the maximum amount!!")
                 if npc == "🦾":
                     arm_query = {'UNIVERSE': self.universe, 'DROP_STYLE': "TALES", 'ELEMENT': ""}
-                    arm_drop = db.get_random_arm(arm_query, self.player1)
-                    success = self.player1.save_arm(arm_drop, True)
+                    arm_drop = await asyncio.to_thread(db.get_random_arm, arm_query, self.player1)
+                    success = await asyncio.to_thread(self.player1.save_arm, arm_drop, True)
                     if success:
                         self._player.arm_drops.append(f"|🦾{arm_drop}")
                         self.previous_moves.append(f"You found 🦾{arm_drop}!")
@@ -1818,10 +1871,10 @@ class RPG:
                         self.previous_moves.append(f"You found 🦾{arm_drop} but you already have the maximum amount!!")
                 if npc == "🧬":
                     summon_query = {'UNIVERSE': self.universe, 'DROP_STYLE': "TALES"}
-                    summon_drop_name = db.get_random_summon_name(summon_query)
-                    summon_info = db.querySummon({'PET': summon_drop_name})
+                    summon_drop_name = await asyncio.to_thread(db.get_random_summon_name, summon_query)
+                    summon_info = await asyncio.to_thread(db.querySummon, {'PET': summon_drop_name})
                     summon_drop = crown_utilities.create_summon_from_data(summon_info)
-                    success = self.player1.save_summon(summon_drop)
+                    success = await asyncio.to_thread(self.player1.save_summon, summon_drop)
                     if success:
                         self._player.summon_drops.append(f"|🧬{summon_drop.name}")
                         self.previous_moves.append(f"You found 🧬{summon_drop.name}!")
@@ -1834,13 +1887,13 @@ class RPG:
             elif npc in self.wildlife:
                 wildlife_msg = ""
                 random_number = random.randint(1, 100)
-                self.previous_moves.append(f"({npc}) You encountered a {emoji_labels[npc]}!")
+                self.previous_moves.append(f"({npc}) You encountered a {get_emoji_label(npc)}!")
                 if random_number <= 33:
-                    self.previous_moves.append(f"({npc}) The {emoji_labels[npc]} ran off...")
-                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
+                    self.previous_moves.append(f"({npc}) The {get_emoji_label(npc)} ran off...")
+                    self._set_tile(npc_position, f"{self._player.standing_on}")
                 elif random_number <= 75:
                     #You successfully hunt the animal and gain some food
-                    self.previous_moves.append(f"({npc}) You successfully hunt the {emoji_labels[npc]}!")
+                    self.previous_moves.append(f"({npc}) You successfully hunt the {get_emoji_label(npc)}!")
                     if self.mission_type == "HUNT":
                         await self.increment_mission_count(ctx, private_channel)
                     if npc == "🦌":
@@ -1853,8 +1906,8 @@ class RPG:
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🦴", npc_position, direction)
                 else:
                     #The animal is friendly and leaves a item for the player using the drop system
-                    self.previous_moves.append(f"({npc}) The {emoji_labels[npc]} left a gift!")
-                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
+                    self.previous_moves.append(f"({npc}) The {get_emoji_label(npc)} left a gift!")
+                    self._set_tile(npc_position, f"{self._player.standing_on}")
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🃏", npc_position, direction)
             elif npc in self.remains:
                 if npc == "💀":
@@ -1868,7 +1921,7 @@ class RPG:
                     self.previous_moves.append(f"(☠️) You found a skeleton!")
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🃏", npc_position, direction)
                     #find book and learn skill
-                self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
+                self._set_tile(npc_position, f"{self._player.standing_on}")
             elif npc in self.food:
                 health_msg = ""
                 if npc == "🥩":
@@ -1905,7 +1958,7 @@ class RPG:
                     #         break
                     # if not food_found:
                     #     self.player_inventory.append({'ITEM': npc, 'USE': 1})
-                self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
+                self._set_tile(npc_position, f"{self._player.standing_on}")
             elif npc in self.keys:
                 self.previous_moves.append(f"(🗝️) You found a key!")
                 key_found = False
@@ -1916,7 +1969,7 @@ class RPG:
                         break
                 if not key_found:
                     self.player_inventory.append({'ITEM': npc, 'USE': 1})
-                self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
+                self._set_tile(npc_position, f"{self._player.standing_on}")
             elif npc in self.doors:
                 for item in self.player_inventory:
                     if item['ITEM'] == "🗝️":
@@ -1925,7 +1978,7 @@ class RPG:
                             item['USE'] -= 1
                             if item['USE'] <= 0:
                                 self.player_inventory.remove(item)
-                            self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self.open_door}"
+                            self._set_tile(npc_position, f"{self.open_door}")
                         break
                 else:
                     self.previous_moves.append(f"(🚪) You need a key to unlock this door!")
@@ -1971,7 +2024,7 @@ class RPG:
                         self.remove_combatant()
                         self.previous_moves.append(f"({npc}) You loot the body!")
                         await self.rpg_action_handler(ctx, private_channel, player_position, "👛", npc_position, direction)
-                self._player.map['map'][npc_position[0]][npc_position[1]] = f"🌴"
+                self._set_tile(npc_position, f"🌴")
             elif npc in self.cactus:
                 self.previous_moves.append(f"({npc}) You searched a cactus!")
                 if self._player.map['map'][npc_position[0]][npc_position[1]] in self.looted_cactus:
@@ -1998,7 +2051,7 @@ class RPG:
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🎰", npc_position, direction)
                     else:
                         self.previous_moves.append(f"({npc}) You found nothing...")
-                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self.looted_mountain}"
+                    self._set_tile(npc_position, f"{self.looted_mountain}")
                 else:
                     self.previous_moves.append(f"({npc}) You can't climb the mountain...if only you had climbing gear...")
             elif npc in self.mountains:
@@ -2024,7 +2077,7 @@ class RPG:
                     # if not self.miner:
                     #     self.miner = True
                     #     self.previous_moves.append(f"You gained the Miner Skill! [⛏️]")
-                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
+                    self._set_tile(npc_position, f"{self._player.standing_on}")
                 else:
                     self.previous_moves.append(f"({npc}) Inspecting the stone you found a ⛏️Pickaxe!")
                     self.pickaxe = True
@@ -2130,14 +2183,14 @@ class RPG:
                 if extra_loot_roll <= 25:
                     self.previous_moves.append(f"(🎲) You found a lootable body!")
                     drop = random.choice(self.remains)
-                    self._player.map['map'][npc_position[0]][npc_position[1]] = drop
+                    self._set_tile(npc_position, drop)
         else:
             await self.encounter_handler(ctx, private_channel, npc, npc_position)
         
         if self.combat_victory:
             #print("Combat victory was invoked")
             self.previous_moves.append(f"(✅) You defeated the enemy!")
-            self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
+            self._set_tile(npc_position, f"{self._player.standing_on}")
             self.combat_victory = False
             if npc in self.quest:
                 self.previous_moves.append(f"(🎯) Target Eliminated!")
@@ -2188,9 +2241,13 @@ class RPG:
                 await self.create_rpg_battle(ctx, private_channel)
         else:
             if npc == "💫":
-                x, y = self.encounter_position
-                embedVar = Embed(title=f"[💬] You spend some time talking with {npc_position}, but before you go...", description=f"", color=0xf1c40f)
-                self.previous_moves.append(f"(💬) You spend some time talking with {npc_position}, before you go...")
+                # For a conversation npc_position carries the name of who you talked to;
+                # the tile they stood on is the encounter position.
+                talker_name = npc_position
+                talk_position = self.encounter_position
+                x, y = talk_position
+                embedVar = Embed(title=f"[💬] You spend some time talking with {talker_name}, but before you go...", description=f"", color=0xf1c40f)
+                self.previous_moves.append(f"(💬) You spend some time talking with {talker_name}, before you go...")
                 random_number = random.randint(1, 100)
                 if random_number <= 5:
                     self.previous_moves.append(f"(🆚) It's a trap! You are under attack!")
@@ -2212,14 +2269,14 @@ class RPG:
                     self.battling = False
                     self.encounter = False
                     self.loot_drop = True
-                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎁", npc_position)
+                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎁", talk_position)
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 elif random_number <= 90:
                     if not self.has_quest:
                         self.previous_moves.append(f"(🗺️) They have a quest for you!")
                         self.quest_message_list.append(f"({npc}) You have a quest!")
                         embedVar.add_field(name=f"[🗺️)] They have a quest for you!", value=f"Check out your new quest!")
-                        await self.generate_quest(ctx, private_channel, '🔎', npc_position)
+                        await self.generate_quest(ctx, private_channel, '🔎', talk_position)
                     else:
                         self.previous_moves.append(f"({self.my_quest}) They give you some information about your quest!")
                         embedVar.add_field(name=f"[🗺️)] You already have a quest!", value=f"Check out your current quest!")
@@ -2232,7 +2289,7 @@ class RPG:
                     self.battling = False
                     self.encounter = False
                     self.loot_drop = True
-                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎰", npc_position)
+                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🎰", talk_position)
                     self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 talk_msg = await private_channel.send(embed=embedVar)
                 await talk_msg.delete(delay=3)
@@ -2457,13 +2514,12 @@ class RPG:
             self.encounter = False
             return
         except Exception as ex:
-            await shop_msg.edit(components=[])
-            custom_logging.debug(ex)
-        except asyncio.TimeoutError:
-            await shop_msg.edit(components=[])
-            custom_logging.debug(ex)
+            # Usually the player walked away (5 minute timeout): close the shop and carry on.
+            await safe_clear_components(shop_msg)
+            if not isinstance(ex, asyncio.TimeoutError):
+                custom_logging.debug(ex)
             self.encounter = False
-            return 
+            return
 
     
     async def generate_quest(self, ctx, private_channel, npc, npc_position):
@@ -2541,8 +2597,23 @@ class RPG:
             await self.rpg_player_move_embed(ctx, private_channel, self._rpg_msg)
             battle.rpg_msg = self._rpg_msg
 
+            if not self.list_of_combatants:
+                # Every enemy on this map has been beaten (or the universe has none).
+                self.previous_moves.append("(🍃) It was just the wind... there is no one left to fight here.")
+                self.encounter = False
+                self.battling = False
+                return
             selected_card = crown_utilities.create_card_from_data(random.choice(self.list_of_combatants))
-            dialogue_option = random.choice(selected_card.descriptions)
+            dialogue_option = random.choice(selected_card.descriptions) if selected_card.descriptions else None
+            if not dialogue_option or len(dialogue_option.get("dialogue_options") or []) < 3:
+                dialogue_option = {
+                    "message": f"🆚 {selected_card.name} has appeared!",
+                    "dialogue_options": [
+                        {"response": "Let's settle this!", "fight": True},
+                        {"response": "We don't have to fight.", "fight": False},
+                        {"response": "I'll be on my way.", "fight": False},
+                    ],
+                }
             selected_card.set_affinity_message()
             selected_card.set_explore_bounty_and_difficulty(battle, self._player.map_level)
             self.current_opponent_name = selected_card.name
@@ -2553,7 +2624,7 @@ class RPG:
                 selected_card.ai_encounter_message = f"🆚 {selected_card.name} has appeared!"
 
             battle.is_rpg_game_mode = True
-            battle.set_explore_config(self.universe_data, selected_card)
+            await asyncio.to_thread(battle.set_explore_config, self.universe_data, selected_card)
             battle.bounty = selected_card.bounty
             x, y = self.encounter_position
             self.set_rpg_options()
@@ -2563,7 +2634,7 @@ class RPG:
             embedVar.set_image(url="attachment://image.png")
             embedVar.set_footer(text=f"{selected_card.battle_message}\n💨Run to flee this encounter and return to Adventure.", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
             
-            image_binary = selected_card.showcard(mode="RPG", encounter=True)
+            image_binary = await render_cache.render_async(selected_card.showcard, mode="RPG", encounter=True)
             image_binary.seek(0)
             card_file = File(file_name="image.png", file=image_binary)
 
@@ -2595,7 +2666,7 @@ class RPG:
                     embedVar.set_image(url="attachment://image.png")
                     embedVar.set_footer(text=f"OPTION A - {option_a}\nOPTION B - {option_b}\nOPTION C - {option_c}", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                     
-                    image_binary = selected_card.showcard(mode="RPG", encounter=True)
+                    image_binary = await render_cache.render_async(selected_card.showcard, mode="RPG", encounter=True)
                     image_binary.seek(0)
                     card_file = File(file_name="image.png", file=image_binary)
 
@@ -2677,9 +2748,13 @@ class RPG:
                         self.talking_encounter = False
                         return
                     except Exception as ex:
-                        await talk_msg.edit(components=[])
-                        custom_logging.debug(ex)
+                        # Timed out waiting for an answer (or the message vanished): back to the map.
+                        await safe_clear_components(talk_msg)
+                        if not isinstance(ex, asyncio.TimeoutError):
+                            custom_logging.debug(ex)
+                        self.talking_encounter = False
                         self.encounter = False
+                        self.battling = False
                         return
 
                 if button_ctx.ctx.custom_id == "run":
@@ -2700,16 +2775,12 @@ class RPG:
                     await msg.delete()
                     return
             except Exception as ex:
-                await msg.edit(components=[])
-                await msg.delete()
-                custom_logging.debug(ex)
+                # Timed out waiting for Fight/Talk/Run (or the message vanished): back to the map.
+                await safe_clear_components(msg)
+                if not isinstance(ex, asyncio.TimeoutError):
+                    custom_logging.debug(ex)
                 self.encounter = False
-                return
-            except asyncio.TimeoutError:
-                await msg.edit(components=[])
-                custom_logging.debug(ex)
-                self.encounter = False
-                await msg.delete()
+                self.battling = False
                 return
         
         
@@ -2904,7 +2975,7 @@ class RPG:
                     self.has_quest = False
                     self.has_investigation = False
                     self._player.quest_complete += 1
-                    self.keys += 1
+                    self.player_keys += 1
                     await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🃏", new_position, direction)
                 elif original_tile == "🎯":
                     self.previous_moves.append(f"(🎯) You found a target!")
@@ -2915,7 +2986,7 @@ class RPG:
                         self.quest_message_list.append(f"🎯 Target Eliminated")
                         self.has_quest = False
                         self._player.quest_complete += 1
-                        self.keys += 1
+                        self.player_keys += 1
                     else:
                         self.previous_moves.append(f"(🎯) Target Escaped!")
                         self.quest_message_list.append(f"🎯 Target Escaped")
@@ -3285,8 +3356,19 @@ class RPG:
         return embedVar
 
 #Start Non Class Functions
+async def safe_clear_components(message):
+    """Remove the buttons from a message that may already have been deleted."""
+    if message is None:
+        return
+    try:
+        await message.edit(components=[])
+    except Exception:
+        pass
+
+
 def get_emoji_label(emoji):
-    return emoji_labels[emoji]
+    # Maps can contain emoji that have no label yet; show the emoji alone instead of crashing.
+    return emoji_labels.get(emoji, "")
 
 
 def get_ground_type(ground):

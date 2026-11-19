@@ -1,3 +1,4 @@
+import render_cache
 import asyncio
 import crown_utilities
 import db
@@ -130,7 +131,7 @@ class Profile(Extension):
                     await ctx.send(embed=embedVar)
                     loggy.info(f"Build command executed by {ctx.author} successfully with performance on")
                 else:
-                    image_binary = c.showcard()
+                    image_binary = await render_cache.render_async(c.showcard)
                     image_binary.seek(0)
                     card_file = File(file_name="image.png", file=image_binary)
 
@@ -230,7 +231,7 @@ class Profile(Extension):
 
             # Find random card from the list of cards in player.cards, queryCard using the random card name, and create_card_from_data
             random_card = random.choice(player.cards)
-            card = db.queryCard({'NAME': random_card})
+            card = await asyncio.to_thread(db.queryCard, {'NAME': random_card})
             c = crown_utilities.create_card_from_data(card)
             c.set_card_level_buffs(player.card_levels)
 
@@ -238,7 +239,7 @@ class Profile(Extension):
             
             title_list = []
             for title in player.titles:
-                t = db.queryTitle({'TITLE': title})
+                t = await asyncio.to_thread(db.queryTitle, {'TITLE': title})
                 if t["UNIVERSE"] == c.universe:
                     title_list.append(t)
             if not title_list:
@@ -252,7 +253,7 @@ class Profile(Extension):
             # For each arm in player.arms list queryArm using the arm name and select a random arm from only the arms that have the same universe as card.universe
             arm_list = []
             for arm in player.arms:
-                a = db.queryArm({'ARM': arm["ARM"]})
+                a = await asyncio.to_thread(db.queryArm, {'ARM': arm["ARM"]})
                 if a["UNIVERSE"] == c.universe:
                     arm_list.append(a)
             
@@ -266,11 +267,11 @@ class Profile(Extension):
 
 
             random_summon = random.choice(player.summons)
-            summon = db.querySummon({'PET': random_summon["NAME"]})
+            summon = await asyncio.to_thread(db.querySummon, {'PET': random_summon["NAME"]})
             s = crown_utilities.create_summon_from_data(summon)
 
             # Equip the card, title, arm and summon
-            db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': c.name, 'TITLE': t.name, 'ARM': a.name, 'PET': s.name}})
+            await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(ctx.author.id)}, {'$set': {'CARD': c.name, 'TITLE': t.name, 'ARM': a.name, 'PET': s.name}})
             
             # Create embed that tells what has been equipped
             embed = Embed(title="Quick Build Complete", description=f"A build has been generated for you based on your inventory.", color=000000)
@@ -281,7 +282,7 @@ class Profile(Extension):
             embed.set_image(url="attachment://image.png")
             embed.set_footer(text=f"Use /build to view your new build in more detail.")
             embed.set_thumbnail(url=ctx.author.avatar_url)
-            image_binary = c.showcard()
+            image_binary = await render_cache.render_async(c.showcard)
             image_binary.seek(0)
             card_file = File(file_name="image.png", file=image_binary)
             await ctx.send(embed=embed, file=card_file)
@@ -306,7 +307,7 @@ class Profile(Extension):
             if not a_registered_player:
                 return
             query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(query)
+            user = await asyncio.to_thread(db.queryUser, query)
             player = crown_utilities.create_player_from_data(user)
             talismans = user["TALISMANS"]
             essence_list = user["ESSENCE"]
@@ -365,7 +366,7 @@ class Profile(Extension):
             return
 
         try:
-            user = db.queryUser({"DID": str(ctx.author.id)})
+            user = await asyncio.to_thread(db.queryUser, {"DID": str(ctx.author.id)})
             talismans = user["TALISMANS"]
            
             if crown_utilities.does_exist(talismans):
@@ -444,7 +445,7 @@ class Profile(Extension):
             return
 
         try:
-            user = db.queryUser({'DID': str(ctx.author.id)})
+            user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
             storage_allowed_amount = user['STORAGE_TYPE'] * 15
             player = crown_utilities.create_player_from_data(user)
             if mode == "card":
@@ -453,7 +454,7 @@ class Profile(Extension):
                     await ctx.send(embed=embed)
                     return
 
-                list_of_cards = db.querySpecificCards(player.storage)
+                list_of_cards = await asyncio.to_thread(db.querySpecificCards, player.storage)
                 cards = [x for x in list_of_cards]
                 all_cards = []
                 embed_list = []
@@ -480,7 +481,7 @@ class Profile(Extension):
                     await ctx.send(embed=embed)
                     return
 
-                list_of_titles = db.querySpecificTitles(player.tstorage)
+                list_of_titles = await asyncio.to_thread(db.querySpecificTitles, player.tstorage)
                 titles = [x for x in list_of_titles]
                 all_titles = []
                 embed_list = []
@@ -509,7 +510,7 @@ class Profile(Extension):
                 storage_card_names = []
                 for name in user['ASTORAGE']:
                     storage_card_names.append(name['ARM'])
-                list_of_arms = db.querySpecificArms(storage_card_names)
+                list_of_arms = await asyncio.to_thread(db.querySpecificArms, storage_card_names)
                 arms = [x for x in list_of_arms]
                 all_arms = []
                 embed_list = []
@@ -581,7 +582,7 @@ class Profile(Extension):
             return
         
         query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)
+        d = await asyncio.to_thread(db.queryUser, query)
         player = crown_utilities.create_player_from_data(d)
         
         try:
@@ -727,7 +728,7 @@ class Profile(Extension):
         if not a_registered_player:
             return
         player = crown_utilities.create_player_from_data(a_registered_player)
-        card = crown_utilities.create_card_from_data(db.queryCard({"NAME": player.equipped_card}))
+        card = crown_utilities.create_card_from_data((await asyncio.to_thread(db.queryCard, {"NAME": player.equipped_card})))
         try:
             """
             Unlock Methods
@@ -742,7 +743,7 @@ class Profile(Extension):
             """
             embed_list = []
             for title in sorted(player.titles):                
-                resp = db.queryTitle({"TITLE": str(title)})
+                resp = await asyncio.to_thread(db.queryTitle, {"TITLE": str(title)})
                 if filtered:
                     if resp['UNIVERSE'] != card.universe:
                         continue
@@ -834,9 +835,9 @@ class Profile(Extension):
                 return
 
             query = {'DID': str(ctx.author.id)}
-            d = db.queryUser(query)
+            d = await asyncio.to_thread(db.queryUser, query)
             player = crown_utilities.create_player_from_data(d)
-            c = db.queryCard({"NAME": player.equipped_card})
+            c = await asyncio.to_thread(db.queryCard, {"NAME": player.equipped_card})
             card = crown_utilities.create_card_from_data(c)
             if player:
                 try:
@@ -948,7 +949,7 @@ class Profile(Extension):
         if not a_registered_player:
             return
         try:
-            user = db.queryUser({'DID': str(ctx.author.id)})
+            user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
             current_gems = user['GEMS']
             if current_gems:
                 number_of_gems_universes = len(current_gems)
@@ -994,7 +995,7 @@ class Profile(Extension):
         if not a_registered_player:
             return
         try:
-            user = db.queryUser({'DID': str(ctx.author.id)})
+            user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
             current_essence = user['ESSENCE']
             if current_essence:
                 essence_details = []
@@ -1025,10 +1026,10 @@ class Profile(Extension):
     async def blacksmith(self, ctx):
         try:
             _uuid = uuid.uuid4()
-            user = crown_utilities.create_player_from_data(db.queryUser({'DID': str(ctx.author.id)}))
-            card = crown_utilities.create_card_from_data(db.queryCard({"NAME": user.equipped_card}))
+            user = crown_utilities.create_player_from_data((await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})))
+            card = crown_utilities.create_card_from_data((await asyncio.to_thread(db.queryCard, {"NAME": user.equipped_card})))
             card.set_card_level_buffs(user.card_levels)
-            arm = crown_utilities.create_arm_from_data(db.queryArm({"ARM": user.equipped_arm}))
+            arm = crown_utilities.create_arm_from_data((await asyncio.to_thread(db.queryArm, {"ARM": user.equipped_arm})))
             arm.set_durability(user.equipped_arm, user.arms)
 
             preset_message = "Preset Upgraded!" if user.preset_upgraded else "1,000,000"
@@ -1355,7 +1356,7 @@ class Profile(Extension):
         if not a_registered_player:
             return
 
-        d = db.queryUser({'DID': str(ctx.author.id)})
+        d = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
         player = crown_utilities.create_player_from_data(d)
 
         try:
@@ -1364,7 +1365,7 @@ class Profile(Extension):
             sorted_summons = sorted(player.summons, key=lambda summon: summon['NAME'])
             for index, summons in enumerate(sorted_summons):
                 #cpetmove_ap= (cpet_bond * cpet_lvl) + list(cpet.values())[3] # Ability Power
-                s = db.querySummon({'PET': summons['NAME']})
+                s = await asyncio.to_thread(db.querySummon, {'PET': summons['NAME']})
                 summon = crown_utilities.create_summon_from_data(s)
                 if type_filter:
                     if summon.ability_type != type_filter:
@@ -1381,7 +1382,7 @@ class Profile(Extension):
 
                 {summon.universe_crest} {summon.universe.capitalize()} Universe Summon
                 """))
-                currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
+                currently_on_market = await asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
                 if currently_on_market:
                     embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
                 # Add count of summons in set_footer
@@ -1417,7 +1418,7 @@ class Profile(Extension):
 
 
             if user['TEAM'] != 'PCG':
-                t = db.queryTeam({'TEAM_NAME' : user['TEAM'].lower()})
+                t = await asyncio.to_thread(db.queryTeam, {'TEAM_NAME' : user['TEAM'].lower()})
                 tbal = round(t['BANK'])
 
             # if user['FAMILY'] != 'PCG':
@@ -1462,7 +1463,7 @@ class Profile(Extension):
 
             _uuid = uuid.uuid4()
             query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(query)
+            user = await asyncio.to_thread(db.queryUser, query)
             if not user['DECK']:
                 embed = Embed(
                     title=f"🔖 | Whoops!",
@@ -1492,7 +1493,7 @@ class Profile(Extension):
                 button_ctx = await self.bot.wait_for_component(components=[util_action_row], timeout=30, check=check)
                 equipped_items, not_owned_items, update_data = await handle_button_click(button_ctx, presets, owned_items)
 
-                response = db.updateUserNoFilter(query, {'$set': update_data})
+                response = await asyncio.to_thread(db.updateUserNoFilter, query, {'$set': update_data})
 
                 embed = Embed(title=f"🔖 | Build Updated")
                 if equipped_items:
@@ -1552,7 +1553,7 @@ class Profile(Extension):
 
             _uuid = uuid.uuid4()
             query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(query)
+            user = await asyncio.to_thread(db.queryUser, query)
 
             if user:
                 name = user['DISNAME'].split("#", 1)[0]
@@ -1627,7 +1628,7 @@ class Profile(Extension):
                         return
 
                     preset_number = button_ctx.ctx.custom_id.split('|')[-1]
-                    response = db.updateUserNoFilter(query, {'$set': {
+                    response = (await asyncio.to_thread(db.updateUserNoFilter, query, {'$set': {
                         f'DECK.{int(preset_number) - 1}': {
                             'CARD': str(current_card),
                             'TITLE': str(current_title),
@@ -1635,7 +1636,7 @@ class Profile(Extension):
                             'PET': str(current_pet),
                             'TALISMAN': str(current_talisman)
                         }
-                    }})
+                    }}))
 
                     if response:
                         talisman_message = crown_utilities.set_emoji(current_talisman)
@@ -1704,9 +1705,9 @@ class Profile(Extension):
         await ctx.defer()
         try:
             query = {'DID': str(ctx.author.id)}
-            user_data = db.queryUser(query)
+            user_data = await asyncio.to_thread(db.queryUser, query)
             user = crown_utilities.create_player_from_data(user_data)
-            code = db.queryCodes({'CODE_INPUT': code_input})
+            code = await asyncio.to_thread(db.queryCodes, {'CODE_INPUT': code_input})
             
             if code and code['AVAILABLE']:
                 coin = code['COIN']
@@ -1715,17 +1716,17 @@ class Profile(Extension):
                 card = code['CARD']
                 arm = code['ARM']
                 summon = code['SUMMON']
-                equipped_card = crown_utilities.create_card_from_data(db.queryCard({'NAME': user.equipped_card}))
-                card_drop = db.queryCard({'NAME': card}) if card else ""
-                arm_drop = db.queryArm({'NAME': arm}) if arm else ""
+                equipped_card = crown_utilities.create_card_from_data((await asyncio.to_thread(db.queryCard, {'NAME': user.equipped_card})))
+                card_drop = (await asyncio.to_thread(db.queryCard, {'NAME': card})) if card else ""
+                arm_drop = (await asyncio.to_thread(db.queryArm, {'NAME': arm})) if arm else ""
                 embed_list = []
                 if code_input not in user.used_codes:
                     if gems:
                         if not user.gems:
                             universe_to_add_gems = equipped_card.universe
-                            user.save_gems(universe_to_add_gems, gems)
+                            await asyncio.to_thread(user.save_gems, universe_to_add_gems, gems)
                         for universe in user.gems:
-                            user.save_gems(universe["UNIVERSE"], gems)
+                            await asyncio.to_thread(user.save_gems, universe["UNIVERSE"], gems)
                         embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
                         embed_list.append(embed)
 
@@ -1737,14 +1738,14 @@ class Profile(Extension):
                     if card_drop:
                         card = crown_utilities.create_card_from_data(card_drop)
                     if card not in user.cards or card not in user.storage:
-                        user.save_card(card)
+                        await asyncio.to_thread(user.save_card, card)
                         embed = Embed(title="🎴 Card Drop", description=f"You received **{card.name}** from {card.universe_crest} {card.universe}!", color=0x00ff00)
                         embed_list.append(embed)
                     
                     if arm_drop:
                         arm = crown_utilities.create_arm_from_data(arm_drop)
                         if arm not in user.arms or arm not in user.storage:
-                            user.save_arm(arm)
+                            await asyncio.to_thread(user.save_arm, arm)
                             embed = Embed(title="🛡️ Arm Drop", description=f"You received **{arm.name}** from {arm.universe_crest} {arm.universe}!", color=0x00ff00)
                             embed_list.append(embed)
                     
@@ -1755,7 +1756,7 @@ class Profile(Extension):
                         level_up_message = f"Your 🎴 **{equipped_card.name}** card leveled up {level_response:,} times!" if level_response else f"Your 🎴 **{equipped_card.name}** card gained {exp:,} experience points!"
                         embed = Embed(title="Experience Gained", description=f"{level_up_message}", color=0x00ff00)
                         embed_list.append(embed)
-                    response = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
+                    response = await asyncio.to_thread(db.updateUserNoFilter, query, {'$addToSet': {'USED_CODES': code_input}})
                     if embed_list:
                         paginator = Paginator.create_from_embeds(self.bot, *embed_list)
                         paginator.show_select_menu = True
@@ -1780,8 +1781,8 @@ class Profile(Extension):
     @cooldown(Buckets.USER, 1, 5)
     async def gift(ctx, player, amount: int):
         user2 = player
-        vault = db.queryVault({'DID': str(ctx.author.id)})
-        user_data = db.queryUser({'DID': str(ctx.author.id)})
+        vault = await asyncio.to_thread(db.queryVault, {'DID': str(ctx.author.id)})
+        user_data = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
         if user_data['LEVEL'] < 21:
             await ctx.send(f"🔓 Unlock Gifting by completing Floor 20 of the 🌑 Abyss! Use /solo to enter the abyss.")
             return
@@ -1850,44 +1851,44 @@ class Profile(Extension):
                 if scenario_or_destiny:
                     selected_item = random.choice(scenario_or_destiny)
                     if 'NAME' in selected_item:
-                        user.save_card(crown_utilities.create_card_from_data(selected_item))
+                        await asyncio.to_thread(user.save_card, crown_utilities.create_card_from_data(selected_item))
                     else:
-                        user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                        await asyncio.to_thread(user.save_arm, crown_utilities.create_arm_from_data(selected_item))
                     items.append(selected_item)
             elif roll <= 0.001:  # 0.1% chance (cumulative)
                 dungeon_summons = [item for item in all_summons if item['DROP_STYLE'] == 'DUNGEON']
                 if dungeon_summons:
                     selected_item = random.choice(dungeon_summons)
-                    user.save_summon(crown_utilities.create_summon_from_data(selected_item))
+                    await asyncio.to_thread(user.save_summon, crown_utilities.create_summon_from_data(selected_item))
                     items.append(selected_item)
             elif roll <= 0.005:  # 0.4% chance (cumulative)
                 tales_summons = [item for item in all_summons if item['DROP_STYLE'] == 'TALES']
                 if tales_summons:
                     selected_item = random.choice(tales_summons)
-                    user.save_summon(crown_utilities.create_summon_from_data(selected_item))
+                    await asyncio.to_thread(user.save_summon, crown_utilities.create_summon_from_data(selected_item))
                     items.append(selected_item)
             elif roll <= 0.015:  # 1.0% chance (cumulative)
                 dungeon_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'DUNGEON']
                 if dungeon_items:
                     selected_item = random.choice(dungeon_items)
                     if 'NAME' in selected_item:
-                        user.save_card(crown_utilities.create_card_from_data(selected_item))
+                        await asyncio.to_thread(user.save_card, crown_utilities.create_card_from_data(selected_item))
                     else:
-                        user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                        await asyncio.to_thread(user.save_arm, crown_utilities.create_arm_from_data(selected_item))
                     items.append(selected_item)
             elif roll <= 0.05:  # 5.0% chance (cumulative)
                 tales_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'TALES']
                 if tales_items:
                     selected_item = random.choice(tales_items)
                     if 'NAME' in selected_item:
-                        user.save_card(crown_utilities.create_card_from_data(selected_item))
+                        await asyncio.to_thread(user.save_card, crown_utilities.create_card_from_data(selected_item))
                     else:
-                        user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                        await asyncio.to_thread(user.save_arm, crown_utilities.create_arm_from_data(selected_item))
                     items.append(selected_item)
             else:  # 95% chance
                 gem_amount = random.randint(1000, 10000)
                 selected_universe = random.choice(universe_list)
-                user.save_gems(selected_universe["TITLE"], gem_amount)
+                await asyncio.to_thread(user.save_gems, selected_universe["TITLE"], gem_amount)
                 items.append({"type": "gems", "amount": gem_amount, "universe": selected_universe['TITLE']})
 
         super_rare_gif = "https://i.pinimg.com/originals/85/03/1d/85031d29916b8746829d7e721381cf6b.gif"
@@ -2259,13 +2260,13 @@ class Profile(Extension):
         try:
             pet_name = summon.upper()
             user_query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(user_query)
+            user = await asyncio.to_thread(db.queryUser, user_query)
             player = crown_utilities.create_player_from_data(user)
 
             selected_pet = next((pet for pet in player.summons if pet_name == pet['NAME'].upper()), None)
 
             if selected_pet:
-                response = db.updateUserNoFilter(user_query, {'$set': {'PET': selected_pet['NAME']}})
+                response = await asyncio.to_thread(db.updateUserNoFilter, user_query, {'$set': {'PET': selected_pet['NAME']}})
                 embed = Embed(title=f"🐦 Summon Equipped!", description=f"{selected_pet['NAME']} is now your active summon!", color=0x00ff00)
                 quest_message = await Quests.milestone_check(player, "EQUIPPED_SUMMON", 1)
                 if quest_message:

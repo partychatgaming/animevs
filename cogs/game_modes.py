@@ -1,3 +1,4 @@
+import render_cache
 import time
 import db
 import dataclasses as data
@@ -45,7 +46,7 @@ class GameModes(Extension):
         return await self.bot.validate_user(ctx)
 
     async def companion(user):
-        user_data = db.queryUser({'DID': str(user.id)})
+        user_data = await asyncio.to_thread(db.queryUser, {'DID': str(user.id)})
         companion = user_data['DISNAME']
         return companion
 
@@ -61,9 +62,9 @@ class GameModes(Extension):
 
             if not await self.level_up_cooldown.acquire_token(message):
                 try:
-                    player_that_leveled = db.queryUser({'DID': str(message.author.id)})
+                    player_that_leveled = await asyncio.to_thread(db.queryUser, {'DID': str(message.author.id)})
                     if player_that_leveled:
-                        card_that_leveled = db.queryCard({'NAME': player_that_leveled['CARD']})
+                        card_that_leveled = await asyncio.to_thread(db.queryCard, {'NAME': player_that_leveled['CARD']})
                         uni = card_that_leveled['UNIVERSE']
                         nam = card_that_leveled['NAME']
                         mode = "Tales"
@@ -89,7 +90,7 @@ class GameModes(Extension):
                     channel_names.append(channel.name)
 
 
-                server_channel_response = db.queryServer({'GNAME': str(g)})
+                server_channel_response = await asyncio.to_thread(db.queryServer, {'GNAME': str(g)})
                 server_channel = ""
                 if server_channel_response:
                     server_channel = str(server_channel_response['EXP_CHANNEL'])
@@ -107,7 +108,7 @@ class GameModes(Extension):
     
                 # Pull Character Information
         
-                player = db.queryUser({'DID': str(message.author.id)})
+                player = await asyncio.to_thread(db.queryUser, {'DID': str(message.author.id)})
                 if not player:
                     print("No player found.")
                     return
@@ -120,24 +121,24 @@ class GameModes(Extension):
                 #     return
     
                 if p.explore_location == "NULL":
-                    all_universes = db.queryExploreUniverses()
+                    all_universes = await asyncio.to_thread(db.queryExploreUniverses)
                     available_universes = [x for x in all_universes]
     
                     u = len(available_universes) - 1
                     rand_universe = random.randint(1, u)
                     universe = available_universes[rand_universe]
                 else:
-                    universe = db.queryUniverse({"TITLE": p.explore_location})
+                    universe = await asyncio.to_thread(db.queryUniverse, {"TITLE": p.explore_location})
 
 
                 # Select Card at Random
-                all_available_drop_cards = db.querySpecificDropCards(universe['TITLE'])
+                all_available_drop_cards = await asyncio.to_thread(db.querySpecificDropCards, universe['TITLE'])
                 cards = [x for x in all_available_drop_cards]
                 selected_card = crown_utilities.create_card_from_data(random.choice(cards))
                 selected_card.set_affinity_message()
                 selected_card.set_explore_bounty_and_difficulty(battle)
     
-                battle.set_explore_config(universe, selected_card)
+                await asyncio.to_thread(battle.set_explore_config, universe, selected_card)
                 battle.bounty = selected_card.bounty
     
                 random_battle_buttons = [
@@ -172,7 +173,7 @@ class GameModes(Extension):
                 embedVar.set_thumbnail(url=message.author.avatar_url)
                 embedVar.set_footer(text=f"Use /explore to exit Explore Mode",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                 
-                image_binary = selected_card.showcard()
+                image_binary = await render_cache.render_async(selected_card.showcard)
                 image_binary.seek(0)
                 card_file = File(file_name="image.png", file=image_binary)
     
@@ -380,7 +381,7 @@ class GameModes(Extension):
         try:
             loggy.info(f"RPG command initiated by {registered_player['DID']}")
             player = crown_utilities.create_player_from_data(registered_player)
-            player.make_unavailable()
+            await asyncio.to_thread(player.make_unavailable)
 
             # Create a unique RPG instance
             rpg_id = str(uuid.uuid4())
@@ -397,7 +398,7 @@ class GameModes(Extension):
             await rpg_instance.create_rpg(ctx, rpg_msg)
 
         except Exception as ex:
-            player.make_available()
+            await asyncio.to_thread(player.make_available)
             custom_logging.debug(ex)
             loggy.critical(ex)
 
@@ -484,7 +485,7 @@ class GameModes(Extension):
             #     await ctx.send(embed=embed)
             #     return
 
-            player.make_unavailable()
+            await asyncio.to_thread(player.make_unavailable)
 
             # if mode == crown_utilities.ABYSS:
             #     await abyss(self, ctx, registered_player, mode)
@@ -535,7 +536,7 @@ class GameModes(Extension):
                 
             # await battle_commands(self, ctx, battle, player1, None, player2=None, player3=None)
         except Exception as ex:
-            player.make_available()
+            await asyncio.to_thread(player.make_available)
             custom_logging.debug(ex)
             loggy.critical(ex)
             return
@@ -557,8 +558,8 @@ class GameModes(Extension):
             if not registered_player:
                 return
             mode = "PVP"
-            player = db.queryUser({'DID': str(ctx.author.id)})
-            player2 = db.queryUser({'DID': str(opponent.id)})
+            player = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+            player2 = await asyncio.to_thread(db.queryUser, {'DID': str(opponent.id)})
             p1 = crown_utilities.create_player_from_data(player)
             p2 = crown_utilities.create_player_from_data(player2)
 
@@ -651,19 +652,19 @@ class GameModes(Extension):
             s_gametime = starttime[17:19]
 
             # Get Session Owner Disname for scoring
-            sowner = db.queryUser({'DID': str(ctx.author.id)})
+            sowner = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
             if sowner['DIFFICULTY'] == "EASY":
                 await ctx.send("Raiding is unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
                 return
 
             guild = sowner['TEAM']
-            guild_info = db.queryTeam({'TEAM_NAME': guild.lower()})
+            guild_info = await asyncio.to_thread(db.queryTeam, {'TEAM_NAME': guild.lower()})
             oguild_name = "PCG"
             shield_test_active = False
             shield_training_active = False
             if guild_info:
                 oguild_name = guild_info['GUILD']
-                oassociation = db.queryGuildAlt({'GNAME': oguild_name})
+                oassociation = await asyncio.to_thread(db.queryGuildAlt, {'GNAME': oguild_name})
             player_guild = sowner['GUILD']
 
             if oguild_name == "PCG":
@@ -676,7 +677,7 @@ class GameModes(Extension):
                 
 
             guild_query = {'GNAME': guildname}
-            association_info = db.queryGuildAlt(guild_query)
+            association_info = await asyncio.to_thread(db.queryGuildAlt, guild_query)
             guild_shield = ""
 
             if not association_info:
@@ -685,17 +686,17 @@ class GameModes(Extension):
             guild_shield = association_info['SHIELD']
             shield_id = association_info['SDID']
             guild_hall = association_info['HALL']
-            hall_info = db.queryHall({'HALL': str(guild_hall)})
+            hall_info = await asyncio.to_thread(db.queryHall, {'HALL': str(guild_hall)})
             hall_def = hall_info['DEFENSE']
-            t_user = db.queryUser({'DID': shield_id})
+            t_user = await asyncio.to_thread(db.queryUser, {'DID': shield_id})
             tteam_name = t_user['TEAM']
-            tteam_info = db.queryTeam({'TEAM_NAME': tteam_name.lower()})
+            tteam_info = await asyncio.to_thread(db.queryTeam, {'TEAM_NAME': tteam_name.lower()})
             tteam = tteam_info['TEAM_NAME']
             tguild = tteam_info['GUILD']
             if tteam_info:
                 tguild = tteam_info['GUILD']
-            tarm = db.queryArm({'ARM': t_user['ARM']})
-            ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
+            tarm = await asyncio.to_thread(db.queryArm, {'ARM': t_user['ARM']})
+            ttitle = await asyncio.to_thread(db.queryTitle, {'TITLE': t_user['TITLE']})
             
             # Guild Fees
             title_match_active = False
@@ -761,7 +762,7 @@ async def tutorial(self, ctx, player, mode):
         if not registered_player:
             return
         tutorial_did = '837538366509154407'
-        opponent = db.queryUser({'DID': tutorial_did})
+        opponent = await asyncio.to_thread(db.queryUser, {'DID': tutorial_did})
         player2 = crown_utilities.create_tutorial_bot(opponent)
         battle = Battle(mode, player)
         battle.set_tutorial(tutorial_did)
@@ -782,7 +783,7 @@ async def raid_scenario(self, ctx, player, mode):
         if not registered_player:
             return
 
-        response = db.queryUser({'DID': str(ctx.author.id)})
+        response = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
         player = crown_utilities.create_player_from_data(response)
         battle = Battle(mode, player)
         
@@ -797,7 +798,7 @@ async def raid_scenario(self, ctx, player, mode):
 
 
 async def quest(player, opponent, mode):
-    user_data = db.queryVault({'DID': str(player.id)})
+    user_data = await asyncio.to_thread(db.queryVault, {'DID': str(player.id)})
     quest_data = {}
     try:
         if user_data['QUESTS']:
@@ -819,7 +820,7 @@ async def quest(player, opponent, mode):
                 query = {'DID': str(player.id)}
                 update_query = {'$inc': {'QUESTS.$[type].' + "WINS": 2}}
                 filter_query = [{'type.' + "OPPONENT": opponent}]
-                resp = db.updateUser(query, update_query, filter_query)
+                resp = await asyncio.to_thread(db.updateUser, query, update_query, filter_query)
                 return message
 
             elif str(mode) == "Tales" and completion >= 0:
@@ -831,7 +832,7 @@ async def quest(player, opponent, mode):
                 query = {'DID': str(player.id)}
                 update_query = {'$inc': {'QUESTS.$[type].' + "WINS": 1}}
                 filter_query = [{'type.' + "OPPONENT": opponent}]
-                resp = db.updateUser(query, update_query, filter_query)
+                resp = await asyncio.to_thread(db.updateUser, query, update_query, filter_query)
 
                 return message
             else:
@@ -846,106 +847,8 @@ async def quest(player, opponent, mode):
 async def savematch(player, card, path, title, arm, universe, universe_type, exclusive):
     matchquery = {'PLAYER': player, 'CARD': card, 'PATH': path, 'TITLE': title, 'ARM': arm, 'UNIVERSE': universe,
                   'UNIVERSE_TYPE': universe_type, 'EXCLUSIVE': exclusive}
-    save_match = db.createMatch(data.newMatch(matchquery))
+    save_match = await asyncio.to_thread(db.createMatch, data.newMatch(matchquery))
 
-
-async def abyss_level_up_message(did, floor, card, title, arm):
-    try:
-        message = ""
-        drop_message = []
-        maxed_out_messages = []
-        new_unlock = False
-        vault_query = {'DID': did}
-        vault = db.altQueryVault(vault_query)
-        player = db.queryUser(vault_query)
-        prestige = player['PRESTIGE']
-        owned_destinies = []
-        for destiny in vault['DESTINY']:
-            owned_destinies.append(destiny['NAME'])
-        card_info = db.queryCard({'NAME': str(card)})
-        title_info = db.queryTitle({'TITLE': str(title)})
-        arm = db.queryArm({'ARM':str(arm)})
-        arm_arm = arm['ARM']
-        floor_val = int(floor)
-        coin_drop = round(100000 + (floor_val * 10000))
-        durability = random.randint(75, 125)
-        card_drop = card
-        title_drop = title
-        arm_drop = arm
-        # Determine first to beat floor 100
-        if floor == 100:
-            all_users = db.queryAllUsers()
-            first = True
-            for user in all_users:
-                if user['LEVEL'] == 101:
-                    first = False
-            if first:
-                winner = {
-                    'PLAYER': vault['OWNER'],
-                    'DID': vault['DID'],
-                    'CARD': card,
-                    'TITLE': title,
-                    'ARM': arm
-                }
-                rr = db.createGods(data.newGods(winner))
-
-        
-        if floor in abyss_floor_reward_list:
-            u = await self.bot.bot.fetch_user(did)
-            #Drops
-            tresponse = await crown_utilities.store_drop_card(did, title_drop, title_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "titles")
-            aresponse = await crown_utilities.store_drop_card(did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")  
-            cresponse = await crown_utilities.store_drop_card(did, card_drop, card_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "cards")
-            drop_message.append(tresponse)
-            drop_message.append(aresponse)
-            drop_message.append(cresponse)
-            
-        else:
-            drop_message.append(f"🪙 **{'{:,}'.format(coin_drop)}** has been added to your vault!")
-        if prestige < 1:
-
-            if floor == 3:
-                message = "🎊 Congratulations! 🎊 You unlocked **PVP and Guilds**. Use /pvp to battle another player or join together to form a Guild! Use /help to learn more.!"
-                new_unlock = True
-
-            if floor == 30:
-                message = "🎊 Congratulations! 🎊 You unlocked **Marriage**. You're now able to join Families!Share summons and purchase houses.Use /help to learn more about  Family commands!"
-                new_unlock = True
-                
-            if floor == 10:
-                message = "🎊 Congratulations! 🎊 You unlocked **Trading**. Use the **/trade** command to Trade Cards, Titles and Arms with other players!"
-                new_unlock = True
-
-
-            if floor == 20:
-                message = "🎊 Congratulations! 🎊 You unlocked **Gifting**. Use the **/gift** command to gift players money!"
-                new_unlock = True
-            
-            if floor == 15:
-                message = "🎊 Congratulations! 🎊 You unlocked **Associations**. Use the **/oath** to create an association with another Guild Owner!"
-                new_unlock = True
-
-            if floor == 25:
-                message = "🎊 Congratulations! 🎊 You unlocked **Explore Mode**. Explore Mode allows for Cards to spawn randomly with Bounties! If you defeat the Card you will earn that Card + it's Bounty! Happy Hunting!"
-                new_unlock = True
-
-            if floor == 40:
-                message = "🎊 Congratulations! 🎊 You unlocked **Dungeons**. Use the **/solo** command and select Dungeons to battle through the Hard Mode of Universes to earn super rare Cards, Titles, and Arms!"
-                new_unlock = True
-
-            if floor == 60:
-                message = "🎊 Congratulations! 🎊 You unlocked **Bosses**. Use the **/solo** command and select Boss to battle Universe Bosses too earn ultra rare Cards, Titles, and Arms!"
-                new_unlock = True
-        if prestige < 10:
-            if floor == (100 - (10 * prestige)):
-                message = "🎊 Congratulations! 🎊 You unlocked **Soul Exchange**. Use the **/exchange** command and Exchange any boss souls for cards from their respective universe! This will Reset your Abyss Level!"
-                new_unlock = True
-
-
-        return {"MESSAGE": message, "NEW_UNLOCK": new_unlock, "DROP_MESSAGE": drop_message}
-    except Exception as ex:
-        custom_logging.debug(ex)
-        return         
 
 # DONT REMOVE THIS
 cache = dict()
@@ -1134,9 +1037,9 @@ async def cardlist(self, ctx: InteractionContext, universe: str):
     if not registered_player:
         return
 
-    universe_data = db.queryUniverse({'TITLE': {"$regex": str(universe), "$options": "i"}})
-    user = db.queryUser({'DID': str(ctx.author.id)})
-    list_of_cards = db.queryAllCardsBasedOnUniverse({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
+    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": str(universe), "$options": "i"}})
+    user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+    list_of_cards = await asyncio.to_thread(db.queryAllCardsBasedOnUniverse, {'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
     cards = [x for x in list_of_cards]
     dungeon_card_details = []
     tales_card_details = []
@@ -1237,9 +1140,9 @@ async def titlelist(self, ctx: InteractionContext, universe: str):
         return
 
 
-    universe_data = db.queryUniverse({'TITLE': {"$regex": universe, "$options": "i"}})
-    user = db.queryUser({'DID': str(ctx.author.id)})
-    list_of_titles = db.queryAllTitlesBasedOnUniverses({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
+    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": universe, "$options": "i"}})
+    user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+    list_of_titles = await asyncio.to_thread(db.queryAllTitlesBasedOnUniverses, {'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
     titles = [x for x in list_of_titles]
     dungeon_titles_details = []
     tales_titles_details = []
@@ -1316,9 +1219,9 @@ async def armlist(self, ctx: InteractionContext, universe: str):
         return
 
 
-    universe_data = db.queryUniverse({'TITLE': {"$regex": universe, "$options": "i"}})
-    user = db.queryUser({'DID': str(ctx.author.id)})
-    list_of_arms = db.queryAllArmsBasedOnUniverses({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
+    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": universe, "$options": "i"}})
+    user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+    list_of_arms = await asyncio.to_thread(db.queryAllArmsBasedOnUniverses, {'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
     arms = [x for x in list_of_arms]
     dungeon_arms_details = []
     tales_arms_details = []
@@ -1403,8 +1306,8 @@ async def destinylist(self, ctx: InteractionContext, universe: str):
         return
 
 
-    universe_data = db.queryUniverse({'TITLE': {"$regex": universe, "$options": "i"}})
-    user = db.queryUser({'DID': str(ctx.author.id)})
+    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": universe, "$options": "i"}})
+    user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
     destinies = []
     for destiny in d.destiny:
         if destiny["UNIVERSE"].upper() == universe.upper():
@@ -1461,9 +1364,9 @@ async def summonlist(self, ctx: InteractionContext, universe: str):
     if not registered_player:
         return
 
-    universe_data = db.queryUniverse({'TITLE': {"$regex": universe, "$options": "i"}})
-    user = db.queryUser({'DID': str(ctx.author.id)})
-    list_of_pets = db.queryAllSummonsBasedOnUniverses({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
+    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": universe, "$options": "i"}})
+    user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+    list_of_pets = await asyncio.to_thread(db.queryAllSummonsBasedOnUniverses, {'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
     pets = [x for x in list_of_pets]
     dungeon_pets_details = []
     tales_pets_details = []
@@ -1555,7 +1458,7 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
             if selected_universe == "":
                 return
 
-            universe = db.queryUniverse({'TITLE': str(selected_universe)})
+            universe = await asyncio.to_thread(db.queryUniverse, {'TITLE': str(selected_universe)})
             universe_owner = universe['GUILD']
 
             #Universe Cost
@@ -1570,12 +1473,12 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
             else:
                 if int(p._balance) <= entrance_fee:
                     await ctx.send(f"Tales require an 🪙 {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
-                    db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
+                    await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
                     return
                 else:
                     await crown_utilities.curse(entrance_fee, str(ctx.author.id))
                     if universe_owner != 'PCG':
-                        crest_guild = db.queryGuildAlt({'GNAME' : universe_owner})
+                        crest_guild = await asyncio.to_thread(db.queryGuildAlt, {'GNAME' : universe_owner})
                         if crest_guild:
                             await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
                             await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | {crest_guild['GNAME']} Universe Toll Paid! 🪙{'{:,}'.format(entrance_fee)}")
@@ -1588,7 +1491,7 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
             else:
                 currentopponent = 0
             if p.rift_on:
-                update_team_response = db.updateTeam(p.guild_query, p.guild_buff_update_query)
+                update_team_response = await asyncio.to_thread(db.updateTeam, p.guild_query, p.guild_buff_update_query)
 
             response = {'SELECTED_UNIVERSE': selected_universe,
                     'UNIVERSE_DATA': universe, 'CREST_LIST': p.crestlist, 'CREST_SEARCH': p.crestsearch,
@@ -1659,7 +1562,7 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
         try:
             # Universe Cost
             selected_universe = custom_function.selected_universe
-            universe = db.queryUniverse({'TITLE': str(selected_universe)})
+            universe = await asyncio.to_thread(db.queryUniverse, {'TITLE': str(selected_universe)})
             universe_owner = universe['GUILD']
             #Universe Cost
             entrance_fee = 10000
@@ -1668,12 +1571,12 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
             else:
                 if p._balance <= entrance_fee:
                     await ctx.send(f"Bosses require an 🪙 {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
-                    db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
+                    await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
                     return
                 else:
                     await crown_utilities.curse(entrance_fee, str(ctx.author.id))
                     if universe['GUILD'] != 'PCG':
-                        crest_guild = db.queryGuildAlt({'GNAME' : universe['GUILD']})
+                        crest_guild = await asyncio.to_thread(db.queryGuildAlt, {'GNAME' : universe['GUILD']})
                         if crest_guild:
                             await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
                             await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | {crest_guild['GNAME']} Universe Toll Paid! 🪙{'{:,}'.format(entrance_fee)}")

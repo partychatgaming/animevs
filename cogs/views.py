@@ -1,3 +1,5 @@
+import render_cache
+import asyncio
 import textwrap
 import crown_utilities
 import custom_logging
@@ -55,7 +57,7 @@ class Views(Extension):
                     return
             
             if name:
-                response = db.viewQuery(f"^{str(name)}$")
+                response = await asyncio.to_thread(db.viewQuery, f"^{str(name)}$")
                 if response:
                     if len(response) == 1:
                         if response[0]['TYPE'] == "CARDS":
@@ -235,7 +237,7 @@ class Views(Extension):
                             pass
 
                 if not response:
-                    results = db.viewQuerySearch(f".*{str(name)}.*")
+                    results = await asyncio.to_thread(db.viewQuerySearch, f".*{str(name)}.*")
                     list_of_results = []
                     counter = 0
                     if results:
@@ -586,11 +588,11 @@ class Views(Extension):
 
         try:
             _uuid = uuid.uuid4()
-            universe_data = db.queryUniverse({'TITLE': universe})
-            scenario_data = db.queryAllScenariosByUniverse(universe)
-            boss_data = db.queryAllBossesByUniverse(universe)
+            universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': universe})
+            scenario_data = await asyncio.to_thread(db.queryAllScenariosByUniverse, universe)
+            boss_data = await asyncio.to_thread(db.queryAllBossesByUniverse, universe)
             player = crown_utilities.create_player_from_data(registered_player)
-            player_stats = db.query_stats_by_player(player.did)
+            player_stats = await asyncio.to_thread(db.query_stats_by_player, player.did)
 
             if not universe_data['CROWN_TALES']:
                 embed = Embed(title=f"🔒 The {universe_data['TITLE']} is not available at this time!", description="Please try again later.", color=0xff0000)
@@ -795,7 +797,7 @@ async def view_selection(self, ctx, result):
 async def viewcard(self, ctx, data):
     # await ctx.defer()
     query = {'DID': str(ctx.author.id)}
-    d = db.queryUser(query)
+    d = await asyncio.to_thread(db.queryUser, query)
     card = data
     try:
         if card:
@@ -844,7 +846,7 @@ async def viewcard(self, ctx, data):
                 Can be acquired in {c.drop_style.title()} or Rolls
                 """))
                 embedVar.set_footer(text=f"{c.tip}")
-                image_binary = c.showcard()
+                image_binary = await render_cache.render_async(c.showcard)
                 image_binary.seek(0)
                 card_file = File(file_name="image.png", file=image_binary)
                 await ctx.send(file=card_file, embed=embedVar)
@@ -875,7 +877,7 @@ async def viewcard(self, ctx, data):
 async def viewtitle(self, ctx, data):
     try:
         if data:
-            user = db.queryUser({"DID": str(ctx.author.id)})
+            user = await asyncio.to_thread(db.queryUser, {"DID": str(ctx.author.id)})
             player = crown_utilities.create_player_from_data(user)
             t = crown_utilities.create_title_from_data(data)
             t.set_unlock_method_message(player)
@@ -954,7 +956,7 @@ async def viewsummon(self, ctx, data):
             s = crown_utilities.create_summon_from_data(pet)
             # s.set_messages()
 
-            image_binary = crown_utilities.showsummon(s.path, s.name, s.value, 0, 0)
+            image_binary = await render_cache.render_async(crown_utilities.showsummon, s.path, s.name, s.value, 0, 0)
             image_binary.seek(0)
             summon_file = File(file_name="summon.png", file=image_binary)
             embedVar = Embed(title=f"Summon".format(self), color=000000)
@@ -1054,17 +1056,17 @@ async def viewboss(self, ctx, data):
             uboss_pet = uboss['PET']
             uboss_card = uboss['CARD']
 
-            arm = db.queryArm({'ARM': uboss_arm})
+            arm = await asyncio.to_thread(db.queryArm, {'ARM': uboss_arm})
             arm_passive = arm['ABILITIES'][0]
             arm_passive_type = list(arm_passive.keys())[0]
             arm_passive_value = list(arm_passive.values())[0]
 
-            title = db.queryTitle({'TITLE': uboss_title})
+            title = await asyncio.to_thread(db.queryTitle, {'TITLE': uboss_title})
             title_passive = title['ABILITIES'][0]
             title_passive_type = list(title_passive.keys())[0]
             title_passive_value = list(title_passive.values())[0]
             
-            pet = db.querySummon({'PET': uboss_pet})
+            pet = await asyncio.to_thread(db.querySummon, {'PET': uboss_pet})
             pet_ability = pet['ABILITIES'][0]
             pet_ability_name = list(pet_ability.keys())[0]
             pet_ability_type = list(pet_ability.values())[1]
@@ -1073,7 +1075,7 @@ async def viewboss(self, ctx, data):
             traits = ut.traits
 
             if uboss_show != 'Unbound':
-                uboss_show_img = db.queryUniverse({'TITLE': uboss_show})['PATH']
+                uboss_show_img = (await asyncio.to_thread(db.queryUniverse, {'TITLE': uboss_show}))['PATH']
             message= uboss_desc
             
             mytrait = {}
@@ -1133,11 +1135,11 @@ async def viewuniverse(self, ctx: InteractionContext, universe: str=""):
 
     try:
         _uuid = uuid.uuid4()
-        universe_data = db.queryUniverse({'TITLE': universe})
-        scenario_data = db.queryAllScenariosByUniverse(universe)
-        boss_data = db.queryAllBossesByUniverse(universe)
+        universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': universe})
+        scenario_data = await asyncio.to_thread(db.queryAllScenariosByUniverse, universe)
+        boss_data = await asyncio.to_thread(db.queryAllBossesByUniverse, universe)
         player = crown_utilities.create_player_from_data(registered_player)
-        player_stats = db.query_stats_by_player(player.did)
+        player_stats = await asyncio.to_thread(db.query_stats_by_player, player.did)
 
         if not universe_data['CROWN_TALES']:
             embed = Embed(title=f"🔒 The {universe_data['TITLE']} is not available at this time!", description="Please try again later.", color=0xff0000)
@@ -1219,13 +1221,13 @@ async def viewuniverse(self, ctx: InteractionContext, universe: str=""):
 async def advanced_card_search(self, ctx, advanced_search_item):
     try:
         if advanced_search_item in crown_utilities.elements:
-            cards = [x for x in db.queryCardsByElement(advanced_search_item)]
+            cards = [x for x in (await asyncio.to_thread(db.queryCardsByElement, advanced_search_item))]
             suffix = "Element"
         elif advanced_search_item in crown_utilities.class_mapping:
-            cards = [x for x in db.queryCardsByClass(advanced_search_item)]
+            cards = [x for x in (await asyncio.to_thread(db.queryCardsByClass, advanced_search_item))]
             suffix = "Class"
         else:
-            card_data = db.queryCard({"NAME": advanced_search_item})
+            card_data = await asyncio.to_thread(db.queryCard, {"NAME": advanced_search_item})
             await viewcard(self, ctx, card_data)
             return
 

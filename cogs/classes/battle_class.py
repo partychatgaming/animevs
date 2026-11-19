@@ -59,6 +59,8 @@ class Battle:
         self.battle_buttons = []
         self.co_op_buttons = []
         self.utility_buttons = []
+        self.can_surrender = True
+        self.can_save_battle = False
         self.rematch_buff = False
 
         self.continue_fighting = True
@@ -788,12 +790,19 @@ class Battle:
                 self._ai_opponentsummon_type = summon_passive['TYPE']
 
             else:
-                boss_data, card_data, title_data, arm_data, summon_data = await asyncio.gather(
-                    asyncio.to_thread(db.queryBoss, {"UNIVERSE": self.selected_universe, "AVAILABLE": True}),
-                    asyncio.to_thread(db.queryCard, {'NAME': self._boss_data['CARD']}),
-                    asyncio.to_thread(db.queryTitle, {'TITLE': self._boss_data['TITLE']}),
-                    asyncio.to_thread(db.queryArm, {'ARM': self._boss_data['ARM']}),
-                    asyncio.to_thread(db.querySummon, {'PET': self._boss_data['PET']})
+                # The boss document says which card/title/arm/summon to load, so it
+                # has to be fetched first (the old code read self._boss_data before
+                # it was ever set, which made every boss battle fail to start).
+                boss_data = None
+                if self.name_of_boss:
+                    boss_data = await asyncio.to_thread(db.queryBoss, {"NAME": self.name_of_boss})
+                if not boss_data:
+                    boss_data = await asyncio.to_thread(db.queryBoss, {"UNIVERSE": self.selected_universe, "AVAILABLE": True})
+                card_data, title_data, arm_data, summon_data = await asyncio.gather(
+                    asyncio.to_thread(db.queryCard, {'NAME': boss_data['CARD']}),
+                    asyncio.to_thread(db.queryTitle, {'TITLE': boss_data['TITLE']}),
+                    asyncio.to_thread(db.queryArm, {'ARM': boss_data['ARM']}),
+                    asyncio.to_thread(db.querySummon, {'PET': boss_data['PET']})
                 )
 
                 self._boss_data = boss_data
@@ -1001,7 +1010,7 @@ class Battle:
     def ai_battle_command(self, your_card, opponent_card):
         aiMove = 0
         stamina = your_card.stamina
-        health_ratio = your_card.health / your_card.max_health
+        health_ratio = your_card.health / max(1, your_card.max_health)
         opponent_health_low = opponent_card.health <= 500
         self_turn_mod = self.turn_total % 10
 
@@ -1104,36 +1113,37 @@ class Battle:
         else:
             aiMove = 0
 
-        self._previous_ai_move = aiMove
-
-        # Hard Mode AI
+        # Hard Mode AI: after picking the same move three times in a row, mix it up.
+        # (The counter used to be reset on every call and compared against the
+        # move it had just stored, so this never triggered.)
         if self.is_hard_difficulty:
-            self._combo_counter = 0
             if aiMove == self._previous_ai_move:
-                self._combo_counter += 1
-                if self._combo_counter == 2:
-                    self._combo_counter = 0
-                    if self._previous_ai_move == 0:
-                        if stamina >= 80:
-                            aiMove = 3
-                        elif stamina >= 30:
-                            aiMove = 2
-                        elif stamina >= 20 and (your_card.move4enh == "LIFE" or your_card.move4enh in crown_utilities.Damage_Enhancer_Check):
-                            aiMove = 4
-                        else:
-                            aiMove = 1
-                    elif self._previous_ai_move == 1:
-                        aiMove = 4 if your_card.barrier_active else (3 if stamina >= 80 else (2 if stamina >= 30 else 1))
-                    elif self._previous_ai_move == 2:
-                        aiMove = 4 if stamina >= 120 else (0 if stamina >= 100 else (3 if stamina >= 80 else 1))
-                    elif self._previous_ai_move == 3:
-                        aiMove = 1 if stamina >= 120 else (2 if stamina >= 100 else (4 if stamina >= 80 else 1))
-                    elif self._previous_ai_move == 4:
-                        aiMove = 2 if stamina >= 120 else (1 if stamina >= 100 else (3 if stamina >= 80 else 1))
+                self._ai_combo_counter += 1
+            else:
+                self._ai_combo_counter = 0
+            if self._ai_combo_counter >= 2:
+                self._ai_combo_counter = 0
+                if self._previous_ai_move == 0:
+                    if stamina >= 80:
+                        aiMove = 3
+                    elif stamina >= 30:
+                        aiMove = 2
+                    elif stamina >= 20 and (your_card.move4enh == "LIFE" or your_card.move4enh in crown_utilities.Damage_Enhancer_Check):
+                        aiMove = 4
                     else:
-                        aiMove = 4 if stamina >= 120 else (3 if stamina >= 100 else (1 if stamina >= 80 else 1))
-                self._previous_ai_move = aiMove
+                        aiMove = 1
+                elif self._previous_ai_move == 1:
+                    aiMove = 4 if your_card.barrier_active else (3 if stamina >= 80 else (2 if stamina >= 30 else 1))
+                elif self._previous_ai_move == 2:
+                    aiMove = 4 if stamina >= 120 else (0 if stamina >= 100 else (3 if stamina >= 80 else 1))
+                elif self._previous_ai_move == 3:
+                    aiMove = 1 if stamina >= 120 else (2 if stamina >= 100 else (4 if stamina >= 80 else 1))
+                elif self._previous_ai_move == 4:
+                    aiMove = 2 if stamina >= 120 else (1 if stamina >= 100 else (3 if stamina >= 80 else 1))
+                else:
+                    aiMove = 4 if stamina >= 120 else (3 if stamina >= 100 else (1 if stamina >= 80 else 1))
 
+        self._previous_ai_move = aiMove
         return aiMove
 
 
@@ -1171,60 +1181,43 @@ class Battle:
                 options += ['6']
             self.battle_options = options
 
-        if your_card.stamina >= 10:
-            b_butts.append(
-                Button(
-                    style=ButtonStyle.GREEN,
-                    label=f"{your_card.move1_emoji}10",
-                    custom_id=f"{self._uuid}|1"
-                )
-            )
+        # ---- buttons.  Rules are unchanged; only the presentation is new:
+        #  * moves carry their name and stamina cost, and stay on screen (greyed
+        #    out) when the card cannot afford them, so the layout never jumps;
+        #  * Save / Surrender moved behind the "More" panel (see battle_view).
+        def move_button(cost, emoji, name, custom, style=ButtonStyle.BLUE):
+            label = crown_utilities.clip(f"{name} · {cost}" if name else f"{cost}", 80)
+            return Button(style=style if your_card.stamina >= cost else ButtonStyle.GREY,
+                          label=label, emoji=emoji or None, custom_id=f"{self._uuid}|{custom}",
+                          disabled=your_card.stamina < cost)
 
+        b_butts.append(move_button(10, your_card.move1_emoji, your_card.move1, "1"))
+        b_butts.append(move_button(30, your_card.move2_emoji, your_card.move2, "2"))
+        b_butts.append(move_button(80, your_card.move3_emoji, your_card.move3, "3"))
+        enhancer_name = f"{str(your_card.move4enh).title()} {your_card.move4ap}{crown_utilities.enhancer_suffix_mapping.get(your_card.move4enh, '')}"
+        b_butts.append(move_button(20, "🦠", enhancer_name, "4", style=ButtonStyle.GREY))
 
-        if your_card.stamina >= 30:
-            b_butts.append(
-                Button(
-                    style=ButtonStyle.GREEN,
-                    label=f"{your_card.move2_emoji}30",
-                    custom_id=f"{self._uuid}|2"
-                )
-            )
-        if your_card.stamina >= 80:
-            b_butts.append(
-                Button(
-                    style=ButtonStyle.GREEN,
-                    label=f"{your_card.move3_emoji}80",
-                    custom_id=f"{self._uuid}|3"
-                )
-            )
         #add variable to card to check if card can blitz, flip that variable to true if card is focused or they are an assassin and use it here
         if (your_card.stamina <= 50 and your_card.used_focus) or your_card.is_assassin:
             b_butts.append(
                 Button(
-                    style=ButtonStyle.BLUE,
-                    label=f"💢 Blitz {your_card.stamina}",
+                    style=ButtonStyle.RED,
+                    label=f"Blitz · {round(your_card.stamina)}",
+                    emoji="💢",
                     custom_id=f"{self._uuid}|b"
                 )
             )
-        
-        if your_card.stamina >= 20:
-            b_butts.append(
+
+        if opponent_card.gravity_hit == False:
+            u_butts.append(
                 Button(
-                    style=ButtonStyle.BLUE,
-                    label=f"🦠{your_card.move4enh.title()} 20",
-                    custom_id=f"{self._uuid}|4"
+                    style=ButtonStyle.GREY,
+                    label="Block · 20",
+                    emoji="🛡️",
+                    custom_id=f"{self._uuid}|0",
+                    disabled=your_card.stamina < 20
                 )
             )
-
-            if opponent_card.gravity_hit == False:
-                u_butts.append(
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="🛡️Block 20",
-                        custom_id=f"{self._uuid}|0"
-                    )
-                )
-
 
         if your_card.used_resolve and your_card.universe == "Bleach" and not your_card.bleach_second_release_used:
             button_label = "Power Up"
@@ -1237,39 +1230,41 @@ class Battle:
             if your_card.bleach_second_release_schrift:
                 button_label = "Shrift"
 
-            b_butts.append(
+            u_butts.append(
                 Button(
-                    style=ButtonStyle.BLUE,
+                    style=ButtonStyle.GREEN,
                     label=f"{button_label}",
                     custom_id=f"{self._uuid}|bleach"
                 )
             )
 
-                
         if your_card.stamina >= 20 and self.is_co_op_mode and self.mode in crown_utilities.DUO_M:
-            if your_card.stamina >= 20:
-                c_butts = [
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="🦠Enhance Ally 20",
-                        custom_id=f"{self._uuid}|7"
-                    ),
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="👥Ally Assist 20",
-                        custom_id=f"{self._uuid}|8"
-                    ),
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="🛡️Ally Block 20",
-                        custom_id=f"{self._uuid}|9"
-                    ),
-                ]        
+            c_butts = [
+                Button(
+                    style=ButtonStyle.BLUE,
+                    label="Enhance Ally · 20",
+                    emoji="🦠",
+                    custom_id=f"{self._uuid}|7"
+                ),
+                Button(
+                    style=ButtonStyle.BLUE,
+                    label="Ally Assist · 20",
+                    emoji="👥",
+                    custom_id=f"{self._uuid}|8"
+                ),
+                Button(
+                    style=ButtonStyle.BLUE,
+                    label="Ally Block · 20",
+                    emoji="🛡️",
+                    custom_id=f"{self._uuid}|9"
+                ),
+            ]
         elif (self.is_co_op_mode and self.mode not in crown_utilities.DUO_M) and your_card.stamina >= 20:
             c_butts = [
                 Button(
                     style=ButtonStyle.BLUE,
-                    label="Assist Companion 20",
+                    label="Assist Companion · 20",
+                    emoji="👥",
                     custom_id=f"{self._uuid}|7"
                 )
             ]
@@ -1278,7 +1273,8 @@ class Battle:
                 u_butts.append(
                     Button(
                         style=ButtonStyle.GREEN,
-                        label="🧬Summon!",
+                        label="Summon!",
+                        emoji="🧬",
                         custom_id=f"{self._uuid}|6"
                     )
                 )
@@ -1287,27 +1283,17 @@ class Battle:
             u_butts.append(
                 Button(
                     style=ButtonStyle.GREEN,
-                    label="⚡Resolve!",
+                    label="Resolve!",
+                    emoji="⚡",
                     custom_id=f"{self._uuid}|5"
                 )
             )
-                
-        u_butts.append(
-            Button(
-                style=ButtonStyle.GREY,
-                label="Surrender",
-                custom_id=f"{self._uuid}|q"
-            ),
-        )
 
-        if not self.is_explore_game_mode and not self.is_easy_difficulty and not self.is_abyss_game_mode and not self.is_tutorial_game_mode and not self.is_scenario_game_mode and not self.is_raid_game_mode and not self.is_pvp_game_mode and not self.is_boss_game_mode:
-            u_butts.append(
-                Button(
-                style=ButtonStyle.RED,
-                label=f"Save",
-                custom_id=f"{self._uuid}|s"
-            )
-            )
+        # Shown in the More panel rather than as buttons.
+        self.can_surrender = True
+        self.can_save_battle = not (self.is_explore_game_mode or self.is_easy_difficulty or self.is_abyss_game_mode
+                                    or self.is_tutorial_game_mode or self.is_scenario_game_mode or self.is_raid_game_mode
+                                    or self.is_pvp_game_mode or self.is_boss_game_mode)
 
         self.battle_buttons = b_butts
         self.utility_buttons = u_butts
@@ -1603,8 +1589,9 @@ class Battle:
                             value=f"*The Summoner class can call forth their ally from the start of battle! Your summon {summoner_buff}*\n")
             if player_card.universe in crown_utilities.summon_traits:
                 title, text = self.summon_trait_handler(player_card)
-                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
-                                value=f"{text}")
+                if title and text:
+                    embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
+                                    value=f"{text}")
             # embedVar.set_footer(
             #     text=f"🧬Summons will Level Up and build Bond as you win battles! Train up your summons to perform better in the field!")
             return embedVar
@@ -1626,8 +1613,9 @@ class Battle:
                             value="*On Block gain 3x Defense, instead of 2x*\n")
             if player_card.universe in crown_utilities.blocking_traits:
                 title, text = self.blocking_trait_handler(player_card)
-                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
-                            value=f"{text}")
+                if title and text:
+                    embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
+                                value=f"{text}")
             # embedVar.set_footer(
             #     text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
             return embedVar
@@ -1642,8 +1630,9 @@ class Battle:
                             value=f"*Increase Blitz bonus by 2x Speed***[+{player_card.speed}]**\n")
             if player_card.universe in crown_utilities.blitz_traits:
                 title, text = self.blitz_trait_handler(player_card)
-                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
-                            value=f"{text}")
+                if title and text:
+                    embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
+                                value=f"{text}")
             return embedVar
         elif message_type == "FOCUS":
             embedVar = Embed(title=f"🌀{player_card.name} is **Focusing**!",
@@ -1654,8 +1643,9 @@ class Battle:
                             value=f"*Unlock Blitzing! Trade Focus Healing for Increased ATK & DEF buffs!*\n")
             if player_card.universe in crown_utilities.focus_traits:
                 title, text = self.focus_trait_handler(player_card, opponent_card)
-                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
-                            value=f"{text}")
+                if title and text:
+                    embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
+                                value=f"{text}")
             # embedVar.set_footer(
             #     text=f"Pay attention to your opponents ST(Stamina). If they are entering Focus State, you may have an opportunity to attack twice!")
             return embedVar
@@ -1671,11 +1661,12 @@ class Battle:
                             value=f"On Resolve gain Double Strikes **[{player_card.class_value}]**\n")
                 if player_card.is_tank:
                     embedVar.add_field(name=f"[{crown_utilities.class_emojis['TANK']}]** Tank Class**!",
-                            value=f"On Resolve gain increase your shield by (250 * Card Tier) + Card Level **[{(250 * player_card.card_tier) + player_card.card.level}]**\n")
+                            value=f"On Resolve gain increase your shield by (250 * Card Tier) + Card Level **[{(250 * player_card.card_tier) + player_card.card_lvl}]**\n")
             if player_card.universe in crown_utilities.resolve_traits:
                 title, text = self.resolve_trait_handler(player_card)
-                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
-                            value=f"{text}")
+                if title and text:
+                    embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
+                                value=f"{text}")
             # embedVar.set_footer(
             #     text=f"You can only enter ⚡Resolve once per match! Use this ability Wisely!!!")
             return embedVar
@@ -1684,16 +1675,18 @@ class Battle:
                                     description=f"Your opponent will now sacrifice a turn to **Heal** and Regain **90 ST(Stamina)**\n")
             if opponent_card.universe in crown_utilities.opponent_focus_trait:
                 title, text = self.opponent_focus_trait_handler(player_card, opponent_card)
-                embedVar.add_field(name=f"\n[{opponent_card.universe_crest}] {opponent_card.universe} Trait: {title}",
-                            value=f"{text}")
+                if title and text:
+                    embedVar.add_field(name=f"\n[{opponent_card.universe_crest}] {opponent_card.universe} Trait: {title}",
+                                value=f"{text}")
             return embedVar
         elif message_type == "HEALTH":
             embedVar = Embed(title=f"❤️ **{player_card.name}'s** Health Trait Activated",
                                     description=f"Some universe Traits trigger when your health reaches a certain point!")
             if player_card.universe in crown_utilities.death_traits:
                 title, text = self.death_trait_handler(player_card)
-                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
-                            value=f"{text}")
+                if title and text:
+                    embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
+                                value=f"{text}")
             return embedVar
 
 
@@ -1713,9 +1706,6 @@ class Battle:
         if player_card.universe == "Death Note":
             name = "Shinigami Eyes"
             value =f"On Block\nspend 50% Max Health [{.50 * player_card.max_health}] to increase turn count by 10 + Card Tier **[{10 + player_card.card_tier}]**."
-        if player_card.universe == "My Hero Academia":
-            name = "Plus Ultra"
-            value =f"On Block\nIncrease All AP values by 20 [{player_card.my_hero_ap_buff}]"
         if player_card.universe == "YuYu Hakusho":
             name = "Meditation"
             value = f"On Block\nGain 100 * Card Tier Defense **[{100 * player_card.card_tier}]** and 10 * Card Tier AP **[{10 * player_card.card_tier}]**." 
@@ -1741,6 +1731,8 @@ class Battle:
 
 
     def resolve_trait_handler(self, player_card):
+        name = False
+        value = False
         if player_card.universe == "Soul Eater":
             name = "Soul Resonance"
             value =f"On Resolve\nGain Health, AP and Summon AP from Stored Souls **[{player_card.soul_resonance_amount}]**"
@@ -1809,6 +1801,8 @@ class Battle:
 
 
     def focus_trait_handler(self, player_card, opponent_card):
+        name = False
+        value = False
         if player_card.universe == "Soul Eater":
             name = "Meister"
             value =f"On Focus\nStrike with Summon and consume 50 souls. If your summon is from Soul Eater also consume 50% Summon DMG in Souls**[{player_card.soul_resonance_amount}]**"
@@ -1885,6 +1879,8 @@ class Battle:
 
 
     def starting_trait_handler(self, player_card, opponent_card):
+        name = False
+        value = False
         if player_card.universe == "Death Note":
             name = "\nDeath Note"
             value =f"On Turn 50\n*Your opponent [{opponent_card.name}] will have a heart attack and* `DIE`"
@@ -1907,6 +1903,8 @@ class Battle:
 
 
     def death_trait_handler(self, player_card):
+        name = False
+        value = False
         if player_card.universe == "Dragon Ball Z":
             name = "Final Stand"
             value =f"On Death\n\nRevive and heal for 75% of your Attack and Defense [{.75 * (player_card.attack + player_card.defense)}]"
@@ -1920,6 +1918,8 @@ class Battle:
 
 
     def blitz_trait_handler(self, player_card):
+        name = False
+        value = False
         if player_card.universe == "Bleach":
             name = "Shikai"
             value =f"On Resolve\n Gain Attack and Defense multiplied by your blitz count"
@@ -1983,9 +1983,9 @@ class Battle:
     
 
     async def set_boss_win(self, player1, boss_card, companion=None):
-        query = {'DISNAME': player1.disname} 
+        query = {'DID': str(player1.did)}
         fight_query = {'$set' : {'BOSS_FOUGHT' : True}}
-        resp = db.updateUserNoFilter(query, fight_query)
+        resp = await asyncio.to_thread(db.updateUserNoFilter, query, fight_query)
         if boss_card.name not in player1.boss_wins:
             if self.is_hard_difficulty:
                 await crown_utilities.bless(5000000, player1.did)
@@ -1997,7 +1997,7 @@ class Battle:
                 else:
                     await crown_utilities.bless(15000000, companion.did)
             new_query = {'$addToSet': {'BOSS_WINS': boss_card.name}}
-            resp = db.updateUserNoFilter(query, new_query)
+            resp = await asyncio.to_thread(db.updateUserNoFilter, query, new_query)
 
 
     async def set_pvp_win_loss(self, your_player_id, opponent_player_id):
@@ -2005,18 +2005,18 @@ class Battle:
 
         player1_query = {'DID': your_player_id}
         win_value = {"$inc": {"PVP_WINS" : 1}}
-        win_update = db.updateUserNoFilter(player1_query, win_value)
+        win_update = await asyncio.to_thread(db.updateUserNoFilter, player1_query, win_value)
 
         loss_value = {"$inc": {"PVP_LOSS" : 1}}
         player2_query = {'DID': opponent_player_id}
-        loss_update = db.updateUserNoFilter(player2_query, loss_value)
+        loss_update = await asyncio.to_thread(db.updateUserNoFilter, player2_query, loss_value)
 
 
     async def save_abyss_win(self, user, player, player1_card):
         bless_amount = 100000 + (10000 * int(self.abyss_floor))
         await crown_utilities.bless(bless_amount, player.did)
         new_level = int(self.abyss_floor) + 1
-        response = db.updateUserNoFilter({'DID': player.did}, {'$set': {'LEVEL': new_level}})
+        response = await asyncio.to_thread(db.updateUserNoFilter, {'DID': player.did}, {'$set': {'LEVEL': new_level}})
         cardlogger = await crown_utilities.cardlevel(user, "Purchase")
 
 
@@ -2101,12 +2101,14 @@ class Battle:
         
         
     async def explore_embed(self, ctx, winner, winner_card, opponent_card):
-        talisman_response = crown_utilities.decrease_talisman_count(winner.did, winner.equipped_talisman)
+        talisman_response = await asyncio.to_thread(crown_utilities.decrease_talisman_count, winner.did, winner.equipped_talisman)
+        # Default text; the explore type / RPG branches below refine it.
+        message = f"VICTORY\nThe game lasted {self.turn_total} rounds."
         if self.player1_wins:
             if self.explore_type == "glory":
                 bounty_amount = self.bounty * 2
                 await crown_utilities.bless(bounty_amount, winner.did)
-                winner.save_card(opponent_card)
+                await asyncio.to_thread(winner.save_card, opponent_card)
                 drop_response = f"You won 🎴 {opponent_card.name}!"
             
                 message = f"VICTORY\n🪙 {'{:,}'.format(bounty_amount)} Bounty Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
@@ -2117,7 +2119,7 @@ class Battle:
             if self.is_rpg:
                 bounty_amount = self.bounty * 2
                 await crown_utilities.bless(bounty_amount, winner.did)
-                winner.save_card(opponent_card, True)
+                await asyncio.to_thread(winner.save_card, opponent_card, True)
                 self.rpg_config.card_drops.append(f"[{opponent_card.class_emoji}] **{opponent_card.name}**!")
                 drop_response = f"You won 🎴 {opponent_card.name}!"
 
@@ -2166,8 +2168,8 @@ class Battle:
             if self.is_rpg:
                 message = f"You were defeated by {opponent_card.name}'s avatar\nThe game lasted {self.turn_total} rounds."
 
-        embedVar = Embed(title=f"{message}\n", color=0x1abc9c)
-        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}")
+        embedVar = Embed(title=crown_utilities.clip(f"{message}", 256), color=0x1abc9c)
+        embedVar.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}", 2048))
         
         f_message = self.get_most_focused(winner_card, opponent_card)
         embedVar.add_field(name=f"🌀 | Focus Count",
@@ -2192,7 +2194,7 @@ class Battle:
         reward_data = {}
 
         if player.rift == 1:
-            rift_response = db.updateUserNoFilter({'DID': str(player.did)}, {'$set': {'RIFT': 0}})
+            rift_response = await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(player.did)}, {'$set': {'RIFT': 0}})
 
         if player.family != "PCG":
             family_bank = await crown_utilities.blessfamily(self.fam_reward_amount, player.family)
@@ -2203,7 +2205,7 @@ class Battle:
             reward_data['TEAM_BANK'] = team_bank
             
         random_element = crown_utilities.select_random_element(self.difficulty, self.mode)
-        essence = crown_utilities.inc_essence(player.did, random_element["ELEMENT"], random_element["ESSENCE"])
+        essence = await asyncio.to_thread(crown_utilities.inc_essence, player.did, random_element["ELEMENT"], random_element["ESSENCE"])
         reward_data['RANDOM_ELEMENT'] = random_element['ESSENCE']
         reward_data['ESSENCE'] = essence
 
@@ -2227,7 +2229,7 @@ class Battle:
             
             self.rematch_buff = False
             if player.guild != 'PCG':
-                team_info = db.queryTeam({'TEAM_NAME': str(player.guild.lower())})
+                team_info = await asyncio.to_thread(db.queryTeam, {'TEAM_NAME': str(player.guild.lower())})
                 guild_buff_info = team_info['ACTIVE_GUILD_BUFF']
                 if guild_buff_info == 'Rematch':
                     self.rematch_buff =True
@@ -2274,21 +2276,21 @@ class Battle:
     async def configure_battle_players(self, ctx, player2=None, player3=None):
         try:
             opponent_talisman_emoji = ""
-            self.configure_player_1()
+            await asyncio.to_thread(self.configure_player_1)
 
             if self.is_pvp_game_mode:
-                self.configure_player_2(player2)
+                await asyncio.to_thread(self.configure_player_2, player2)
             
             if self.is_raid_game_mode:
-                self.configure_raid_opponent(player2)
+                await asyncio.to_thread(self.configure_raid_opponent, player2)
 
             if self.is_ai_opponent and not self.is_raid_game_mode:
                 await self.configure_ai_opponent_1(ctx)
                 if self.is_co_op_mode or self.is_duo_mode:
-                    self.configure_partner_1(player3)
+                    await asyncio.to_thread(self.configure_partner_1, player3)
                 
         except Exception as ex:
-            print(ex)
+            custom_logging.debug(ex)
 
 
     def configure_player_1(self):
@@ -2425,8 +2427,8 @@ class Battle:
                 self.battle_mode = "Explore"
                 self.player2_card = self._ai_opponent_card_data
                 self.get_aisummon_ready(self.player2_card)
-                self.player2_title = crown_utilities.create_title_from_data(db.queryTitle({"TITLE": self._ai_opponent_title_data}))
-                self.player2_arm = crown_utilities.create_arm_from_data(db.queryArm({"ARM": self._ai_opponent_arm_data}))
+                self.player2_title = crown_utilities.create_title_from_data((await asyncio.to_thread(db.queryTitle, {"TITLE": self._ai_opponent_title_data})))
+                self.player2_arm = crown_utilities.create_arm_from_data((await asyncio.to_thread(db.queryArm, {"ARM": self._ai_opponent_arm_data})))
                 self.player2_card.set_talisman(self)
                 opponent_talisman_emoji = ""
                 self.player2_card.set_arm_config(self.player2_arm.passive_type, self.player2_arm.name, self.player2_arm.passive_value, self.player2_arm.element)

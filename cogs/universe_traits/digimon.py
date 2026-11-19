@@ -9,8 +9,8 @@ def digivolve(player_card, battle_config, opponent_card):
         fortitude = round(random.randint(int(low), int(high)))
         # Resolve Scaling
         resolve_health = round(fortitude + (.5 * player_card.resolve_value))
-        resolve_attack_value = round((.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
-        resolve_defense_value = round((.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+        resolve_attack_value = round((.60 * player_card.resolve_value))
+        resolve_defense_value = round((.60 * player_card.resolve_value))
 
         player_card.stamina = player_card.stamina + player_card.resolve_value
         player_card.health = player_card.health + resolve_health

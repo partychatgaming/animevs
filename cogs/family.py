@@ -1,3 +1,4 @@
+import render_cache
 import crown_utilities
 import db
 import dataclasses as data
@@ -39,8 +40,8 @@ class Family(Extension):
             return
 
         try:
-            head_profile = db.queryUser({'DID': str(ctx.author.id)})
-            partner_profile = db.queryUser({'DID': str(player.id)})
+            head_profile = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+            partner_profile = await asyncio.to_thread(db.queryUser, {'DID': str(player.id)})
             # if head_profile['LEVEL'] < 31:
             #     await ctx.send(f"🔓 {ctx.author.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
             #     return
@@ -115,9 +116,9 @@ class Family(Extension):
                                     #response = db.createFamily(data.newFamily(family_query), str(ctx.author))
                                     #await ctx.send(response)
                                     newvalue = {'$set': {'PARTNER': str(player)}}
-                                    nextresponse = db.addFamilyMember(family_query, newvalue, str(ctx.author), str(player))
+                                    nextresponse = await asyncio.to_thread(db.addFamilyMember, family_query, newvalue, str(ctx.author), str(player))
                                     update_player = {'$set': {'FAMILY': str(ctx.author)}}
-                                    player_response = db.updateUserNoFilter(update_player)
+                                    player_response = await asyncio.to_thread(db.updateUserNoFilter, update_player)
                                     await ctx.send(nextresponse)
                                 except:
                                     await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
@@ -164,9 +165,9 @@ class Family(Extension):
         if not registered_player:
             return
 
-        head_profile = db.queryUser({'DID': str(ctx.author.id)})
-        partner_profile = db.queryUser({'DISNAME': str(partner)})
-        family_profile = db.queryFamily({'HEAD': head_profile['FAMILY']})
+        head_profile = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+        partner_profile = await asyncio.to_thread(db.queryUser, {'DISNAME': str(partner)})
+        family_profile = await asyncio.to_thread(db.queryFamily, {'HEAD': head_profile['FAMILY']})
         if family_profile['HEAD'] == str(ctx.author):
             if family_profile['PARTNER'] != str(partner):
                 await ctx.send(f"Must select your **partner**: {family_profile['PARTNER']}", delete_after=8)
@@ -176,7 +177,7 @@ class Family(Extension):
                 await ctx.send(f"Must select your **partner**: {family_profile['HEAD']}", delete_after=8)
                 return
         if not family_profile:
-            family_profile = db.queryFamily({'HEAD': partner_profile['FAMILY']})
+            family_profile = await asyncio.to_thread(db.queryFamily, {'HEAD': partner_profile['FAMILY']})
         if head_profile['DISNAME'] == partner_profile['DISNAME']:
             await ctx.send("You cannot **divorce** yourself", delete_after=8)
             return
@@ -245,13 +246,13 @@ class Family(Extension):
                                     
                                     new_value_query = {'$set': {'PARTNER': '' }}
                                     await self.bot.cursefamily(divorce_split,family_profile['HEAD'])
-                                    response = db.deleteFamilyMember(family_query, new_value_query, str(ctx.author), str(partner))
+                                    response = await asyncio.to_thread(db.deleteFamilyMember, family_query, new_value_query, str(ctx.author), str(partner))
                                     if str(ctx.author) == family_profile['PARTNER']:
                                         family_query = {'HEAD': str(partner)}
-                                        response = db.deleteFamilyMember(family_query, new_value_query, str(partner), str(ctx.author))
+                                        response = await asyncio.to_thread(db.deleteFamilyMember, family_query, new_value_query, str(partner), str(ctx.author))
                                         user_query = {'DISNAME':str(partner)}
-                                        user_info = db.queryUser(user_query)
-                                        old_family = db.updateUserNoFilter({'FAMILY':user_info['DISNAME']})
+                                        user_info = await asyncio.to_thread(db.queryUser, user_query)
+                                        old_family = await asyncio.to_thread(db.updateUserNoFilter, {'FAMILY':user_info['DISNAME']})
                                     await button_ctx.send(response)
                                     await self.bot.bless(divorce_split, str(family_profile['PARTNER']))
                                 except Exception as ex:
@@ -278,10 +279,10 @@ class Family(Extension):
                                 await button_ctx.send(f"**Divorce Finalized** {ctx.author.mention} removed!")
                             new_value_query = {'$set': {'PARTNER': '' }}
                             await self.bot.cursefamily(divorce_split,family_profile['HEAD'])
-                            response = db.deleteFamilyMember(family_query, new_value_query, str(ctx.author), str(partner))
+                            response = await asyncio.to_thread(db.deleteFamilyMember, family_query, new_value_query, str(ctx.author), str(partner))
                             if str(ctx.author) == family_profile['PARTNER']:
                                 family_query = {'HEAD': str(partner)}
-                                response = db.deleteFamilyMember(family_query, new_value_query, str(partner), str(ctx.author))
+                                response = await asyncio.to_thread(db.deleteFamilyMember, family_query, new_value_query, str(partner), str(ctx.author))
                             await button_ctx.send(response)
                 except Exception as ex:
                     trace = []
@@ -312,8 +313,8 @@ class Family(Extension):
             return
 
         try:
-            head_profile = db.queryUser({'DID': str(ctx.author.id)})
-            kid_profile = db.queryUser({'DISNAME': str(player)})
+            head_profile = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+            kid_profile = await asyncio.to_thread(db.queryUser, {'DISNAME': str(player)})
             partner_mode = False
             if head_profile['FAMILY'] == 'PCG':
                 await ctx.send("Join or Start a family to adopt Kids!", delete_after=3)
@@ -321,10 +322,10 @@ class Family(Extension):
                 #await ctx.send(m.USER_IN_FAMILY, delete_after=3)
             else:
                 family_query = {'HEAD': str(ctx.author)}
-                family = db.queryFamily(family_query)
+                family = await asyncio.to_thread(db.queryFamily, family_query)
                 if not family:
                     family_query = {'PARTNER':str(ctx.author)}
-                    family = db.queryFamilyAlt(family_query)
+                    family = await asyncio.to_thread(db.queryFamilyAlt, family_query)
                     partner_mode=True
                 if family['HEAD'] != str(ctx.author):
                     if family['PARTNER'] != str(ctx.author):
@@ -396,12 +397,12 @@ class Family(Extension):
                                     try:
                                         newvalue = {'$push': {'KIDS': str(player)}}
                                         if partner_mode:
-                                            response = db.addFamilyMemberAlt(family_query, newvalue, str(ctx.author), str(player))
+                                            response = await asyncio.to_thread(db.addFamilyMemberAlt, family_query, newvalue, str(ctx.author), str(player))
                                         else:
-                                            response = db.addFamilyMember(family_query, newvalue, str(ctx.author), str(player))
+                                            response = await asyncio.to_thread(db.addFamilyMember, family_query, newvalue, str(ctx.author), str(player))
                                         user_update = {'$set' : {'FAMILY': str(family['HEAD'])}}
                                         user_query = {'DID' : kid_profile['DID']}
-                                        user_update = db.updateUserNoFilter(user_query, user_update)
+                                        user_update = await asyncio.to_thread(db.updateUserNoFilter, user_query, user_update)
                                         await button_ctx.send(response)                                       
                                     except Exception as ex:
                                         trace = []
@@ -481,8 +482,8 @@ class Family(Extension):
             return
 
         try:
-            head_profile = db.queryUser({'DID': str(ctx.author.id)})
-            family_profile = db.queryFamily({'HEAD': head_profile['FAMILY']})
+            head_profile = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+            family_profile = await asyncio.to_thread(db.queryFamily, {'HEAD': head_profile['FAMILY']})
             family_query = {'HEAD': str(ctx.author)}
             if str(ctx.author) != family_profile['HEAD']:
                 await ctx.send(f"Must be **Head of Household** to Disown.")
@@ -523,10 +524,10 @@ class Family(Extension):
                         if button_ctx.custom_id == "yes":
                             try:
                                 new_value_query = {'$pull': {'KIDS': str(kid) }}
-                                response = db.deleteFamilyMember(family_query, new_value_query, str(ctx.author), str(kid))
+                                response = await asyncio.to_thread(db.deleteFamilyMember, family_query, new_value_query, str(ctx.author), str(kid))
                                 user_update = {'$set' : {'FAMILY': str(kid)}}
                                 user_query = {'DID' : str(kid.id)}
-                                user_update = db.updateUserNoFilter(user_query, user_update)
+                                user_update = await asyncio.to_thread(db.updateUserNoFilter, user_query, user_update)
                                 await button_ctx.send(response)
                             except:
                                 print("No Disown")
@@ -575,8 +576,8 @@ class Family(Extension):
         if not registered_player:
             return
 
-        kid_profile = db.queryUser({'DID': str(ctx.author.id)})
-        family_profile = db.queryFamily({'HEAD': kid_profile['FAMILY']})
+        kid_profile = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+        family_profile = await asyncio.to_thread(db.queryFamily, {'HEAD': kid_profile['FAMILY']})
         kidlist = []
         family_query = {'HEAD': kid_profile['FAMILY']}
         if family_profile:
@@ -613,11 +614,11 @@ class Family(Extension):
                 if button_ctx.custom_id == "yes":
                     try:
                         new_value_query = {'$pull': {'KIDS': str(ctx.author)}}
-                        response = db.deleteFamilyMemberAlt(family_query, new_value_query, str(ctx.author))
+                        response = await asyncio.to_thread(db.deleteFamilyMemberAlt, family_query, new_value_query, str(ctx.author))
                         await ctx.send(response)
                         user_update = {'$set' : {'FAMILY': str(kid_profile['DISNAME'])}}
                         user_query = {'DID' : kid_profile['DID']}
-                        user_update = db.updateUserNoFilter(user_query, user_update)
+                        user_update = await asyncio.to_thread(db.updateUserNoFilter, user_query, user_update)
                     except:
                         print("Team not created. ")
             except Exception as ex:
@@ -652,7 +653,7 @@ class Family(Extension):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
-        ctx_user = db.queryUser({'DID': str(ctx.author.id)})
+        ctx_user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
         """
         Search for family using DID in either HEAD, PARTNER, or in KIDS array
         The name of the family, if not explicitly stated in new family Field, will be the name of the head of household
@@ -660,8 +661,8 @@ class Family(Extension):
         try:                
             if player:
                 member = player
-                user_profile = db.queryUser({'DID': str(player)})
-                family = db.queryFamily({'HEAD': user_profile['FAMILY']})
+                user_profile = await asyncio.to_thread(db.queryUser, {'DID': str(player)})
+                family = await asyncio.to_thread(db.queryFamily, {'HEAD': user_profile['FAMILY']})
                 if family:
                     family_name = family['HEAD']
                 else:
@@ -669,8 +670,8 @@ class Family(Extension):
                     return
                 
             else:
-                user_profile = db.queryUser({'DID': str(ctx.author.id)})
-                family = db.queryFamily({'HEAD': user_profile['FAMILY']})
+                user_profile = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+                family = await asyncio.to_thread(db.queryFamily, {'HEAD': user_profile['FAMILY']})
                 if family:
                     family_name = family['HEAD']
                 else:
@@ -687,17 +688,17 @@ class Family(Extension):
                 head_name = family['HEAD']
                 partner_name = family['PARTNER']
                 savings = int(family['BANK'])
-                head_data = db.queryUser({'DISNAME': head_name})
+                head_data = await asyncio.to_thread(db.queryUser, {'DISNAME': head_name})
                 head_object = await self.bot.fetch_user(head_data['DID'])
                 estates = family['ESTATES']
                 if partner_name:
-                    partner_data = db.queryUser({'DISNAME': partner_name})
+                    partner_data = await asyncio.to_thread(db.queryUser, {'DISNAME': partner_name})
                     partner_object = await self.bot.fetch_user(partner_data['DID'])
                     partner_name_adjusted = partner_name.split("#",1)[0]
                 else:
                     partner_name_adjusted = '*None*'
                 house = family['HOUSE']
-                house_info = db.queryHouse({'HOUSE' : house})
+                house_info = await asyncio.to_thread(db.queryHouse, {'HOUSE' : house})
                 house_img = house_info['PATH']
                 kid_list = []
                 for kids in family['KIDS']:
@@ -754,15 +755,15 @@ class Family(Extension):
                 power = (summon_bond * summon_lvl) + int(summon_ability_power)
                 summon_path = summon_object['PATH']
                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                summon_file = crown_utilities.showsummon(summon_path, summon_name, crown_utilities.element_mapping[summon_type], summon_lvl, summon_bond)
+                summon_file = await render_cache.render_async(crown_utilities.showsummon, summon_path, summon_name, crown_utilities.element_mapping[summon_type], summon_lvl, summon_bond)
 
                 universe = family['UNIVERSE']
-                universe_data = db.queryUniverse({'TITLE': universe})
+                universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': universe})
                 universe_img = universe_data['PATH']
                 estates_list = []
                 estate_data_list = []
                 for houses in estates:
-                    house_data = db.queryHouse({'HOUSE': houses})
+                    house_data = await asyncio.to_thread(db.queryHouse, {'HOUSE': houses})
                     estates_list.append(houses)
                     estate_data_list.append(house_data)
                     
@@ -869,7 +870,7 @@ class Family(Extension):
                                 update_query = {
                                         '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
                                     }
-                                response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
+                                response = await asyncio.to_thread(db.updateFamily, {'HEAD': family['HEAD']}, update_query)
                                 await ctx.send(f"**{button_ctx.author.mention}** Said Hello! to {family_name}!")
                                 self.stop = True
                                 return
@@ -919,7 +920,7 @@ class Family(Extension):
                                         return
                                     if button_ctx.custom_id == "browse":
                                         await button_ctx.defer(ignore=True)
-                                        all_houses = db.queryAllHouses()
+                                        all_houses = await asyncio.to_thread(db.queryAllHouses)
                                         for houses in all_houses:
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
@@ -981,7 +982,7 @@ class Family(Extension):
                                                             '$set': {'HOUSE': house_name},
                                                             '$push': {'TRANSACTIONS': transaction_message}
                                                         }
-                                                    response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
+                                                    response = await asyncio.to_thread(db.updateFamily, {'HEAD': family['HEAD']}, update_query)
                                                     await ctx.send(f"**{family_name}** moved into their **{house_name}**! Enjoy your new Home!")
                                                     self.stop = True
                                             else:
@@ -993,7 +994,7 @@ class Family(Extension):
                                                                                     
                                     elif button_ctx.custom_id == "buy":
                                         house_embed_list = []
-                                        all_houses = db.queryAllHouses()
+                                        all_houses = await asyncio.to_thread(db.queryAllHouses)
                                         owned = False
                                         current_savings = '{:,}'.format(savings)
                                         for houses in all_houses:
@@ -1037,7 +1038,7 @@ class Family(Extension):
                                                         #self.stop = True
                                                         return
                                                     try: 
-                                                        house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
+                                                        house = await asyncio.to_thread(db.queryHouse, {'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
                                                         currentBalance = family['BANK']
                                                         cost = house['PRICE']
                                                         house_name = house['HOUSE']
@@ -1051,8 +1052,8 @@ class Family(Extension):
                                                                 else:
                                                                     await crown_utilities.cursefamily(cost, family['HEAD'])
                                                                     transaction_message = f"🪙 | {ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
-                                                                    response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
-                                                                    response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addToSet':{'ESTATES': str(house_name)}})
+                                                                    response = await asyncio.to_thread(db.updateFamily, {'HEAD': family['HEAD']}, {'$set':{'HOUSE': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
+                                                                    response2 = await asyncio.to_thread(db.updateFamily, {'HEAD': family['HEAD']}, {'$addToSet':{'ESTATES': str(house_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
                                                                     return
                                                         else:
@@ -1073,7 +1074,7 @@ class Family(Extension):
                                                                 'trace': trace
                                                             }))
                                                 if button_ctx.custom_id == "sell":
-                                                    house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
+                                                    house = await asyncio.to_thread(db.queryHouse, {'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
                                                     cost = house['PRICE']
                                                     formatted_cost = '{:,}'.format(cost)
                                                     if house_name not in family['ESTATES']:
@@ -1091,7 +1092,7 @@ class Family(Extension):
                                                     elif house_name in family['ESTATES']:
                                                         await crown_utilities.blessfamily_Alt(cost, family['HEAD'])
                                                         transaction_message = f"🪙 | {ctx.author} sold the family home: **{str(house_name)}**."
-                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
+                                                        response = await asyncio.to_thread(db.updateFamily, {'HEAD': family['HEAD']}, {'$pull':{'ESTATES': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')
                                                         #self.stop = True
                                                         return
@@ -1136,7 +1137,7 @@ class Family(Extension):
                                 
                                 power = (summon_bond * summon_lvl) + int(summon_ability_power)
                                 summon_path = summon_object['PATH']
-                                head_vault = db.queryVault({'DID' : head_data['DID']})
+                                head_vault = await asyncio.to_thread(db.queryVault, {'DID' : head_data['DID']})
                                 
                                 summon_buttons = []
                                 if is_head:
@@ -1177,8 +1178,8 @@ class Family(Extension):
                                     if button_ctx.custom_id == "change":
                                         await button_ctx.defer(ignore=True)
                                         query = {'DID': str(button_ctx.author.id)}
-                                        d = db.queryUser(query)
-                                        vault = db.queryVault({'DID': d['DID']})
+                                        d = await asyncio.to_thread(db.queryUser, query)
+                                        vault = await asyncio.to_thread(db.queryVault, {'DID': d['DID']})
                                         if vault:
                                             name = d['DISNAME'].split("#",1)[0]
                                             avatar = d['AVATAR']
@@ -1226,7 +1227,7 @@ class Family(Extension):
                                                     bonus_message = '+100 Family Bonus'
                                                 if pet['NAME'] == summon_name:
                                                     can_change_sumon = False
-                                                dash_pet_info = db.querySummon({'PET' : pet['NAME']})
+                                                dash_pet_info = await asyncio.to_thread(db.querySummon, {'PET' : pet['NAME']})
                                                 if dash_pet_info:
                                                     pet_available = dash_pet_info['AVAILABLE']
                                                     pet_exclusive = dash_pet_info['EXCLUSIVE']
@@ -1256,14 +1257,14 @@ class Family(Extension):
 
                                             async def custom_function(self, button_ctx):
                                                 if button_ctx.author == ctx.author:
-                                                    updated_vault = db.queryVault({'DID': d['DID']})
+                                                    updated_vault = await asyncio.to_thread(db.queryVault, {'DID': d['DID']})
                                                     sell_price = 0
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
                                                     if selected_summon == summon_name:
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is already the {family_name} **Summon**.")
                                                         return 
                                                     user_query = {'DID': str(ctx.author.id)}
-                                                    user_vault = db.queryVault(user_query)
+                                                    user_vault = await asyncio.to_thread(db.queryVault, user_query)
 
                                                     vault_summons = user_vault['PETS']
                                                     for l in vault_summons:
@@ -1283,7 +1284,7 @@ class Family(Extension):
                                                         #response = db.updateUser(query, update_query, filter_query)
                                                 
                                                         transaction_message = f"🧬 | {ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
-                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': pet_info}, '$push': {'TRANSACTIONS': transaction_message}})
+                                                        response = await asyncio.to_thread(db.updateFamily, {'HEAD': family['HEAD']}, {'$set': {'SUMMON': pet_info}, '$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
                                                         self.stop = True
                                                         return
@@ -1298,8 +1299,8 @@ class Family(Extension):
                                         try:
                                             await button_ctx.defer(ignore=True)
                                             transaction_message = f"{ctx.author} equipped the family summon : **{str(summon_name)}**."
-                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': summon_name, 'FAMILY_PET': True}})
-                                            response2 = db.updateFamily({'HEAD': family['HEAD']}, {'$push': {'TRANSACTIONS': transaction_message}})
+                                            response = await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(button_ctx.author.id)}, {'$set' : {'PET': summon_name, 'FAMILY_PET': True}})
+                                            response2 = await asyncio.to_thread(db.updateFamily, {'HEAD': family['HEAD']}, {'$push': {'TRANSACTIONS': transaction_message}})
                                             await button_ctx.send(f"🧬 **{str(summon_name)}** is now your **Summon**.")
                                             self.stop = True
                                             return
@@ -1375,9 +1376,9 @@ class Family(Extension):
 # @slash_command(name="invest", description="Invest money in your Family", scopes=crown_utilities.guild_ids)
 # @cooldown(Buckets.USER, 1, 10)
 async def invest(ctx, amount):
-   user = db.queryUser({'DID': str(ctx.author.id)})
-   family = db.queryFamily({'HEAD': user['DID']})
-   vault = db.queryVault({'DID': str(ctx.author.id)})
+   user = await asyncio.to_thread(db.queryUser, {'DID': str(ctx.author.id)})
+   family = await asyncio.to_thread(db.queryFamily, {'HEAD': user['DID']})
+   vault = await asyncio.to_thread(db.queryVault, {'DID': str(ctx.author.id)})
    balance = vault['BALANCE']
    if family:
       if balance <= int(amount):
@@ -1386,7 +1387,7 @@ async def invest(ctx, amount):
          await crown_utilities.blessfamily_Alt(int(amount), user['DID'])
          await crown_utilities.curse(int(amount), ctx.author.id)
          transaction_message =f"🪙 | {user['DISNAME']} invested 🪙{amount} "
-         update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
+         update_family = await asyncio.to_thread(db.updateFamily, family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
          await ctx.send(f"**🪙{amount}** invested into **{user['NAME']}'s Family**.")
          return
    else:

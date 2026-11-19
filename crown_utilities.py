@@ -24,6 +24,7 @@ import random
 import asyncio
 import requests
 import custom_logging
+import render_cache
 from interactions import PartialEmoji, File, Embed
 
 loggy.info("Crown Utilities initiated")
@@ -86,6 +87,40 @@ def get_cached_cards():
     except Exception as e:
         print(e)
         return False
+
+
+def clip(text, limit):
+    """Trim text to a Discord field limit (keeps the beginning)."""
+    text = "" if text is None else str(text)
+    if len(text) <= limit:
+        return text
+    return text[:max(0, limit - 1)] + "…"
+
+
+def clip_tail(text, limit):
+    """Trim text to a Discord field limit, keeping the END (the newest battle log lines)."""
+    text = "" if text is None else str(text)
+    if len(text) <= limit:
+        return text
+    return "…" + text[-(limit - 1):]
+
+
+def chunk_buttons(buttons, size=5):
+    """Split a list of buttons into rows of at most `size` (Discord allows 5 per action row)."""
+    buttons = [b for b in (buttons or []) if b is not None]
+    return [buttons[i:i + size] for i in range(0, len(buttons), size)]
+
+
+async def safe_delete(message, delay=0):
+    """Delete a Discord message if it still exists.  Never raises and never blocks on `delay`."""
+    if message is None:
+        return
+    try:
+        result = message.delete(delay=delay) if delay else message.delete()
+        if asyncio.iscoroutine(result) or isinstance(result, asyncio.Future):
+            await result
+    except Exception:
+        pass
 
 
 def storage_limit_hit(player_info, vault, type):
@@ -248,7 +283,7 @@ async def summonlevel(player, player_card, battle_config):
             else:
                 update_query = {'$set': {'PETS.$[type].' + "EXP": player_card.summon_exp}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
-                response = db.updateUser(query, update_query, filter_query)
+                response = await asyncio.to_thread(db.updateUser, query, update_query, filter_query)
                 level_up_log =  "\n\n".join(level_up_log)
         
 
@@ -307,7 +342,7 @@ async def update_summon_experience(query, player_card, player, exp, lvl_req):
         remaining_exp = total_exp_gain
         initial_level = player_card.summon_lvl
         # initial_power = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
-        s = db.querySummon({'PET': player_card.summon_name})
+        s = await asyncio.to_thread(db.querySummon, {'PET': player_card.summon_name})
         summon = create_summon_from_data(s)
         initial_power = summon.ability_power
         initial_summon_power = calculate_summon__ability_power(initial_power, player_card.summon_lvl, player_card.summon_bond)
@@ -360,7 +395,7 @@ async def update_summon_experience(query, player_card, player, exp, lvl_req):
 
         update_query = {'$set': {'PETS.$[type].' + "EXP": remaining_exp,'PETS.$[type].' + "LVL": player_card.summon_lvl,'PETS.$[type].' + "BONDEXP": player_card.summon_bondexp,'PETS.$[type].' + "BOND": player_card.summon_bond}}
         filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
-        response = db.updateUser(query, update_query, filter_query)
+        response = await asyncio.to_thread(db.updateUser, query, update_query, filter_query)
 
         await asyncio.sleep(2)
 
@@ -371,7 +406,7 @@ async def update_summon_experience(query, player_card, player, exp, lvl_req):
     
 
 async def updateRetry(player_id, mode, math_calc):
-    player_info = db.queryUser({'DID' : str(player_id)})
+    player_info = await asyncio.to_thread(db.queryUser, {'DID' : str(player_id)})
     if player_info:
         try:
             mode = mode
@@ -383,17 +418,17 @@ async def updateRetry(player_id, mode, math_calc):
                 if mode == "U":
                     update_query = {"DID": player_info['DID']}
                     new_value = {'$inc' : {"RETRIES": 1}}
-                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    update_player = await asyncio.to_thread(db.updateUserNoFilter, update_query, new_value)
                     return update_player
                 elif mode == "D":
                     update_query = {"DID": player_info['DID']}
                     new_value = {'$inc' : {"RETRIES": 3}}
-                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    update_player = await asyncio.to_thread(db.updateUserNoFilter, update_query, new_value)
                     return update_player
                 elif mode == "B":
                     update_query = {"DID": player_info['DID']}
                     new_value = {'$inc' : {"RETRIES": 5}}
-                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    update_player = await asyncio.to_thread(db.updateUserNoFilter, update_query, new_value)
                     return update_player
                 else:
                     print("Unable to find game mode")
@@ -404,7 +439,7 @@ async def updateRetry(player_id, mode, math_calc):
                 if player_info['RETRIES'] >= 1:
                     update_query = {"DID": player_info['DID']}
                     new_value = {'$inc' : {"RETRIES": -1}}
-                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    update_player = await asyncio.to_thread(db.updateUserNoFilter, update_query, new_value)
                     return update_player 
                 else:
                     print("You have no retries avaialable")
@@ -534,79 +569,63 @@ def getTime(hgame, mgame, sgame, hnow, mnow, snow):
 
 
 def showsummon(url, summon, message, lvl, bond):
+    """Render a summon card as an in-memory PNG (rewound BytesIO).
+
+    Uses the shared render cache, so the art, fonts and emoji are not downloaded
+    or re-read on every call, and always returns an image even if the art is
+    unreachable.
+    """
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
     try:
-        im = Image.open(requests.get(url, stream=True).raw)
+        summon = str(summon)
+        im = render_cache.load_image(url, fallback_label=summon)
 
-        draw = ImageDraw.Draw(im)
+        with render_cache.RENDER_LOCK:
+            draw = ImageDraw.Draw(im)
 
-        # Font Size Adjustments
-        # Name not go over Card
-        name_font_size = 80
-        if len(list(summon)) >= 10:
-            name_font_size = 45
-        if len(list(summon)) >= 14:
-            name_font_size = 36
-        
+            # Font Size Adjustments
+            # Name not go over Card
+            name_font_size = 80
+            if len(summon) >= 10:
+                name_font_size = 45
+            if len(summon) >= 14:
+                name_font_size = 36
 
-        header = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", name_font_size)
-        s = ImageFont.truetype("fonts/Roboto-Bold.ttf", 22)
-        h = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", 37)
-        m = ImageFont.truetype("fonts/Roboto-Bold.ttf", 25)
-        r = ImageFont.truetype("fonts/Freedom-10eM.ttf", 40)
-        lvl_font = ImageFont.truetype("fonts/Neuton-Bold.ttf", 68)
-        health_and_stamina_font = ImageFont.truetype("fonts/Neuton-Light.ttf", 41)
-        attack_and_shield_font = ImageFont.truetype("fonts/Neuton-Bold.ttf", 48)
-        moveset_font = ImageFont.truetype("fonts/antonio.regular.ttf", 40)
-        rhs = ImageFont.truetype("fonts/destructobeambb_bold.ttf", 35)
-        stats = ImageFont.truetype("fonts/Freedom-10eM.ttf", 30)
-        card_details_font_size = ImageFont.truetype("fonts/destructobeambb_bold.ttf", 25)
-        card_levels = ImageFont.truetype("fonts/destructobeambb_bold.ttf", 40)
+            header = render_cache.get_font("YesevaOne-Regular.ttf", name_font_size)
+            lvl_font = render_cache.get_font("Neuton-Bold.ttf", 68)
+            moveset_font = render_cache.get_font("antonio.regular.ttf", 40)
 
-        draw.text((600, 160), summon, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
+            draw.text((600, 160), summon, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
 
-        # Level
-        lvl_sizing = (89, 70)
-        if int(lvl) > 9:
-            lvl_sizing = (75, 70)
+            # Level
+            lvl_sizing = (89, 70)
+            try:
+                if int(lvl) > 9:
+                    lvl_sizing = (75, 70)
+            except (TypeError, ValueError):
+                pass
 
-        draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
-        draw.text((1096, 65), f"{bond}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
+            draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
+            draw.text((1096, 65), f"{bond}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
 
-        lines = textwrap.wrap(message, width=28)
-        y_text = 330
-        pilmoji = Pilmoji(im)
-        for line in lines:
-            bbox = draw.textbbox((0, 0), line, font=moveset_font)
-            width = bbox[2] - bbox[0]
-            height = bbox[3] - bbox[1]
-            x_position = round((1730 - width) / 2)
-            pilmoji.text((x_position, y_text), line, (255, 255, 255), font=moveset_font, stroke_width=2, stroke_fill=(0, 0, 0))
-            y_text += height
+            lines = textwrap.wrap(str(message or ""), width=28)
+            y_text = 330
+            with Pilmoji(im, source=render_cache.EMOJI_SOURCE, cache=False) as pilmoji:
+                for line in lines:
+                    bbox = draw.textbbox((0, 0), line, font=moveset_font)
+                    width = bbox[2] - bbox[0]
+                    height = bbox[3] - bbox[1]
+                    x_position = round((1730 - width) / 2)
+                    pilmoji.text((x_position, y_text), line, (255, 255, 255), font=moveset_font, stroke_width=2, stroke_fill=(0, 0, 0))
+                    y_text += height
 
-
-        image_binary = BytesIO()
-        im.save(image_binary, "PNG")
-        return image_binary
+        return render_cache.encode_png(im)
 
     except Exception as ex:
         loggy.critical(ex)
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-        print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-        }))
-        return
+        custom_logging.debug(ex)
+        return render_cache.encode_png(render_cache.placeholder_image(label=summon))
 
 
 def check_affinities(player, card, basic_element, super_element, ultimate_element):
@@ -772,7 +791,7 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
         # if universe['CORRUPTION_LEVEL'] == 499:
         # updated_corruption_level = db.updateUniverse({'TITLE': universe['TITLE']}, {'$inc': {'CORRUPTION_LEVEL': 1}})
         query = {"DID": str(ctx.author.id)}
-        vault = db.queryVault(query)
+        vault = await asyncio.to_thread(db.queryVault, query)
         
         gem_list = vault['GEMS']
         gem_reward = 150000
@@ -786,7 +805,7 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
                         '$inc': {'GEMS.$[type].' + "GEMS": gem_reward}
                     }
                     filter_query = [{'type.' + "UNIVERSE": uni['UNIVERSE']}]
-                    res = db.updateUser(query, update_query, filter_query)
+                    res = await asyncio.to_thread(db.updateUser, query, update_query, filter_query)
                     return f"You earned 💎 **{'{:,}'.format(gem_reward)}**"
         else:
             return "You must dismantle a card from this universe to enable crafting."
@@ -810,8 +829,8 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
     
 async def cardlevel(user, mode: str, extra_exp = 0):
     try:
-        player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
-        card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
+        player = create_player_from_data((await asyncio.to_thread(db.queryUser, {'DID': str(user.id)})))
+        card = create_card_from_data((await asyncio.to_thread(db.queryCard, {'NAME': player.equipped_card})))
         card.set_card_level_buffs(player.card_levels)
         exp_gain, lvl_req = get_exp_gain(player, mode, card, extra_exp)
 
@@ -823,14 +842,14 @@ async def cardlevel(user, mode: str, extra_exp = 0):
         if number_of_level_ups > 0:
             loggy.info(f"Card Leveling - {user} - {number_of_level_ups} Level Ups")
             if player is None:
-                player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
-            card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
+                player = create_player_from_data((await asyncio.to_thread(db.queryUser, {'DID': str(user.id)})))
+            card = create_card_from_data((await asyncio.to_thread(db.queryCard, {'NAME': player.equipped_card})))
             card.set_card_level_buffs(player.card_levels)
             lvl_req = get_level_up_exp_req(card)
             embed = Embed(title=f"🎴 **{card.name}** leveled up {str(number_of_level_ups)} times!", color=0x00ff00)
             embed.set_footer(text=f"{lvl_req} EXP to next level")
             embed.set_image(url="attachment://image.png")
-            image_binary = card.showcard()
+            image_binary = await render_cache.render_async(card.showcard)
             image_binary.seek(0)
             card_file = File(file_name="image.png", file=image_binary)
             await user.send(embed=embed, file=card_file)
@@ -839,7 +858,7 @@ async def cardlevel(user, mode: str, extra_exp = 0):
         else:
             return None
     except Exception as ex:
-        print(ex)
+        custom_logging.debug(ex)
         custom_logging.debug(ex)
         await user.send("Issue with leveling up card")
         return
@@ -951,7 +970,7 @@ def get_exp_gain(player, mode, card, extra_exp):
 async def guild_buff_update_function(team):
     try:
         team_query = {'TEAM_NAME': team.lower()}
-        team_info = db.queryTeam(team_query)
+        team_info = await asyncio.to_thread(db.queryTeam, team_query)
         if team_info:
             guild_buff_count = len(team_info['GUILD_BUFFS'])
             guild_buff_active = team_info['GUILD_BUFF_ON']
@@ -1068,10 +1087,8 @@ async def bless(amount, user_did):
     try:
         bless_total_amount = 0 + abs(int(amount))
         query = {'DID': str(user_did)}
-        player = db.queryUser(query)
-        if player:
-            update_query = {"$inc": {'BALANCE': bless_total_amount}}
-            db.updateUserNoFilter(query, update_query)
+        # One atomic $inc; it only touches an existing user (no need to download the whole profile first).
+        await asyncio.to_thread(db.incUserBalance, query, bless_total_amount)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -1094,10 +1111,10 @@ async def blessteam(amount, team):
         blessAmount = amount
         posBlessAmount = 0 + abs(int(blessAmount))
         query = {'TEAM_NAME': str(team.lower())}
-        team_data = db.queryTeam(query)
+        team_data = await asyncio.to_thread(db.queryTeam, query)
         if team_data:
             update_query = {"$inc": {'BANK': posBlessAmount}}
-            db.updateTeam(query, update_query)
+            await asyncio.to_thread(db.updateTeam, query, update_query)
         else:
             print("Cannot find Guild")
     except Exception as ex:
@@ -1122,10 +1139,10 @@ async def curseteam(amount, team):
         curseAmount = amount
         negCurseAmount = 0 - abs(int(curseAmount))
         query = {'TEAM_NAME': str(team)}
-        team_data = db.queryTeam(query)
+        team_data = await asyncio.to_thread(db.queryTeam, query)
         if team_data:
             update_query = {"$inc": {'BANK': int(negCurseAmount)}}
-            db.updateTeam(query, update_query)
+            await asyncio.to_thread(db.updateTeam, query, update_query)
         else:
             print("cant find team")
     except Exception as ex:
@@ -1150,14 +1167,14 @@ async def blessfamily(amount, family):
         blessAmount = amount
         posBlessAmount = 0 + abs(int(blessAmount))
         query = {'HEAD': str(family)}
-        family_data = db.queryFamily(query)
+        family_data = await asyncio.to_thread(db.queryFamily, query)
         if family_data:
             house = family_data['HOUSE']
-            house_data = db.queryHouse({'HOUSE': house})
+            house_data = await asyncio.to_thread(db.queryHouse, {'HOUSE': house})
             multiplier = house_data['MULT']
             posBlessAmount = posBlessAmount * multiplier
             update_query = {"$inc": {'BANK': posBlessAmount}}
-            db.updateFamily(query, update_query)
+            await asyncio.to_thread(db.updateFamily, query, update_query)
         else:
             print("Cannot find family")
     except Exception as ex:
@@ -1182,13 +1199,13 @@ async def blessfamily_Alt(amount, family):
         blessAmount = amount
         posBlessAmount = 0 + abs(int(blessAmount))
         query = {'HEAD': str(family)}
-        family_data = db.queryFamily(query)
+        family_data = await asyncio.to_thread(db.queryFamily, query)
         if family_data:
             house = family_data['HOUSE']
-            house_data = db.queryHouse({'HOUSE': house})
+            house_data = await asyncio.to_thread(db.queryHouse, {'HOUSE': house})
             posBlessAmount = posBlessAmount
             update_query = {"$inc": {'BANK': posBlessAmount}}
-            db.updateFamily(query, update_query)
+            await asyncio.to_thread(db.updateFamily, query, update_query)
         else:
             print("Cannot find family")
     except Exception as ex:
@@ -1213,10 +1230,10 @@ async def cursefamily(amount, family):
         curseAmount = amount
         negCurseAmount = 0 - abs(int(curseAmount))
         query = {'HEAD': str(family)}
-        family_data = db.queryFamily(query)
+        family_data = await asyncio.to_thread(db.queryFamily, query)
         if family_data:
             update_query = {"$inc": {'BANK': int(negCurseAmount)}}
-            db.updateFamily(query, update_query)
+            await asyncio.to_thread(db.updateFamily, query, update_query)
         else:
             print("cant find family")
     except Exception as ex:
@@ -1268,15 +1285,15 @@ async def blessguild(amount, guild):
         blessAmount = amount
         posBlessAmount = 0 + abs(int(blessAmount))
         query = {'GNAME': str(guild)}
-        guild_data = db.queryGuildAlt(query)
+        guild_data = await asyncio.to_thread(db.queryGuildAlt, query)
         if guild_data:
             hall = guild_data['HALL']
-            hall_data = db.queryHall({'HALL': hall})
+            hall_data = await asyncio.to_thread(db.queryHall, {'HALL': hall})
             multiplier = hall_data['MULT']
             posBlessAmount = posBlessAmount * multiplier
             query = {'GNAME': str(guild_data['GNAME'])}
             update_query = {"$inc": {'BANK': int(posBlessAmount)}}
-            db.updateGuildAlt(query, update_query)
+            await asyncio.to_thread(db.updateGuildAlt, query, update_query)
         else:
             print("Cannot find Association")
     except Exception as ex:
@@ -1301,15 +1318,15 @@ async def blessguild_Alt(amount, guild):
         blessAmount = amount
         posBlessAmount = 0 + abs(int(blessAmount))
         query = {'GNAME': str(guild)}
-        guild_data = db.queryGuildAlt(query)
+        guild_data = await asyncio.to_thread(db.queryGuildAlt, query)
         if guild_data:
             hall = guild_data['HALL']
-            hall_data = db.queryHall({'HALL': hall})
+            hall_data = await asyncio.to_thread(db.queryHall, {'HALL': hall})
             multiplier = hall_data['MULT']
             posBlessAmount = posBlessAmount
             query = {'GNAME': str(guild_data['GNAME'])}
             update_query = {"$inc": {'BANK': int(posBlessAmount)}}
-            db.updateGuildAlt(query, update_query)
+            await asyncio.to_thread(db.updateGuildAlt, query, update_query)
         else:
             print("Cannot find Association")
     except Exception as ex:
@@ -1334,11 +1351,11 @@ async def curseguild(amount, guild):
         curseAmount = amount
         negCurseAmount = 0 - abs(int(curseAmount))
         query = {'GNAME': str(guild)}
-        guild_data = db.queryGuildAlt(query)
+        guild_data = await asyncio.to_thread(db.queryGuildAlt, query)
         if guild_data:
             query = {'GNAME':str(guild_data['GNAME'])}
             update_query = {"$inc": {'BANK': int(negCurseAmount)}}
-            db.updateGuildAlt(query, update_query)
+            await asyncio.to_thread(db.updateGuildAlt, query, update_query)
         else:
             print("cant find guild")
     except Exception as ex:
@@ -1363,10 +1380,7 @@ async def curse(amount, user):
         curseAmount = int(amount)
         negCurseAmount = 0 - abs(int(curseAmount))
         query = {'DID': str(user)}
-        user_data = db.queryUser(query)
-        if user_data:
-            update_query = {"$inc": {'BALANCE': int(negCurseAmount)}}
-            db.updateUserNoFilter(query, update_query)
+        if await asyncio.to_thread(db.incUserBalance, query, int(negCurseAmount)):
             return True
     except Exception as ex:
         custom_logging.debug(ex)
@@ -1617,20 +1631,20 @@ def select_random_element(difficulty, mode):
 
 async def teamwin(team):
     query = {'TEAM_NAME': str(team.lower())}
-    team_data = db.queryTeam(query)
+    team_data = await asyncio.to_thread(db.queryTeam, query)
     if team_data:
         update_query = {"$inc": {'SCRIM_WINS': 1}}
-        db.updateTeam(query, update_query)
+        await asyncio.to_thread(db.updateTeam, query, update_query)
     else:
         print("Cannot find Guild")
 
 
 async def teamloss(team):
     query = {'TEAM_NAME': str(team.lower())}
-    team_data = db.queryTeam(query)
+    team_data = await asyncio.to_thread(db.queryTeam, query)
     if team_data:
         update_query = {"$inc": {'SCRIM_LOSSES': 1}}
-        db.updateTeam(query, update_query)
+        await asyncio.to_thread(db.updateTeam, query, update_query)
     else:
         print("Cannot find Guild")
 
@@ -1638,7 +1652,7 @@ async def teamloss(team):
 async def savematch(player, card, path, title, arm, universe, universe_type, exclusive):
     matchquery = {'PLAYER': player, 'CARD': card, 'PATH': path, 'TITLE': title, 'ARM': arm, 'UNIVERSE': universe,
                   'UNIVERSE_TYPE': universe_type, 'EXCLUSIVE': exclusive}
-    save_match = db.createMatch(data.newMatch(matchquery))
+    save_match = await asyncio.to_thread(db.createMatch, data.newMatch(matchquery))
 
 
 def create_card_from_data(card_data, is_boss = False):
@@ -1759,7 +1773,8 @@ def create_guild_from_data(guild_data):
 
 
 def create_title_from_data(title_data):
-    title = Title(title_data['TITLE'], title_data['UNIVERSE'], title_data['ABILITIES'], title_data['RARITY'], title_data['UNLOCK_METHOD'], title_data['AVAILABLE'], title_data['ID'])
+    # Title(title, universe, abilities, rarity, unlock_method, title_id, available)
+    title = Title(title_data['TITLE'], title_data['UNIVERSE'], title_data['ABILITIES'], title_data.get('RARITY'), title_data.get('UNLOCK_METHOD'), title_data.get('ID'), title_data.get('AVAILABLE', True))
     return title
 
 def create_arm_from_data(arm_data):
@@ -3196,6 +3211,8 @@ quest_list = [
 ]
 
 def health_color(health, max_health):
+    if not max_health or max_health <= 0:
+        return 0xE74C3C
     if health / max_health >= 0.80:
         return 0x2ECC71
     elif health / max_health > 0.5:

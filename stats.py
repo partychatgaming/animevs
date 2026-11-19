@@ -34,7 +34,7 @@ def update_stats(player, battle_config, damage_dealt, damage_received, damage_he
                 
                 if move_element in crown_utilities.elements:
                     stat_key = f'{move_element}_DAMAGE_DONE'
-                    stats_dict[stat_key].append({
+                    stats_dict.setdefault(stat_key, []).append({
                         'UNIVERSE': battle_config.selected_universe,
                         'DAMAGE': move_damage_dealt
                     })
@@ -56,7 +56,7 @@ def update_stats(player, battle_config, damage_dealt, damage_received, damage_he
 
             for game_mode, stat_name in game_modes:
                 if getattr(battle_config, game_mode):
-                    for universe_stats in player_stats[stat_name]:
+                    for universe_stats in player_stats.setdefault(stat_name, []):
                         if universe_stats['UNIVERSE'] == battle_config.selected_universe:
                             total_complete_inc = 0
                             if total_complete:
@@ -76,7 +76,7 @@ def update_stats(player, battle_config, damage_dealt, damage_received, damage_he
                 
                 if move_element in crown_utilities.elements:
                     stat_key = f'{move_element}_DAMAGE_DONE'
-                    for element_damage in player_stats[stat_key]:
+                    for element_damage in player_stats.setdefault(stat_key, []):
                         if element_damage['UNIVERSE'] == battle_config.selected_universe:
                             element_damage['DAMAGE'] += move_damage_dealt
                             break
@@ -130,6 +130,7 @@ def create_initial_stats(player):
         'GUN_DAMAGE_DONE': [],
         'ROT_DAMAGE_DONE': [],
         'SLEEP_DAMAGE_DONE': [],
+        'DRACONIC_DAMAGE_DONE': [],
     }
     return stats_dict
 

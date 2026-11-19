@@ -1,5 +1,6 @@
 import crown_utilities
 import random
+from cogs.universe_traits.solo_leveling import decrease_solo_leveling_temp_values
 
 
 def substitution_jutsu(player_card, opponent_card, dmg, battle_config):
@@ -17,7 +18,7 @@ def substitution_jutsu(player_card, opponent_card, dmg, battle_config):
                 player_card._barrier_value = 0
                 player_card._arm_message = ""
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} disengaged their barrier to engage with an attack")
-                player_card.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
+                decrease_solo_leveling_temp_values(player_card, 'BARRIER', opponent_card, battle_config)
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {opponent_card.name} substitution jutsu")
         if not opponent_card.used_resolve:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {stored_damage} hashirama cells was stored and {opponent_card.naruto_heal_buff} is stored in total")
@@ -35,9 +36,9 @@ def hashirama_cells(player_card, battle_config, player_title):
         # Resolve Scaling
         resolve_health = round(fortitude + (.5 * player_card.resolve_value))
         resolve_attack_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
         resolve_defense_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
 
         if player_title.singularity_effect:
             resolve_health, resolve_attack_value, resolve_defense_value, title_message = player_title.singularity_handler(resolve_health, resolve_attack_value, resolve_defense_value)
@@ -51,7 +52,8 @@ def hashirama_cells(player_card, battle_config, player_title):
         player_card.damage_healed = player_card.damage_healed + resolve_health + player_card.naruto_heal_buff
         
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ ⚡Hashirama Cells healed {player_card.name} for {player_card.naruto_heal_buff} health")
-        player_card.naruto_heal_buff = "*Spent*"
+        player_card.naruto_heal_buff = 0
+        player_card.universe_trait_value = "Spent"
         player_card.used_resolve = True
         player_card.usedsummon = False
 

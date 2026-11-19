@@ -1,10 +1,13 @@
+import render_cache
+import battle_view
 import time
-import textwrap
+import traceback
 import crown_utilities
 import custom_logging
 from cogs.game_state import GameState as gs
 import uuid
 import asyncio
+from io import BytesIO
 from logger import loggy
 # import bot as main
 import cogs.tactics as tactics
@@ -13,6 +16,23 @@ from cogs.universe_traits.death_note import set_deathnote_message
 from cogs.universe_traits.solo_leveling import activate_solo_leveling_trait
 from cogs.universe_traits.souls import souls_third_phase
 from interactions import ActionRow, Button, File, ButtonStyle, listen, Embed, Extension
+from interactions.client.errors import HTTPException
+
+# --------------------------------------------------------------------------- pacing
+# Seconds the bot deliberately waits so players can read what happened.  The old
+# loop slept ~5s on every AI turn and ~3s on every player turn (on top of the
+# time spent rendering and talking to Discord); these are the only waits left.
+AI_TURN_READ_DELAY = 1.5      # the AI's card stays on screen this long before it moves
+SUMMON_READ_DELAY = 1.5       # summon splash
+INFO_EMBED_DELAY = 2          # tutorial / boss story embeds
+COMPONENT_TIMEOUT = 300       # seconds a player has to press a button
+
+# A real battle lasts a few dozen actions.  This is only a safety net so a
+# stalemate (two cards that cannot hurt each other) can never run forever.
+MAX_BATTLE_ACTIONS = 600
+
+_BATTLE_OVER = object()       # sentinel: the whole battle session is finished
+
 
 class Play(Extension):
     def __init__(self, bot):
@@ -26,423 +46,48 @@ class Play(Extension):
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
-        
+
 
     async def battle_commands(self, ctx, battle_config, opponent_1=None, partner1=None):
         """
-        Handles the logic for a battle in the game.
+        Runs a battle session (one or more consecutive matches) from the start
+        screen to the results screen.
 
         Parameters:
-        - self: The instance of the class.
+        - self: The cog (or RPG instance) that started the battle.
         - ctx: The context of the command.
         - battle_config: Configuration object for the battle.
         - opponent_1: Optional PvP opponent.
         - partner1: Optional partner in co-op mode.
 
-        Returns:
-        None
+        Whatever happens inside a match, this function always leaves the session
+        in a clean state: the players are released, the loop stops, and the
+        player is told what happened.  It never restarts a broken match.
         """
         private_channel = ctx.channel
+        state = {"battle_msg": None, "start_msg": None}
+        if not hasattr(self, 'bot'):
+            self.bot = self.client
 
         try:
             battle_config._uuid = uuid.uuid4()
-            # starttime = time.asctime()
-            # h_gametime, m_gametime, s_gametime = starttime[11:13], starttime[14:16], starttime[17:19]
-            h_gametime, m_gametime, s_gametime = set_battle_start_time()
-            if not hasattr(self, 'bot'):
-                self.bot = self.client
+            game_start = set_battle_start_time()
 
             while battle_config.continue_fighting:
-                await battle_config.configure_battle_players(ctx, opponent_1, partner1)
-                start_buttons_action_rows = config_battle_starting_buttons(battle_config)
-                battle_config.set_who_starts_match()
-                
-                user1, user2, opponent_ping, user3 = await get_users_and_opponent_ping(self, battle_config)
-                match_start_embed = await build_match_start_embed(battle_config, user1, user2)
-                battle_config.turn_zero_has_happened = False
+                state["battle_msg"] = None
+                state["start_msg"] = None
+                outcome = await run_match(self, ctx, battle_config, private_channel, state, game_start, opponent_1, partner1)
+                if outcome is _BATTLE_OVER:
+                    return
 
-                if battle_config.is_pvp_game_mode:
-                    image_binary = await asyncio.to_thread(
-                        battle_config.player1_card.showcard, battle_config.player1_arm, battle_config.turn_total, battle_config.player2_card.defense, battle_config.mode
-                    )
-                else:
-                    image_binary = await asyncio.to_thread(
-                        battle_config.player2_card.showcard, battle_config.player2_arm, battle_config.turn_total, battle_config.player1_card.defense, battle_config.mode
-                    )
-
-                image_binary.seek(0)
-                card_file = File(file_name="image.png", file=image_binary)
-                battle_msg = None
-                battle_start_msg = await private_channel.send(
-                    content=f"{user1.mention} 🆚 {opponent_ping}",
-                    embed=match_start_embed,
-                    components=[start_buttons_action_rows],
-                    file=card_file
-                )
-                image_binary.close()
-
-                def check(component: Button) -> bool:
-                    if battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
-                        return component.ctx.author == user2
-                    else:
-                        return component.ctx.author == ctx.author
-
-                try:
-                    button_ctx = await self.bot.wait_for_component(components=[start_buttons_action_rows], timeout=300, check=check)
-                    if not battle_config.is_rpg:
-                        await battle_start_msg.edit(components=[])
-
-                    custom_id = button_ctx.ctx.custom_id
-                    if custom_id == f"{battle_config._uuid}|quit_game":
-                        if battle_config.is_rpg:
-                            self.battling = False
-                            self.adventuring = True
-                            self.encounter = False
-                            await battle_start_msg.delete()
-                            # embedVar = Embed(title=f"Resuming Adventure...", color=0x2ECC71)
-                            self.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
-                            #rpg_msg = await private_channel.send(embed=embedVar)
-                            return
-                        else:
-                            battle_config.player1.make_available()
-                            await battle_start_msg.delete()
-                            await exit_battle_embed(battle_config, button_ctx, private_channel)
-                            return
-
-                    if custom_id == f"{battle_config._uuid}|save_game":
-                        await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                        await button_ctx.ctx.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
-                        return
-
-                    if custom_id in {f"{battle_config._uuid}|start_game", f"{battle_config._uuid}|start_game_auto_battle_mode"}:
-                        if battle_config.match_can_be_saved and battle_config.player1.autosave:
-                            await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-
-                        if custom_id == f"{battle_config._uuid}|start_game_auto_battle_mode":
-                            battle_config.is_auto_battle_game_mode = True
-                            if battle_config.is_rpg:
-                                await battle_start_msg.delete()
-                                await asyncio.sleep(2)
-                            embedVar = Embed(title=f"The battle is being simulated...", color=0xe74c3c)
-                            embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                            battle_msg = await  private_channel.send(embed=embedVar)
-                        else:
-                            embedVar = Embed(title=f"Battle is starting", color=0x2ECC71)
-                            if battle_config.is_rpg:
-                                await battle_start_msg.delete()
-                                await asyncio.sleep(2)
-                            battle_msg = await private_channel.send(embed=embedVar)
-
-                        tactics.tactics_set_base_stats(battle_config.player2_card)
-                        
-                        game_over_check = False
-                        
-                        while not game_over_check:
-                            
-                            if check_if_game_over(battle_config):
-                                game_over_check = True
-                                break
-                            configure_battle_log(battle_config)
-                            
-                            # Uncommenting this will add the ai messages at the start of the game
-                            await add_ai_start_messages(battle_config)
-
-                            early_game_tactics(battle_config)
-                            if check_if_game_over(battle_config):
-                                game_over_check = True
-                                break
-                            
-                            if battle_config.is_auto_battle_game_mode:
-                                winning_card, message = calculate_instant_winner(battle_config, battle_config.player1_card, battle_config.player2_card)
-                                battle_config.auto_battle_result_message = message
-                                battle_config.continue_fighting = False
-                                battle_config.match_has_ended = True
-                                game_over_check = True
-                                break
-
-                            if battle_config.is_turn == 0:
-                                if await health_check(battle_config):
-                                    continue
-                                
-                                damage_check_activated = damage_check_turn_check(battle_config)
-                                if damage_check_activated:
-                                    continue
-
-                                focusing = await start_to_focus(battle_msg, private_channel, battle_config)
-
-                                if focusing:
-                                    continue
-                                    
-                                else:
-                                    auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
-                                    if auto_battle_handler_done:
-                                        continue
-                                    
-                                    battle_msg, components = await player_move_embed(ctx, battle_config, private_channel, battle_msg)
-                                    
-                                    # Make sure user is responding with move
-                                    def check(component: Button) -> bool:
-                                        return component.ctx.author == user1
-
-                                    try:
-                                        button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
-                                        await button_ctx.ctx.defer(edit_origin=True)
-                                        save_and_end = await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                        if save_and_end:
-                                            battle_config.player1.make_available()
-                                            return
-                                        
-                                        quit_and_end = await player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                        if quit_and_end:
-                                            battle_config.player1.make_available()
-                                            return
-
-                                        player_use_card_boost_ability(battle_config, button_ctx)
-
-                                        await player_move_handler(battle_config, private_channel, button_ctx, battle_msg)
-                                        
-                                    except asyncio.TimeoutError:
-                                        battle_config.player1.make_available()
-                                        await timeout_handler(self, ctx, battle_msg, battle_config)
-                        
-                            if check_if_game_over(battle_config):
-                                game_over_check = True
-                                break
-
-                            pre_turn_one = tactics.beginning_of_turn_stat_trait_affects(battle_config.player2_card, battle_config.player2_title, battle_config.player1_card, battle_config, battle_config.player3_card)
-
-                            if check_if_game_over(battle_config):
-                                game_over_check = True
-                                break
-
-                            if battle_config.is_turn == 1: 
-                                if await health_check(battle_config):
-                                    continue
-                                
-                                damage_check_activated = damage_check_turn_check(battle_config)
-                                if damage_check_activated:
-                                    continue
-
-                                focusing = await start_to_focus(battle_msg, private_channel, battle_config)
-
-                                if focusing:
-                                    continue
-
-                                else:
-                                    if battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
-                                        auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
-                                        if auto_battle_handler_done:
-                                            continue
-                                        
-                                        battle_msg, components = await player_move_embed(ctx, battle_config, private_channel, battle_msg)
-                                        
-                                        # Make sure user is responding with move
-                                        def check(component: Button) -> bool:
-                                            return component.ctx.author == user2
-
-                                        try:
-                                            button_ctx  = await self.bot.wait_for_component(components=[components], timeout=300, check=check)
-                                            await button_ctx.ctx.defer(edit_origin=True)
-                                            save_and_end = await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                            if save_and_end:
-                                                battle_config.player1.make_available()
-                                                battle_config.player2.make_available()
-                                                return
-                                            
-                                            quit_and_end = await player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                            if quit_and_end:
-                                                battle_config.player1.make_available()
-                                                battle_config.player2.make_available()
-                                                return
-
-                                            player_use_card_boost_ability(battle_config, button_ctx)
-
-                                            await player_move_handler(battle_config, private_channel, button_ctx, battle_msg)
-                                                        
-                                        except asyncio.TimeoutError:
-                                            battle_config.player1.make_available()
-                                            battle_config.player2.make_available()
-                                            await timeout_handler(self, ctx, battle_msg, battle_config)
-                                    
-                                    # Play Bot
-                                    if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
-                                        auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
-                                        if auto_battle_handler_done:
-                                            continue
-                                        
-                                        await ai_move_handler(ctx, battle_config, private_channel, battle_msg)
-                                        
-                            
-                            if battle_config.is_co_op_mode or battle_config.is_duo_mode:
-                                if check_if_game_over(battle_config):
-                                    game_over_check = True
-                                    break
-                                pre_turn_two = tactics.beginning_of_turn_stat_trait_affects(battle_config.player3_card, battle_config.player3_title, battle_config.player2_card, battle_config, battle_config.player1_card)
-
-                                if check_if_game_over(battle_config):
-                                    game_over_check = True
-                                    break
-                                if battle_config.is_turn == 2:
-                                    if await health_check(battle_config):
-                                        continue
-                                    
-                                    damage_check_activated = damage_check_turn_check(battle_config)
-                                    if damage_check_activated:
-                                        continue
-
-                                    focusing = await start_to_focus(battle_msg, private_channel, battle_config)
-
-                                    if focusing:
-                                        continue
-                                        
-                                    else:
-                                        auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
-                                        if auto_battle_handler_done:
-                                            continue
-
-                                        if battle_config.is_co_op_mode:
-                                            battle_msg, components = await player_move_embed(ctx, battle_config, private_channel, battle_msg)
-                                            
-                                            # Make sure user is responding with move
-                                            def check(component: Button) -> bool:
-                                                return component.ctx.author == user2
-
-                                            try:
-                                                button_ctx  = await self.bot.wait_for_component(components=[components], timeout=300, check=check)
-
-                                                save_and_end = await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                                if save_and_end:
-                                                    battle_config.player1.make_available()
-                                                    battle_config.player3.make_available()
-                                                    return
-                                                
-                                                quit_and_end = await player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                                if quit_and_end:
-                                                    battle_config.player1.make_available()
-                                                    battle_config.player3.make_available()
-                                                    return
-
-                                                player_use_card_boost_ability(battle_config, button_ctx)
-
-                                                await player_move_handler(battle_config, private_channel, button_ctx, battle_msg)
-                                            except Exception as ex:
-                                                battle_config.player1.make_available()
-                                                battle_config.player3.make_available()
-                                                custom_logging.debug(ex)
-
-                                        if battle_config.is_duo_mode:
-                                            await ai_move_handler(ctx, battle_config, private_channel, battle_msg)
-                                            continue
-                                                        
-                                if check_if_game_over(battle_config):
-                                    game_over_check = True
-                                    break
-
-                                pre_turn_three = tactics.beginning_of_turn_stat_trait_affects(battle_config.player2_card, battle_config.player2_title, battle_config.player3_card, battle_config, battle_config.player1_card)
-
-                                if check_if_game_over(battle_config):
-                                    game_over_check = True
-                                    break
-                                if battle_config.is_turn == 3: 
-                                    if await health_check(battle_config):
-                                        continue
-                                    
-                                    damage_check_activated = damage_check_turn_check(battle_config)
-                                    if damage_check_activated:
-                                        continue
-
-                                    focusing = await start_to_focus(battle_msg, private_channel, battle_config)
-
-                                    if focusing:
-                                        continue
-
-                                    else:
-                                        auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
-                                        if auto_battle_handler_done:
-                                            continue
-
-                                        if battle_config.is_pvp_game_mode:                                            
-                                            battle_msg, components = await player_move_embed(ctx, battle_config, private_channel, battle_msg)
-                                            
-                                            # Make sure user is responding with move
-                                            def check(component: Button) -> bool:
-                                                return component.ctx.author == user2
-
-                                            try:
-                                                button_ctx  = await self.bot.wait_for_component(components=[components], timeout=300, check=check)
-
-                                                save_and_end = await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                                if save_and_end:
-                                                    return
-                                                
-                                                quit_and_end = await player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx)
-                                                if quit_and_end:
-                                                    return
-
-                                                player_use_card_boost_ability(battle_config, button_ctx)
-
-                                                await player_move_handler(battle_config, private_channel, button_ctx, battle_msg)
-                                                            
-                                            except asyncio.TimeoutError:
-                                                await timeout_handler(self, ctx, battle_msg, battle_config)
-                                        
-                                        # Play Bot
-                                        if not battle_config.is_pvp_game_mode:                                            
-                                            await ai_move_handler(ctx, battle_config, private_channel, battle_msg)
-                                            continue
-
-                        if game_over_check:
-                            gameClock = get_battle_time(h_gametime, m_gametime, s_gametime)
-
-                            await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
-
-                            await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-                            
-                            if battle_config.is_rpg:
-                                self.battling = False
-                                self.adventuring = True
-                                self.encounter = False
-                                #await battle_start_msg.delete()
-                                battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
-                                x,y = battle_config.rpg_config.player_position
-                                if battle_config.rpg_config.player_health <= 0:
-                                    #battle_config.rpg_config.map['map'][x][y] = battle_config.rpg_config.standing_on
-                                    paginator = await battle_config.rpg_config.lose_adventure_embed(ctx)
-                                    await paginator.send(ctx)
-                                    await battle_msg.delete()
-                                    await battle_config.rpg_config._rpg_msg.delete()
-                                    self.previous_moves.append(f"💨Fleeing Encounter...!")
-                                    return
-                                embedVar = Embed(title=f"🆚 Encounter Victory", color=0x2ECC71)
-                                victory_msg = await private_channel.send(embed=embedVar)
-                                await victory_msg.delete(delay=5)
-                            else:
-                                await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-
-                            # If you need this return for RPG battles, add it inside the if/else statement instead of here. Otherwise, you will stop the battles from proceeding past this point. 
-                            # return             
-                
-                except asyncio.TimeoutError:
-                    battle_config.player1.make_available()
-                    if battle_msg == None:
-                        battle_msg = battle_start_msg
-                    loggy.critical(f"Battle timed out")
-                    await timeout_handler(self, ctx, battle_msg, battle_config)
-
-                except Exception as ex:
-                    loggy.critical(f"Battle timed out or ended unexpectedly with an error {ex}")
-                    battle_config.player1.make_available()
-                    custom_logging.debug(ex)
-                    
         except asyncio.TimeoutError:
-            loggy.critical(f"Battle timed out")
-            battle_config.player1.make_available()
-            await timeout_handler(self, ctx, battle_msg, battle_config)
+            loggy.warning("Battle timed out waiting for a player")
+            await end_battle_on_timeout(self, ctx, private_channel, state, battle_config)
 
         except Exception as ex:
-            loggy.critical(f"Battle timed out")
-            battle_config.player1.make_available()
+            loggy.critical(f"Battle ended unexpectedly: {type(ex).__name__}: {ex}\n{traceback.format_exc()}")
             custom_logging.debug(ex)
+            await end_battle_on_error(self, private_channel, state, battle_config, ex)
 
 
     async def rpg_commands(self, ctx, rpg_starter_message):
@@ -459,17 +104,15 @@ class Play(Extension):
         """
         private_channel = ctx.channel
         rpg_config = self
+        rpg_msg = rpg_starter_message
         try:
             rpg_config._uuid = uuid.uuid4()
             if not hasattr(self, 'bot'):
                 self.bot = self.client
 
             user = await get_rpg_user(rpg_config)
-            rpg_msg = rpg_starter_message
-            # await asyncio.sleep(2)
             while rpg_config.adventuring:
                 if check_if_rpg_over(rpg_config):
-                    game_over_check = True
                     break
                 configure_battle_log(rpg_config)
                 rpg_config.set_rpg_options()
@@ -479,33 +122,548 @@ class Play(Extension):
                 def check(component: Button) -> bool:
                     return component.ctx.author == user
 
-                try:
-                    if components != []:
-                        # print("Components is None")
-                        # components = ActionRow(*rpg_config.movement_buttons)
-                        button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
-                        await button_ctx.ctx.defer(edit_origin=True)
-                    # save_and_end = await player_save_and_end_game(self, ctx, private_channel, rpg_msg, battle_config, button_ctx)
-                    # if save_and_end:
-                    #     battle_config.player1.make_available()
-                    #     return
-                
-                    await rpg_config.rpg_move_handler(ctx, private_channel, button_ctx, rpg_msg)
-                    
-                except asyncio.TimeoutError:
-                    rpg_config.player1.make_available()
-                    await timeout_handler(self, ctx, rpg_msg, rpg_config)
+                if not components:
+                    # Nothing to press (an encounter flag left behind by a battle that
+                    # ended abnormally): drop back to the map instead of crashing.
+                    loggy.warning("Adventure had no buttons to show; clearing the encounter state")
+                    rpg_config.encounter = False
+                    rpg_config.battling = False
+                    continue
+                button_ctx = await self.bot.wait_for_component(components=components, timeout=COMPONENT_TIMEOUT, check=check)
+                await button_ctx.ctx.defer(edit_origin=True, suppress_error=True)
+
+                await rpg_config.rpg_move_handler(ctx, private_channel, button_ctx, rpg_msg)
+
         except asyncio.TimeoutError:
-            loggy.critical(f"Battle timed out")
+            loggy.warning("Adventure timed out waiting for the player")
             rpg_config.previous_moves.append("🏁 Adventure has ended!")
-            rpg_config.player1.make_available()
-            await timeout_handler(self, ctx, rpg_msg, rpg_config)
+            rpg_config.adventuring = False
+            release_player(getattr(rpg_config, "player1", None) or getattr(rpg_config, "_player", None))
+            try:
+                await timeout_handler(self, ctx, rpg_msg, rpg_config)
+            except Exception as ex:
+                custom_logging.debug(ex)
 
         except Exception as ex:
-            loggy.critical(f"Battle timed out")
-            rpg_config.player1.make_available()
+            loggy.critical(f"Adventure ended unexpectedly: {type(ex).__name__}: {ex}\n{traceback.format_exc()}")
+            rpg_config.adventuring = False
+            release_player(getattr(rpg_config, "player1", None) or getattr(rpg_config, "_player", None))
             custom_logging.debug(ex)
-        
+
+
+# --------------------------------------------------------------------------- session plumbing
+def release_player(player):
+    """Mark a player as free to start another battle.  Never raises.
+
+    The database write runs in a worker thread so it does not stall every other
+    battle while it waits on MongoDB.
+    """
+    try:
+        if player is not None and hasattr(player, "make_available"):
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+            if loop is not None:
+                loop.run_in_executor(None, player.make_available)
+            else:
+                player.make_available()
+    except Exception as ex:
+        custom_logging.debug(ex)
+
+
+def release_all_players(battle_config):
+    for name in ("player1", "player2", "player3"):
+        player = getattr(battle_config, name, None)
+        # AI opponents are plain cards / have no account to release
+        if player is not None and getattr(player, "did", None):
+            release_player(player)
+
+
+async def safe_delete(message):
+    """Delete a message if it still exists; a missing message is not an error."""
+    if message is None:
+        return
+    try:
+        await message.delete()
+    except Exception:
+        pass
+
+
+async def render_card(card, arm, turn_total, opponent_defense, mode):
+    """Render a card off the event loop and return the PNG bytes (never None)."""
+    image_binary = await render_cache.render_async(card.showcard, arm, turn_total, opponent_defense, mode)
+    try:
+        return image_binary.getvalue()
+    finally:
+        image_binary.close()
+
+
+def image_file(image_bytes, file_name="image.png"):
+    return File(file_name=file_name, file=BytesIO(image_bytes))
+
+
+async def show_battle_view(private_channel, battle_msg, container, image_bytes=None, file_name=battle_view.SCENE_FILE):
+    """
+    Put the current state of the battle on screen.
+
+    The battle lives in ONE Components V2 message that is edited in place
+    (uploading a file on edit replaces the previous attachment).  If the
+    message is gone (deleted by a moderator, or never created) a new one is
+    sent instead.
+    """
+    def payload():
+        data = {"components": [container]}
+        if image_bytes is not None:
+            data["file"] = battle_view.scene_file(image_bytes, file_name)
+        return data
+
+    if battle_msg is not None:
+        try:
+            await battle_msg.edit(**payload())
+            return battle_msg
+        except HTTPException as ex:
+            loggy.warning(f"Could not edit the battle message ({ex}); sending a new one")
+            await safe_delete(battle_msg)
+    return await private_channel.send(**payload())
+
+
+def battle_setup_problem(battle_config):
+    """Return a description of what is missing if the fighters could not be built, else None."""
+    needed = [("player1_card", "your card"), ("player1_title", "your title"), ("player1_arm", "your arm"),
+              ("player2_card", "the opponent's card"), ("player2_title", "the opponent's title"), ("player2_arm", "the opponent's arm")]
+    if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+        needed += [("player3_card", "your partner's card"), ("player3_title", "your partner's title"), ("player3_arm", "your partner's arm")]
+    for attr, label in needed:
+        if not getattr(battle_config, attr, None):
+            return label
+    return None
+
+
+async def end_battle_on_error(self, private_channel, state, battle_config, ex):
+    """A match hit an unexpected error: stop cleanly and tell the player instead of looping."""
+    battle_config.continue_fighting = False
+    release_all_players(battle_config)
+    if getattr(battle_config, "is_rpg", False) and getattr(battle_config, "rpg_config", None) is not None:
+        restore_rpg_after_battle(self, battle_config, "⚠️ The encounter ended unexpectedly. Resuming Adventure...")
+    try:
+        can_save = (battle_config.player1_card is not None and battle_config.match_can_be_saved
+                    and not battle_config.is_rpg and battle_config.selected_universe)
+        if can_save:
+            await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+        embed = Embed(title="⚠️ This battle ran into a problem and had to end",
+                      description=("Your progress in this run was saved, so you can pick up where you left off." if can_save
+                                   else "You can start a new battle right away."),
+                      color=0xE74C3C)
+        embed.set_footer(text=crown_utilities.clip(f"{type(ex).__name__}: {ex}", 300))
+        if state.get("battle_msg") is not None:
+            await safe_delete(state.get("battle_msg"))
+            state["battle_msg"] = None
+        elif state.get("start_msg") is not None:
+            try:
+                await state["start_msg"].edit(embed=embed, components=[])
+                return
+            except Exception:
+                pass
+        await private_channel.send(embed=embed)
+    except Exception as notify_error:
+        custom_logging.debug(notify_error)
+
+
+async def end_battle_on_timeout(self, ctx, private_channel, state, battle_config):
+    battle_config.continue_fighting = False
+    release_all_players(battle_config)
+    try:
+        await timeout_handler(self, ctx, state.get("battle_msg") or state.get("start_msg"), battle_config)
+    except Exception as ex:
+        custom_logging.debug(ex)
+
+
+def restore_rpg_after_battle(self, battle_config, log_line=None):
+    """Hand control back to the adventure after an RPG encounter ends early."""
+    rpg = getattr(battle_config, "rpg_config", None)
+    for target in (self, rpg):
+        if target is None:
+            continue
+        try:
+            target.battling = False
+            target.adventuring = True
+            target.encounter = False
+        except Exception:
+            pass
+    try:
+        if rpg is not None and battle_config.player1_card is not None:
+            rpg.player_health = round(battle_config.player1_card.health)
+        if log_line and rpg is not None:
+            rpg.previous_moves.append(log_line)
+    except Exception as ex:
+        custom_logging.debug(ex)
+
+
+# --------------------------------------------------------------------------- one match
+async def run_match(self, ctx, battle_config, private_channel, state, game_start, opponent_1, partner1):
+    """
+    Play one match: set up the fighters, show the start screen, run the turns,
+    then hand over to the results handlers.
+
+    Returns _BATTLE_OVER when the session should stop; otherwise the caller
+    loops again if battle_config.continue_fighting is still set (next opponent,
+    rematch...).
+    """
+    await battle_config.configure_battle_players(ctx, opponent_1, partner1)
+    missing = battle_setup_problem(battle_config)
+    if missing:
+        loggy.error(f"Battle setup failed: could not load {missing} (mode={battle_config.mode})")
+        battle_config.continue_fighting = False
+        release_all_players(battle_config)
+        if battle_config.is_rpg and battle_config.rpg_config is not None:
+            restore_rpg_after_battle(self, battle_config, "⚠️ The encounter could not be set up. Resuming Adventure...")
+        if not battle_config.abyss_player_card_tier_is_banned:
+            await private_channel.send(embed=Embed(
+                title="⚠️ This battle could not be set up",
+                description=f"I couldn't load {missing}. Check your equipped card, title, arm and summon with /build and try again.",
+                color=0xE74C3C))
+        return _BATTLE_OVER
+
+    start_buttons_action_rows = config_battle_starting_buttons(battle_config)
+    battle_config.set_who_starts_match()
+
+    user1, user2, opponent_ping, user3 = await get_users_and_opponent_ping(self, battle_config)
+    match_start_embed = await build_match_start_embed(battle_config, user1, user2)
+    battle_config.turn_zero_has_happened = False
+    battle_config._actions_taken = 0
+
+    if battle_config.is_pvp_game_mode:
+        image_bytes = await render_card(battle_config.player1_card, battle_config.player1_arm, battle_config.turn_total, battle_config.player2_card.defense, battle_config.mode)
+    else:
+        image_bytes = await render_card(battle_config.player2_card, battle_config.player2_arm, battle_config.turn_total, battle_config.player1_card.defense, battle_config.mode)
+
+    battle_start_msg = await private_channel.send(
+        content=f"{user1.mention} 🆚 {opponent_ping}",
+        embed=match_start_embed,
+        components=[start_buttons_action_rows],
+        file=image_file(image_bytes)
+    )
+    state["start_msg"] = battle_start_msg
+
+    def start_check(component: Button) -> bool:
+        if battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
+            return component.ctx.author == user2
+        return component.ctx.author == ctx.author
+
+    # asyncio.TimeoutError propagates to battle_commands, which closes the session
+    button_ctx = await self.bot.wait_for_component(components=[start_buttons_action_rows], timeout=COMPONENT_TIMEOUT, check=start_check)
+    await button_ctx.ctx.defer(edit_origin=True, suppress_error=True)
+    custom_id = button_ctx.ctx.custom_id
+
+    if custom_id == f"{battle_config._uuid}|quit_game":
+        battle_config.continue_fighting = False
+        if battle_config.is_rpg:
+            await safe_delete(battle_start_msg)
+            restore_rpg_after_battle(self, battle_config, "💨Fleeing Encounter...Resuming Adventure...!")
+            return _BATTLE_OVER
+        release_all_players(battle_config)
+        await safe_delete(battle_start_msg)
+        await exit_battle_embed(battle_config, button_ctx, private_channel)
+        return _BATTLE_OVER
+
+    if custom_id == f"{battle_config._uuid}|save_game":
+        battle_config.continue_fighting = False
+        await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+        release_all_players(battle_config)
+        try:
+            await battle_start_msg.edit(components=[])
+        except HTTPException:
+            pass
+        await private_channel.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
+        return _BATTLE_OVER
+
+    if custom_id not in {f"{battle_config._uuid}|start_game", f"{battle_config._uuid}|start_game_auto_battle_mode"}:
+        # Unknown button: nothing sensible to do but stop.
+        battle_config.continue_fighting = False
+        release_all_players(battle_config)
+        return _BATTLE_OVER
+
+    if battle_config.is_rpg:
+        await safe_delete(battle_start_msg)
+        state["start_msg"] = None
+    else:
+        try:
+            await battle_start_msg.edit(components=[])
+        except HTTPException:
+            pass
+
+    if battle_config.match_can_be_saved and battle_config.player1.autosave:
+        await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+
+    if custom_id == f"{battle_config._uuid}|start_game_auto_battle_mode":
+        battle_config.is_auto_battle_game_mode = True
+        embedVar = Embed(title=f"The battle is being simulated...", color=0xe74c3c)
+        embedVar.set_thumbnail(url=ctx.author.avatar_url)
+        battle_msg = await private_channel.send(embed=embedVar)
+    else:
+        battle_msg = await private_channel.send(components=[battle_view.notice_panel("### ⚔️ The battle is starting…", 0x2ECC71)])
+    state["battle_msg"] = battle_msg
+
+    tactics.tactics_set_base_stats(battle_config.player2_card)
+
+    result = await run_turns(self, ctx, battle_config, private_channel, state, user1, user2, button_ctx)
+    if result is _BATTLE_OVER:
+        return _BATTLE_OVER
+    battle_msg = state["battle_msg"]
+
+    # ---- the match is over: results, rewards, next opponent / rematch
+    gameClock = get_battle_time(*game_start)
+
+    await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
+
+    await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
+
+    if battle_config.is_rpg:
+        self.battling = False
+        self.adventuring = True
+        self.encounter = False
+        battle_config.continue_fighting = False
+        battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
+        if battle_config.rpg_config.player_health <= 0:
+            paginator = await battle_config.rpg_config.lose_adventure_embed(ctx)
+            await paginator.send(ctx)
+            await safe_delete(battle_msg)
+            await safe_delete(battle_config.rpg_config._rpg_msg)
+            self.previous_moves.append(f"💨Fleeing Encounter...!")
+            return _BATTLE_OVER
+        embedVar = Embed(title=f"🆚 Encounter Victory", color=0x2ECC71)
+        victory_msg = await private_channel.send(embed=embedVar)
+        try:
+            await victory_msg.delete(delay=5)
+        except Exception:
+            pass
+        return _BATTLE_OVER
+
+    await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
+
+    if not (battle_config.player1_wins or battle_config.player2_wins) and battle_config.match_has_ended and battle_config.continue_fighting:
+        # A finished match that nobody won (should not happen) must not be replayed forever.
+        battle_config.continue_fighting = False
+    if not battle_config.continue_fighting:
+        release_all_players(battle_config)
+    return None
+
+
+async def run_turns(self, ctx, battle_config, private_channel, state, user1, user2, button_ctx):
+    """
+    The turn loop of a single match.  Returns _BATTLE_OVER if the session ended
+    during play (surrender, save, timeout); returns None when the match reached
+    a normal end and the results handlers should run.
+    """
+    while True:
+        if check_if_game_over(battle_config):
+            return None
+        configure_battle_log(battle_config)
+
+        await add_ai_start_messages(battle_config)
+
+        early_game_tactics(battle_config)
+        if check_if_game_over(battle_config):
+            return None
+
+        if battle_config.is_auto_battle_game_mode:
+            winning_card, message = calculate_instant_winner(battle_config, battle_config.player1_card, battle_config.player2_card)
+            battle_config.auto_battle_result_message = message
+            battle_config.continue_fighting = False
+            battle_config.match_has_ended = True
+            return None
+
+        if stalemate_check(battle_config):
+            return None
+
+        # ---------------------------------------------------------------- player 1
+        if battle_config.is_turn == 0:
+            if damage_check_turn_check(battle_config):
+                continue
+            if await start_to_focus(state["battle_msg"], private_channel, battle_config):
+                continue
+
+            outcome = await human_turn(self, ctx, battle_config, private_channel, state, user1, (battle_config.player1,))
+            if outcome is _BATTLE_OVER:
+                return _BATTLE_OVER
+
+        if check_if_game_over(battle_config):
+            return None
+
+        tactics.beginning_of_turn_stat_trait_affects(battle_config.player2_card, battle_config.player2_title, battle_config.player1_card, battle_config, battle_config.player3_card)
+
+        if check_if_game_over(battle_config):
+            return None
+
+        # ---------------------------------------------------------------- player 2 / AI
+        if battle_config.is_turn == 1:
+            if damage_check_turn_check(battle_config):
+                continue
+            if await start_to_focus(state["battle_msg"], private_channel, battle_config):
+                continue
+
+            if battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
+                outcome = await human_turn(self, ctx, battle_config, private_channel, state, user2, (battle_config.player1, battle_config.player2))
+                if outcome is _BATTLE_OVER:
+                    return _BATTLE_OVER
+            else:
+                state["battle_msg"] = await ai_move_handler(ctx, battle_config, private_channel, state["battle_msg"])
+
+        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+            if check_if_game_over(battle_config):
+                return None
+            tactics.beginning_of_turn_stat_trait_affects(battle_config.player3_card, battle_config.player3_title, battle_config.player2_card, battle_config, battle_config.player1_card)
+
+            if check_if_game_over(battle_config):
+                return None
+
+            # ------------------------------------------------------------ partner
+            if battle_config.is_turn == 2:
+                if damage_check_turn_check(battle_config):
+                    continue
+                if await start_to_focus(state["battle_msg"], private_channel, battle_config):
+                    continue
+
+                if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
+                    outcome = await human_turn(self, ctx, battle_config, private_channel, state, user2, (battle_config.player1, battle_config.player3))
+                    if outcome is _BATTLE_OVER:
+                        return _BATTLE_OVER
+                else:
+                    state["battle_msg"] = await ai_move_handler(ctx, battle_config, private_channel, state["battle_msg"])
+                    continue
+
+            if check_if_game_over(battle_config):
+                return None
+
+            tactics.beginning_of_turn_stat_trait_affects(battle_config.player2_card, battle_config.player2_title, battle_config.player3_card, battle_config, battle_config.player1_card)
+
+            if check_if_game_over(battle_config):
+                return None
+
+            # ------------------------------------------------------------ opponent vs partner
+            if battle_config.is_turn == 3:
+                if damage_check_turn_check(battle_config):
+                    continue
+                if await start_to_focus(state["battle_msg"], private_channel, battle_config):
+                    continue
+
+                if battle_config.is_pvp_game_mode:
+                    outcome = await human_turn(self, ctx, battle_config, private_channel, state, user2, (battle_config.player1, battle_config.player2))
+                    if outcome is _BATTLE_OVER:
+                        return _BATTLE_OVER
+                else:
+                    state["battle_msg"] = await ai_move_handler(ctx, battle_config, private_channel, state["battle_msg"])
+                    continue
+
+
+async def human_turn(self, ctx, battle_config, private_channel, state, user, players_to_release):
+    """
+    Show the move buttons to `user`, wait for the choice and resolve it.
+    Returns _BATTLE_OVER when the session ended (save, surrender or timeout).
+
+    The More panel (details, full log, Save & quit, Surrender) is private to
+    the player and does not use up the turn; the turn's timer keeps running
+    while it is open.
+    """
+    battle_msg, listen = await player_move_embed(ctx, battle_config, private_channel, state["battle_msg"])
+    state["battle_msg"] = battle_msg
+
+    def check(component: Button) -> bool:
+        return component.ctx.author == user
+
+    panel = battle_view.panel_ids(battle_config)
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + COMPONENT_TIMEOUT
+    while True:
+        try:
+            remaining = deadline - loop.time()
+            if remaining <= 0:
+                raise asyncio.TimeoutError()
+            button_ctx = await self.bot.wait_for_component(components=listen, timeout=remaining, check=check)
+        except asyncio.TimeoutError:
+            battle_config.continue_fighting = False
+            for player in players_to_release:
+                release_player(player)
+            try:
+                await timeout_handler(self, ctx, battle_msg, battle_config)
+            except Exception as ex:
+                custom_logging.debug(ex)
+            return _BATTLE_OVER
+        if button_ctx.ctx.custom_id not in panel:
+            break
+        await more_panel_action(battle_config, button_ctx.ctx)
+
+    # Acknowledge inside Discord's 3 second window; a late ack must not kill the battle.
+    if button_ctx.ctx.custom_id in battle_view.end_ids(battle_config):
+        # pressed inside the private panel: close the panel
+        notice = "💾 Saving your battle…" if button_ctx.ctx.custom_id == battle_view.save_id(battle_config) else "🏳️ You left the battle."
+        try:
+            await button_ctx.ctx.edit_origin(components=[battle_view.notice_panel(notice, 0x95A5A6)])
+        except Exception:
+            await button_ctx.ctx.defer(edit_origin=True, suppress_error=True)
+    else:
+        await button_ctx.ctx.defer(edit_origin=True, suppress_error=True)
+
+    if await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx):
+        battle_config.continue_fighting = False
+        for player in players_to_release:
+            release_player(player)
+        return _BATTLE_OVER
+
+    if await player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx):
+        battle_config.continue_fighting = False
+        if not battle_config.is_rpg:
+            for player in players_to_release:
+                release_player(player)
+        else:
+            restore_rpg_after_battle(self, battle_config)
+        return _BATTLE_OVER
+
+    player_use_card_boost_ability(battle_config, button_ctx)
+
+    await player_move_handler(battle_config, private_channel, button_ctx, battle_msg)
+    return None
+
+
+async def more_panel_action(battle_config, interaction_ctx):
+    """Open / work the private More panel.  Never raises and never ends the turn."""
+    custom_id = interaction_ctx.custom_id
+    try:
+        if custom_id == battle_view.more_id(battle_config):
+            await interaction_ctx.send(components=[battle_view.more_panel(battle_config)], ephemeral=True)
+        elif custom_id == battle_view.surrender_ask_id(battle_config):
+            await interaction_ctx.edit_origin(components=[battle_view.surrender_confirm_panel(battle_config)])
+        elif custom_id == battle_view.cancel_id(battle_config):
+            await interaction_ctx.edit_origin(components=[battle_view.notice_panel("⚔️ Back to the fight!")])
+    except Exception as ex:
+        loggy.warning(f"More panel action {custom_id} failed: {type(ex).__name__}: {ex}")
+        try:
+            await interaction_ctx.defer(ephemeral=True, suppress_error=True)
+        except Exception:
+            pass
+
+
+def stalemate_check(battle_config):
+    """End a match that has gone on absurdly long (neither side can finish the other)."""
+    battle_config._actions_taken = getattr(battle_config, "_actions_taken", 0) + 1
+    if battle_config._actions_taken <= MAX_BATTLE_ACTIONS:
+        return False
+    p1, p2 = battle_config.player1_card, battle_config.player2_card
+    p1_ratio = p1.health / max(1, p1.max_health)
+    p2_ratio = p2.health / max(1, p2.max_health)
+    battle_config.add_to_battle_log(f"({battle_config.turn_total}) ⏱️ The battle dragged on too long and was called off!")
+    if battle_config.is_pvp_game_mode and p1_ratio > p2_ratio:
+        p2.health = 0
+    else:
+        # In PvE the challenger has to actually win; in PvP the healthier card takes it.
+        p1.health = 0
+    check_if_game_over(battle_config)
+    if not battle_config.match_has_ended:      # tutorial dummy etc.
+        battle_config.match_has_ended = True
+        battle_config.player2_wins = True
+    return True
+
 
 async def add_ai_start_messages(battle_config):
     if not battle_config.turn_zero_has_happened:
@@ -591,7 +749,7 @@ def calculate_instant_winner(battle_config, card1, card2, level_threshold=300):
             sustainable_power = max(sustainable_power, ability_power * turns_until_exhaustion)
         
         # Calculate overall battle rating
-        offensive_rating = sustainable_power / defender.health
+        offensive_rating = sustainable_power / max(1, defender.health)
         defensive_rating = attacker.defense / max(1, defender.attack)
         stamina_rating = attacker.stamina / 100  # Normalize stamina
         
@@ -614,7 +772,7 @@ def calculate_instant_winner(battle_config, card1, card2, level_threshold=300):
         card1.health = 0
         battle_config.player2_wins = True
         return card2, f"Worse overall combat rating ({card2_rating:.2f} vs {card1_rating:.2f})"
-                            
+
 
 def set_battle_start_time():
     # Get the current local time when the battle starts
@@ -724,6 +882,7 @@ async def get_users_and_opponent_ping(self, battle_config):
 
     return user1, user2, opponent_ping, user3
 
+
 async def get_rpg_user(self):
     """
     Get the user object from the context object.
@@ -740,90 +899,6 @@ async def get_rpg_user(self):
         self.bot = self.client
     user = await self.bot.fetch_user(self.player1_did)
     return user
-
-async def timeout_handler(self, ctx, battle_msg, battle_config):
-    battle_config.continue_fighting = False
-    await battle_msg.delete()
-    if battle_config.is_rpg:
-        x, y = battle_config._player.player_position
-        battle_config._player.map['map'][x][y] = battle_config._player.standing_on
-        close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
-        await close_embded.delete(delay=3)
-        await battle_config.leave_adventure_embed(ctx)
-        return
-    if not any((battle_config.is_abyss_game_mode, 
-                battle_config.is_scenario_game_mode, 
-                battle_config.is_explore_game_mode, 
-                battle_config.is_pvp_game_mode, 
-                battle_config.is_tutorial_game_mode,
-                battle_config.is_boss_game_mode)):
-        await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-        await ctx.send(embed = battle_config.saved_game_embed(battle_config.player1_card,battle_config.player2_card))
-    elif any((battle_config.is_pvp_game_mode, 
-                battle_config.is_tutorial_game_mode)):
-        await ctx.send(embed = battle_config.close_pvp_embed(battle_config.player1,battle_config.player2))
-    else:
-        await ctx.send(embed = battle_config.close_pve_embed(battle_config.player1_card,battle_config.player2_card))
-    await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
-
-    return
-
-
-async def build_match_start_embed(battle_config, user1, user2):
-    """
-    Builds the match start embed for the battle.
-
-    Parameters:
-    - battle_config: Configuration object for the battle.
-    - user1: User object representing the first player.
-    - user2: User object representing the second player.
-
-    Returns:
-    Embed: The built match start embed.
-
-    Steps:
-    1. Get the title and level message for the starting match.
-    2. Create an embed with the starting match title and level message.
-    3. Add a field for the player's affinities.
-    4. If it's co-op or duo mode, add a field for the companion's affinities.
-    5. Add a field for the opponent's affinities.
-    6. Set the image of the embed to the card image.
-    7. Set the thumbnail of the embed based on the game mode (PvP or not).
-    8. Set the footer text of the embed.
-    9. Return the built embed.
-    """
-    try:
-        title_lvl_msg = f"{battle_config.set_levels_message()}"
-        # starting_battle_ai_message = await ai.starting_battle_ai_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
-
-        embed = Embed(title=f"{title_lvl_msg}")
-        embed.set_author(name=f"{battle_config.get_starting_match_title()}")
-
-        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
-            embed.set_footer(text=textwrap.dedent(f"""\                                                  
-Your Affinities:
-{battle_config.player1_card.set_battle_menu_affinity_message()}
-
-Opponent Affinities:
-{battle_config.player2_card.set_battle_menu_affinity_message()}
-
-Companion Affinities:
-{battle_config.player3_card.set_battle_menu_affinity_message()}
-            """), icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
-        else:
-            embed.set_footer(text=f"Your Affinities:\n"f"{battle_config.player1_card.set_battle_menu_affinity_message()}\n\n"f"Opponent Affinities:\n"f"{battle_config.player2_card.set_battle_menu_affinity_message()}\n\n")
-
-
-        embed.set_image(url="attachment://image.png")
-        
-        if battle_config.is_pvp_game_mode:
-            embed.set_thumbnail(url=user2.avatar_url)
-        else:
-            embed.set_thumbnail(url=user1.avatar_url)
-        
-        return embed
-    except Exception as ex:
-        custom_logging.debug(ex)
 
 
 def early_game_tactics(battle_config):
@@ -873,32 +948,13 @@ async def exit_battle_embed(battle_config, button_ctx, private_channel):
     return
 
 
-def check_if_game_over(battle_config):
-    #Checks for RPG Game over battle_config is cosidered as rpg_config
-    # if battle_config.is_rpg:
-    #     rpg_config = battle_config
-    #     if rpg_config.player_health <= 0:
-    #         rpg_config.adventuring = False
-    #         return True
-    #     else:
-    #         return False
-    player3_card = battle_config.player3_card if battle_config.is_duo_mode or battle_config.is_co_op_mode else None
-    if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
-        battle_config.turn_total -= 1
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ❌ Tutorial Task Incomplete!\nComplete your Tutorial Task to defeat the Training Dummy!")
-        
-
-        battle_config.turn_total += 1
-    game_over_check = battle_config.set_game_over(battle_config.player1_card, battle_config.player2_card, player3_card)
-    
-    return bool(game_over_check)
-
 def check_if_rpg_over(rpg_config):
     if rpg_config.player_health <= 0:
         rpg_config.adventuring = False
         return True
     else:
         return False
+
 
 def configure_battle_log(battle_config):
     #Checks for RPG Game over battle_config is cosidered as rpg_config
@@ -915,72 +971,6 @@ def configure_battle_log(battle_config):
         battle_config.previous_moves_len = len(battle_config.previous_moves)
         if battle_config.previous_moves_len >= battle_config.player1.battle_history:
             battle_config.previous_moves = battle_config.previous_moves[-battle_config.player1.battle_history:]
-
-
-async def start_to_focus(battle_msg, private_channel, battle_config):
-    """
-    Performs the start-to-focus actions at the beginning of the player's turn.
-
-    Parameters:
-    - battle_msg: The message object for the battle.
-    - private_channel: The private channel for the battle.
-    - battle_config: Configuration object for the battle.
-
-    Returns:
-    bool: True if focusing occurs, False otherwise.
-
-    Steps:
-    1. Sleep for 1 second.
-    2. Initialize the `focusing` variable as False.
-    3. Get the positions of the battle entities (players, cards, titles, arms).
-    4. If it's turn 1, perform death blow check on the turn player's card with the opponent player's card.
-    5. Set the deathnote message for the turn player's card, opponent player's card, and partner player's card (if it's co-op mode).
-    6. Perform first turn experience for the battle.
-    7. If the turn player's card stamina is less than 10, perform focusing actions.
-       - Call the focusing method on the turn player's card.
-       - Sleep for 1 second.
-       - Perform tutorial focusing.
-       - Perform boss focusing.
-       - Set the `focusing` variable to True.
-    8. Return the `focusing` variable.
-    """
-    await asyncio.sleep(1)
-    focusing = False
-
-    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-
-    if battle_config.is_turn == 1:
-        tactics.tactics_death_blow_check(turn_card, opponent_card, battle_config)
-
-    set_deathnote_message(turn_card, battle_config)
-    set_deathnote_message(opponent_card, battle_config)
-
-    if battle_config.is_co_op_mode:
-        set_deathnote_message(partner_card, battle_config)
-
-    await first_turn_experience(battle_config, private_channel)
-
-    if turn_card.stamina < 10:
-        await turn_card.focusing(turn_title, opponent_title, opponent_card, battle_config)
-        await asyncio.sleep(1)
-        #if not turn_card.used_blitz:
-        if not turn_card.used_blitz:
-            await tutorial_focusing(turn_card, battle_config, private_channel)
-        await boss_focusing(battle_config, private_channel)
-        focusing = True
-
-    return focusing
-
-
-async def health_check(battle_config):
-    try:
-        turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-        if turn_card.health <= 0:
-            return False
-        if opponent_card.health <= 0:
-            return False
-    except Exception as ex:
-        custom_logging.debug(ex)
 
 
 def damage_check_turn_check(battle_config):
@@ -1074,9 +1064,9 @@ async def first_turn_experience(battle_config, private_channel):
                 embedVar.add_field(name=f"\n[{crown_utilities.class_emojis[battle_config.player1_card.card_class]}] **{battle_config.player1_card.name}'s Class**",value=f"*The {battle_config.player1_card.class_message}\n{crown_utilities.class_mapping[battle_config.player1_card.card_class]}*\n{battle_config.player1_card.class_tutorial_message}\n\n")
                 if battle_config.player1_card.universe in crown_utilities.starting_traits:
                     title, text = battle_config.starting_trait_handler(battle_config.player1_card, battle_config.player2_card)
-                    
-                    embedVar.add_field(name=f"\n[{battle_config.player1_card.universe_crest}] {battle_config.player1_card.universe} Trait: {title}\n",
-                                value=f"{text}")
+                    if title and text:
+                        embedVar.add_field(name=f"\n[{battle_config.player1_card.universe_crest}] {battle_config.player1_card.universe} Trait: {title}\n",
+                                    value=f"{text}")
                 embedVar.add_field(name="\n**[Moveset]**",value=f"{battle_config.player1_card.move1_emoji} - **Basic {battle_config.player1_card.move1_element.title()} Attack** *⚡10 ST*\n{battle_config.player1_card.move2_emoji} - **Special {battle_config.player1_card.move2_element.title()} Attack** *⚡30 ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate {battle_config.player1_card.move3_element.title()} Attack** *⚡80 ST*\n🦠 - **{battle_config.player1_card.move4enh.title()} Enhancer** *⚡20 ST*\n\n**[Skills]**\n{block_message}\n💢 - **Blitz**: Boost ATK and DEF by SPD ⚡ All\n\n**[Transformations]**\n🌀 - **Focus**: Increase ST, ATK, DEF and Heal\n⚡ - **Resolve**: Heal and Activate Summon\n🧬 - ** {battle_config.player1_card.summon_type.title()} Summon** : {battle_config.player1.equipped_summon}\n")
                 #embedVar.add_field(name=f"🧠**Tutorial Task!**", value=f"*Interactively learn about your Elemental Attacks and Card Abilities!*")
                 embedVar.set_footer(text="Focus State: When your ST(Stamina) is < 10, You will FOCUS to gain ATK and DEF and heal a portion of missing HP(Health)")
@@ -1102,260 +1092,15 @@ async def first_turn_experience(battle_config, private_channel):
                 embedVar.add_field(name=f"\n[{crown_utilities.class_emojis[battle_config.player1_card.card_class]}] **{battle_config.player1_card.name}'s Class**",value=f"*The {battle_config.player1_card.class_message}\n{crown_utilities.class_mapping[battle_config.player1_card.card_class]}*\n{battle_config.player1_card.class_tutorial_message}\n\n")
                 if battle_config.player1_card.universe in crown_utilities.starting_traits:
                     title, text = battle_config.starting_trait_handler(battle_config.player1_card, battle_config.player2_card)
-                    
-                    embedVar.add_field(name=f"[{battle_config.player1_card.universe_crest}] {battle_config.player1_card.universe} Trait: {title}",
-                                value=f"{text}")
+                    if title and text:
+                        embedVar.add_field(name=f"[{battle_config.player1_card.universe_crest}] {battle_config.player1_card.universe} Trait: {title}",
+                                    value=f"{text}")
                 embedVar.add_field(name="\n**[Moveset]**",value=f"{battle_config.player1_card.move1_emoji} - **Basic {battle_config.player1_card.move1_element.title()} Attack** *⚡10 ST*\n{battle_config.player1_card.move2_emoji} - **Special {battle_config.player1_card.move2_element.title()} Attack** *⚡30 ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate {battle_config.player1_card.move3_element.title()} Attack** *⚡80 ST*\n🦠 - **{battle_config.player1_card.move4enh.title()} Enhancer** *⚡20 ST*\n\n**[Skills]**\n{block_message}\n💢 - **Blitz**: Boost ATK and DEF by SPD ⚡ All\n\n**[Transformations]**\n🌀 - **Focus**: Increase ST, ATK, DEF and Heal\n⚡ - **Resolve**: Heal and Activate Summon\n🧬 - ** {battle_config.player1_card.summon_type.title()} Summon** : {battle_config.player1.equipped_summon}\n")
                 #embedVar.add_field(name=f"🧠**Tutorial Task!**", value=f"*Interactively learn about your Elemental Attacks and Card Abilities!*")
                 embedVar.set_footer(text="Focus State: When your ST(Stamina) is < 10, You will FOCUS to gain ATK and DEF and heal a portion of missing HP(Health)")
                 await private_channel.send(embed=embedVar)
                 await asyncio.sleep(2)
 
-
-async def auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx):
-    """
-    Handles the auto-battle experience in the battle.
-
-    Parameters:
-    - ctx: The context object for the current command.
-    - battle_config: Configuration object for the battle.
-    - battle_msg: The message object for the battle.
-    - private_channel: The private channel for the battle.
-    - button_ctx: The context object for the button interaction.
-
-    Returns:
-    bool: Indicates whether the auto-battle experience was successfully executed.
-
-    Steps:
-    1. Get the battle positions of players, cards, titles, and arms.
-    2. Check if the auto-battle game mode is enabled.
-    3. Configure the start of moves for the battle.
-    4. Create the auto-battle embed and starting traits using the auto_battle_embed_and_starting_traits function.
-    5. Send a new message or edit the existing message with the embed and no components.
-    6. Sleep for 2 seconds.
-    7. Determine the selected move based on the AI battle command.
-    8. Perform damage calculation and update the battle log for specific moves.
-    9. Handle special moves (resolving, summoning, blocking) and double strike for monstrosity.
-    10. If the move is summoning, update the damage calculation and perform damage done.
-    11. Execute player damage calculation asynchronously.
-    12. Return True to indicate a successful auto-battle experience execution.
-    """
-    try:
-        turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-
-        if battle_config.is_auto_battle_game_mode:
-            await start_of_moves_config(battle_config)
-            embedVar = await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
-            if battle_msg is None:
-                # If the message does not exist, send a new message
-                battle_msg = await private_channel.send(embed=embedVar, components=[])
-            else:
-                # If the message exists, edit it
-                await battle_msg.edit(embed=embedVar, components=[])
-            await asyncio.sleep(2)
-
-            selected_move = battle_config.ai_battle_command(turn_card, opponent_card)
-
-            if selected_move in [1, 2, 3, 4, 7]:
-                damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
-
-
-            if selected_move == 5:
-                await turn_card.resolving(battle_config, turn_title, opponent_card, battle_config.player1)
-                if battle_config.is_boss_game_mode:
-                    await button_ctx.ctx.send(embed=battle_config._boss_embed_message)
-                return
-
-            if selected_move == 6:
-                summon_response = turn_card.usesummon(battle_config, opponent_card)
-                return
-
-            if selected_move == 0:
-                turn_card.use_block(battle_config, opponent_card)
-                damage_calculation_response = None
-
-
-            complete_damage_calculation = await player_damage_calculation(battle_config, button_ctx, damage_calculation_response)
-            return True                         
-        else:
-            return False                   
-    except Exception as ex:
-        custom_logging.debug(ex)
-
-
-async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
-    """
-    Displays the AI move embed during its turn in the battle.
-
-    Parameters:
-    - ctx: The context object for the current command.
-    - battle_config: Configuration object for the battle.
-    - private_channel: The private channel for the battle.
-    - battle_msg: The message object for the battle (optional).
-
-    Returns:
-    bool: Indicates whether the AI move was successfully executed.
-
-    Steps:
-    1. Get the battle positions of players, cards, titles, and arms.
-    2. Configure the start of moves for the battle.
-    3. Create the AI move embed and starting traits using the auto_battle_embed_and_starting_traits function.
-    4. Attach the turn player's card image to the embed.
-    5. Send a new message or edit the existing message with the embed and no components.
-    6. Sleep for 2 seconds.
-    7. Determine the selected move based on the AI battle command.
-    8. Perform damage calculation and update the battle log for specific moves.
-    9. Handle special moves (resolving, summoning, blocking) and double strike for monstrosity.
-    10. If the move is summoning, update the damage calculation and perform damage done.
-    11. Execute AI damage calculation asynchronously.
-    12. Return True to indicate a successful AI move execution.
-    """
-    try:
-        turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-        await start_of_moves_config(battle_config)
-        embedVar = await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
-        image_binary = turn_card.showcard(turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
-
-        if hasattr(image_binary, 'seekable') and image_binary.seekable():
-            image_binary.seek(0)
-            card_file = File(file_name="image.png", file=image_binary)
-            if battle_msg is None:
-                # If the message does not exist, send a new message
-                battle_msg = await private_channel.send(embed=embedVar, components=[], file=card_file)
-            else:
-                # If the message exists, edit it
-                await battle_msg.edit(embed=embedVar, components=[], file=card_file)
-        else:
-            if battle_msg is None:
-                # If the message does not exist, send a new message
-                battle_msg = await private_channel.send(embed=embedVar, components=[])
-            else:
-                # If the message exists, edit it
-                await battle_msg.edit(embed=embedVar, components=[])
-        # if image_binary:
-        image_binary.close()
-        await asyncio.sleep(2)
-
-        selected_move = battle_config.ai_battle_command(turn_card, opponent_card)
-        if selected_move in [1, 2, 3, 4, 7]:
-            damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
-
-        if selected_move == 5:
-            await turn_card.resolving(battle_config, turn_title, opponent_card, turn_player)
-            if battle_config.is_boss_game_mode:
-                await private_channel.send(embed=battle_config._boss_embed_message)
-            return
-
-        if selected_move == 6:
-            summon_response = turn_card.usesummon(battle_config, opponent_card)
-            return
-
-        if selected_move == 0:
-            turn_card.use_block(battle_config, opponent_card)
-            return
-
-        complete_damage_calculation = await ai_damage_calculation(battle_config, damage_calculation_response)
-        return True                         
-    except Exception as ex:
-        custom_logging.debug(ex)
-
-
-async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
-    """
-    Displays the player move embed during their turn in the battle.
-
-    Parameters:
-    - ctx: The context object for the current command.
-    - battle_config: Configuration object for the battle.
-    - private_channel: The private channel for the battle.
-    - battle_msg: The message object for the battle.
-
-    Returns:
-    Tuple: The updated battle message and the components used in the embed.
-
-    Steps:
-    1. Get the battle positions of players, cards, titles, and arms.
-    2. Configure the start of moves for the battle.
-    3. Create action rows for battle buttons, utility buttons, and co-op buttons (if it's co-op mode).
-    4. Set battle arm messages and stat icons for the turn player's card and partner player's card (if it's co-op mode).
-    5. Determine the components to be used in the embed based on the game mode.
-    6. Set the footer text for the embed.
-    7. Create the embed with the previous moves, current turn information, image, and thumbnail.
-    8. If it's a performance turn, add the performance header and moveset to the embed.
-       Otherwise, set the author and add the instruction to select a move.
-    9. Delete the previous battle message with a delay and sleep for 2 seconds.
-    10. If it's not a performance turn, attach the card image to the message.
-    11. Send the updated battle message with the embed and components.
-    12. Return the updated battle message and components as a tuple.
-    """     
-    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-
-    await start_of_moves_config(battle_config)
-
-    battle_action_row = ActionRow(*battle_config.battle_buttons)
-    util_action_row = ActionRow(*battle_config.utility_buttons)
-    
-    if battle_config.is_co_op_mode:
-        partner_card.set_battle_arm_messages(opponent_card)
-        partner_card.set_stat_icons()
-        if turn_card.stamina >= 20:
-            coop_util_action_row = ActionRow(*battle_config.co_op_buttons)
-            components = [battle_action_row, coop_util_action_row, util_action_row]
-        else:
-            components = [battle_action_row, util_action_row]
-        companion_stats = f"\n{partner_card.name}: ❤️{round(partner_card.health)} 🌀{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
-    else:
-        components = [battle_action_row, util_action_row]
-
-    turn_card.set_battle_arm_messages(opponent_card)
-    turn_card.set_stat_icons()
-    if turn_player.rift == 0:
-        author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
-
-    summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability - {turn_card.summon_power}" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
-    talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman"
-    universe_stacks = f"{turn_card.universe_crest} {turn_card.universe_trait_value_name}: {turn_card.universe_trait_value}"
-    if turn_card.is_tactician and turn_card._tactician_stack_3:
-        talisman_message = f"🥋 Tactician's Talisman"
-    if turn_card.is_tactician and turn_card._tactician_stack_5:
-        talisman_message = f"🥋 Ultimate Strategy"
-    player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
-    if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
-    tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
-    #map_embed = battle_config.get_map_message(turn_card)
-    embedVar = Embed(title=f"", color=turn_card.health_color)
-    # if turn_player.performance:
-    #     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
-    # else:
-    if turn_player.rift == 0:
-        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
-    else:
-        embedVar.set_author(name=f"{turn_card.summon_resolve_message}")
-    embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{player1_arm_message}")
-    if battle_config.is_tutorial_game_mode:
-        embedVar.add_field(name=f"[🧠]**Tutorial Task!**", value=f"{tutorial_embed_message}")
-
-
-    # ai_results = summarize_last_moves(battle_config.previous_moves)
-    embedVar.set_image(url="attachment://image.png")
-    embedVar.set_thumbnail(url=ctx.author.avatar_url)
-    embedVar.set_footer(
-        text=f"{battle_config.get_previous_moves_embed()}")
-
-    await battle_msg.delete(delay=1)
-    await asyncio.sleep(1)
-    # if turn_player.performance:
-    #     embedVar.add_field(name=f"**Moves**", value=f"{turn_card.get_performance_moveset()}")
-    #     battle_msg = await private_channel.send(embed=embedVar, components=components)
-    # else:
-    image_binary= await asyncio.to_thread(turn_card.showcard,turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
-    # image_binary.seek(0)
-    card_file = File(file_name="image.png", file=image_binary)
-    battle_msg = await private_channel.send(embed=embedVar, components=components, file=card_file)
-    image_binary.close()
-    return battle_msg, components
- 
 
 async def start_of_moves_config(battle_config):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
@@ -1376,153 +1121,272 @@ def player_use_card_boost_ability(battle_config, button_ctx):
         return
 
 
-async def player_move_handler(battle_config, private_channel, button_ctx, battle_msg):
+async def timeout_handler(self, ctx, battle_msg, battle_config):
+    """A player stopped responding: close the battle (saving the run where that is allowed)."""
+    battle_config.continue_fighting = False
+    channel = ctx.channel
+    await safe_delete(battle_msg)
+
+    if battle_config.is_rpg:
+        if getattr(battle_config, "rpg_config", None) is not None:
+            # An encounter inside an adventure timed out: drop back to the map.
+            restore_rpg_after_battle(self, battle_config, "⌛ The encounter timed out. Resuming Adventure...")
+            return
+        # The adventure itself timed out (battle_config is the RPG instance).
+        x, y = battle_config._player.player_position
+        battle_config._player.map['map'][x][y] = battle_config._player.standing_on
+        close_embded = await channel.send(embed=battle_config.close_rpg_embed())
+        try:
+            await close_embded.delete(delay=3)
+        except Exception:
+            pass
+        await battle_config.leave_adventure_embed(ctx)
+        return
+
+    if not any((battle_config.is_abyss_game_mode,
+                battle_config.is_scenario_game_mode,
+                battle_config.is_explore_game_mode,
+                battle_config.is_pvp_game_mode,
+                battle_config.is_tutorial_game_mode,
+                battle_config.is_boss_game_mode)):
+        await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+        await channel.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
+    elif any((battle_config.is_pvp_game_mode,
+              battle_config.is_tutorial_game_mode)):
+        await channel.send(embed=battle_config.close_pvp_embed(battle_config.player1, battle_config.player2))
+    else:
+        await channel.send(embed=battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+    await channel.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
+
+
+async def build_match_start_embed(battle_config, user1, user2):
     """
-    Handles the player's move in the battle.
+    Builds the match start embed for the battle.
 
     Parameters:
     - battle_config: Configuration object for the battle.
-    - private_channel: The private channel for the battle.
-    - button_ctx: The context object for the button interaction.
-    - battle_msg: The message object for the battle.
+    - user1: User object representing the first player.
+    - user2: User object representing the second player.
 
-    Steps:
-    1. Get the battle positions of players, cards, titles, and arms.
-    2. Check the custom ID of the button context to determine the selected move.
-    3. Call the corresponding function based on the selected move.
-    4. Await the damage calculation response from the selected move function.
-    5. If the move is resolving or blocking, return immediately.
-    6. Handle co-op mode moves if applicable.
-    7. Perform player damage calculation asynchronously.
+    Returns:
+    Embed: The built match start embed (a minimal one if a detail cannot be rendered).
+    """
+    embed = Embed(title=crown_utilities.clip(f"{battle_config.set_levels_message()}", 256))
+    try:
+        embed.set_author(name=crown_utilities.clip(f"{battle_config.get_starting_match_title()}", 256))
+
+        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+            footer = (f"Your Affinities:\n{battle_config.player1_card.set_battle_menu_affinity_message()}\n\n"
+                      f"Opponent Affinities:\n{battle_config.player2_card.set_battle_menu_affinity_message()}\n\n"
+                      f"Companion Affinities:\n{battle_config.player3_card.set_battle_menu_affinity_message()}")
+            embed.set_footer(text=crown_utilities.clip(footer, 2048), icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
+        else:
+            footer = (f"Your Affinities:\n{battle_config.player1_card.set_battle_menu_affinity_message()}\n\n"
+                      f"Opponent Affinities:\n{battle_config.player2_card.set_battle_menu_affinity_message()}\n\n")
+            embed.set_footer(text=crown_utilities.clip(footer, 2048))
+
+        embed.set_image(url="attachment://image.png")
+
+        if battle_config.is_pvp_game_mode and user2 is not None:
+            embed.set_thumbnail(url=user2.avatar_url)
+        else:
+            embed.set_thumbnail(url=user1.avatar_url)
+    except Exception as ex:
+        custom_logging.debug(ex)
+        embed.set_image(url="attachment://image.png")
+    return embed
+
+
+def check_if_game_over(battle_config):
+    player3_card = battle_config.player3_card if battle_config.is_duo_mode or battle_config.is_co_op_mode else None
+    if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
+        battle_config.turn_total -= 1
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ❌ Tutorial Task Incomplete!\nComplete your Tutorial Task to defeat the Training Dummy!")
+        battle_config.turn_total += 1
+    game_over_check = battle_config.set_game_over(battle_config.player1_card, battle_config.player2_card, player3_card)
+
+    return bool(game_over_check)
+
+
+async def start_to_focus(battle_msg, private_channel, battle_config):
+    """
+    Performs the start-of-turn actions for the card whose turn it is.
+
+    Returns True if the card had to Focus (stamina below 10), which uses up its
+    turn, and False if it is free to act.
+    """
+    focusing = False
+
+    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
+
+    if battle_config.is_turn == 1:
+        tactics.tactics_death_blow_check(turn_card, opponent_card, battle_config)
+
+    set_deathnote_message(turn_card, battle_config)
+    set_deathnote_message(opponent_card, battle_config)
+
+    if battle_config.is_co_op_mode:
+        set_deathnote_message(partner_card, battle_config)
+
+    await first_turn_experience(battle_config, private_channel)
+
+    if turn_card.stamina < 10:
+        await turn_card.focusing(turn_title, opponent_title, opponent_card, battle_config)
+        if not turn_card.used_blitz:
+            await tutorial_focusing(turn_card, battle_config, private_channel)
+        await boss_focusing(battle_config, private_channel)
+        focusing = True
+
+    return focusing
+
+
+async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
+    """
+    Plays the AI's turn: shows its card, pauses briefly so the player can read
+    the board, then resolves the move the AI picked.
+
+    Returns the battle message (a new one if the old one had to be replaced).
+    """
+    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
+    await start_of_moves_config(battle_config)
+    # starting traits / arm messages (the embed it also builds is no longer shown)
+    await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
+    battle_view.refresh_move_values(turn_card, battle_config.turn_total)
+    image_bytes = await battle_view.render_scene(battle_config)
+    battle_msg = await show_battle_view(private_channel, battle_msg, battle_view.ai_turn_view(battle_config, turn_card), image_bytes)
+    await asyncio.sleep(AI_TURN_READ_DELAY)
+
+    selected_move = battle_config.ai_battle_command(turn_card, opponent_card)
+
+    if selected_move == 5:
+        was_resolved = turn_card.used_resolve
+        await turn_card.resolving(battle_config, turn_title, opponent_card, turn_player)
+        if turn_card.used_resolve == was_resolved:
+            # Resolve was not available after all; don't let the AI stall on it.
+            selected_move = 1
+        else:
+            if battle_config.is_boss_game_mode and battle_config._boss_embed_message:
+                await private_channel.send(embed=battle_config._boss_embed_message)
+            return battle_msg
+
+    if selected_move == 6:
+        turn_card.usesummon(battle_config, opponent_card)
+        return battle_msg
+
+    if selected_move == 0:
+        if turn_card.stamina >= 20:
+            turn_card.use_block(battle_config, opponent_card)
+            return battle_msg
+        selected_move = 1   # too tired to block: attack instead of repeating the turn forever
+
+    if selected_move not in (1, 2, 3, 4):
+        selected_move = 1
+
+    damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
+    await ai_damage_calculation(battle_config, damage_calculation_response)
+    return battle_msg
+
+
+async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
+    """
+    Show the battle screen for a human's turn.
+
+    Returns (battle message, custom_ids to wait for).
+    """
+    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
+
+    await start_of_moves_config(battle_config)
+    # Per-turn move values (WAVE/CREATION/BLAST/DESTRUCTION, DRACONIC) were
+    # updated by the old card render at this point; keep doing it, then
+    # rebuild the buttons so they show the values for this turn.
+    battle_view.refresh_move_values(turn_card, battle_config.turn_total)
+    battle_config.set_battle_options(turn_card, opponent_card, partner_card)
+
+    if battle_config.is_co_op_mode:
+        partner_card.set_battle_arm_messages(opponent_card)
+        partner_card.set_stat_icons()
+        if turn_card.stamina < 20:
+            battle_config.co_op_buttons = []
+
+    turn_card.set_battle_arm_messages(opponent_card)
+    turn_card.set_stat_icons()
+
+    tutorial_text = battle_config.get_tutorial_message(turn_card) if battle_config.is_tutorial_game_mode else None
+    container, listen = battle_view.human_turn_view(battle_config, turn_card, tutorial_text)
+    image_bytes = await battle_view.render_scene(battle_config)
+    battle_msg = await show_battle_view(private_channel, battle_msg, container, image_bytes)
+    return battle_msg, listen
+
+
+async def player_move_handler(battle_config, private_channel, button_ctx, battle_msg):
+    """
+    Resolves the move behind the button the player pressed.
 
     At some point tutorial messages can be moved to handler
     """
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q":
+    move = str(button_ctx.ctx.custom_id).split('|')[-1]
+
+    async def tutorial_tip(flag, message_type):
+        if battle_config.is_tutorial_game_mode and getattr(battle_config, flag) == False:
+            setattr(battle_config, flag, True)
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, message_type)
+            if embedVar:
+                await private_channel.send(embed=embedVar)
+
+    if move in ("q", "Q"):
         return
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|1":
-        damage_calculation_response = await player_use_basic_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_basic == False:
-            battle_config.tutorial_basic = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BASIC')
-            await private_channel.send(embed=embedVar)
+    if move in ("1", "2", "3", "4"):
+        if battle_config.is_turn == 1:
+            await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
+        damage_calculation_response = turn_card.damage_cal(int(move), battle_config, opponent_card)
+        await tutorial_tip({"1": "tutorial_basic", "2": "tutorial_special", "3": "tutorial_ultimate", "4": "tutorial_enhancer"}[move],
+                           {"1": "BASIC", "2": "SPECIAL", "3": "ULTIMATE", "4": "ENHANCER"}[move])
+        await player_damage_calculation(battle_config, button_ctx, damage_calculation_response)
+        return
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|2":
-        damage_calculation_response = await player_use_special_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_special == False:
-            battle_config.tutorial_special = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SPECIAL')
-            await private_channel.send(embed=embedVar)
-
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|3":
-        damage_calculation_response = await player_use_ultimate_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_ultimate == False:
-            battle_config.tutorial_ultimate = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ULTIMATE')
-            await private_channel.send(embed=embedVar)
-
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|4":
-        damage_calculation_response = await player_use_enhancer_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_enhancer == False:
-            battle_config.tutorial_enhancer = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ENHANCER')
-            await private_channel.send(embed=embedVar)
-
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|6":
+    if move == "6":
         await player_use_summon_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_summon == False:
-            battle_config.tutorial_summon = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SUMMON')
-            await private_channel.send(embed=embedVar)
+        await tutorial_tip("tutorial_summon", "SUMMON")
         return
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|5":
-        resolving = await player_use_resolve(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_resolve == False:
-            battle_config.tutorial_resolve = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'RESOLVE')
-            await private_channel.send(embed=embedVar)
+    if move == "5":
+        await player_use_resolve(battle_config, private_channel, button_ctx, battle_msg)
+        await tutorial_tip("tutorial_resolve", "RESOLVE")
         return
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|0":
-        blocking = await player_use_block_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_block == False:
-            battle_config.tutorial_block = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BLOCK')
-            await private_channel.send(embed=embedVar)
+    if move == "0":
+        await player_use_block_ability(battle_config, private_channel, button_ctx, battle_msg)
+        await tutorial_tip("tutorial_block", "BLOCK")
         return
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|b":
-        blocking = await player_use_blitz_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_blitz == False:
-            battle_config.tutorial_blitz = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BLITZ')
-            await private_channel.send(embed=embedVar)
+
+    if move == "b":
+        await player_use_blitz_ability(battle_config, private_channel, button_ctx, battle_msg)
+        await tutorial_tip("tutorial_blitz", "BLITZ")
         return
-    
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|bleach":
-        response = await second_release(turn_card, opponent_card, battle_config)
+
+    if move == "bleach":
+        await second_release(turn_card, opponent_card, battle_config)
         return
 
     if battle_config.is_co_op_mode:
-        if button_ctx.ctx.custom_id == f"{battle_config._uuid}|7":
+        if move == "7":
             turn_card.use_companion_enhancer(battle_config, opponent_card, partner_card)
             return
-        
-        if button_ctx.ctx.custom_id == f"{battle_config._uuid}|8":
+
+        if move == "8":
             # Use companion enhancer on you
             partner_card.use_companion_enhancer(battle_config, opponent_card, turn_card)
             return
 
-        if button_ctx.ctx.custom_id == f"{battle_config._uuid}|9":
+        if move == "9":
             partner_card.use_block(battle_config, opponent_card, turn_card)
             return
 
-    complete_damage_calculation = await player_damage_calculation(battle_config, button_ctx, damage_calculation_response)         
-
-
-async def player_use_basic_ability(battle_config, private_channel, button_ctx, battle_msg):
-    try:
-        turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-
-        if battle_config.is_turn == 1:
-            await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
-        damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)
-        return damage_calculation_response
-    except Exception as ex:
-        custom_logging.debug(ex)
-
-
-async def player_use_special_ability(battle_config, private_channel, button_ctx, battle_msg):
-    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-    
-    if battle_config.is_turn == 1:
-        await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
-    damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)
-    return damage_calculation_response  
-
-
-async def player_use_ultimate_ability(battle_config, private_channel, button_ctx, battle_msg):
-    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-
-    if battle_config.is_turn == 1:
-        await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
-    damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)    
-    # if turn_card.gif != "N/A" and not turn_player.performance:
-    #     ult_msg = await private_channel.send(f"{turn_card.gif}")
-    #     await asyncio.sleep(3)
-    #     await ult_msg.delete()
-    return damage_calculation_response
-
-
-async def player_use_enhancer_ability(battle_config, private_channel, button_ctx, battle_msg):
-    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-    
-    if battle_config.is_turn == 1:
-        await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
-    damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)
-    return damage_calculation_response
+    # A button this battle does not know about: ignore it, the player keeps the turn.
+    loggy.warning(f"Unhandled battle button '{button_ctx.ctx.custom_id}'")
 
 
 async def player_use_resolve(battle_config, private_channel, button_ctx, battle_msg):
@@ -1530,62 +1394,55 @@ async def player_use_resolve(battle_config, private_channel, button_ctx, battle_
 
     # Resolve Check and Calculation
     if not turn_card.used_resolve and turn_card.used_focus:
-        if battle_config.is_turn == 1:
-            await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
         await turn_card.resolving(battle_config, turn_title, opponent_card, turn_player)
+        if battle_config.is_boss_game_mode and battle_config._boss_embed_message:
+            await private_channel.send(embed=battle_config._boss_embed_message)
 
 
 async def player_use_summon_ability(battle_config, private_channel, button_ctx, battle_msg):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-    if turn_card.used_resolve and turn_card.used_focus or turn_card._summoner_active:
-        if not turn_card.usedsummon:
-            if battle_config.is_turn == 1:
-                await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
-    
+
     summon_response = turn_card.usesummon(battle_config, opponent_card)
-    if not turn_player.performance and summon_response['CAN_USE_MOVE']:
-        if not battle_config.is_auto_battle_game_mode:
-            embedVar = Embed(title=f"🧬 Summon Executed", color=0xe74c3c)
+    if not summon_response or not summon_response.get('CAN_USE_MOVE'):
+        return      # the summon is resting; the battle log already says so
+    if turn_player.performance or battle_config.is_auto_battle_game_mode:
+        return
 
-            image_binary = crown_utilities.showsummon(turn_card.summon_image, turn_card.summon_name, summon_response['MESSAGE'], turn_card.summon_lvl, turn_card.summon_bond)
-            image_binary.seek(0)
+    image_binary = await render_cache.render_async(crown_utilities.showsummon, turn_card.summon_image, turn_card.summon_name, summon_response['MESSAGE'], turn_card.summon_lvl, turn_card.summon_bond)
+    try:
+        image_bytes = image_binary.getvalue()
+    finally:
+        image_binary.close()
 
-            embedVar.set_image(url="attachment://pet.png")
-            embedVar.set_footer(
-                text=f"{battle_config.get_previous_moves_embed()}")
-            summon_file = File(file_name="pet.png", file=image_binary)
-            await battle_msg.edit(embed=embedVar, components=[], file=summon_file)
-            image_binary.close()
-            # await battle_msg.edit(embed=embedVar, components=[])
+    container = battle_view.summon_view(battle_config, turn_card, summon_response.get('MESSAGE'))
+    try:
+        await battle_msg.edit(components=[container], file=battle_view.scene_file(image_bytes, battle_view.SUMMON_FILE))
+        await asyncio.sleep(SUMMON_READ_DELAY)
+    except HTTPException as ex:
+        loggy.warning(f"Could not show the summon splash: {ex}")
 
 
 async def player_use_block_ability(battle_config, private_channel, button_ctx, battle_msg):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-    
-    if battle_config.is_turn == 1:
-        await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
 
-    turn_card.use_block(battle_config, opponent_card, partner_card)  
+    turn_card.use_block(battle_config, opponent_card, partner_card)
     return True
 
 
 async def player_use_blitz_ability(battle_config, private_channel, button_ctx, battle_msg):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-    
-    if battle_config.is_turn == 1:
-        await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
 
-    turn_card.use_blitz(battle_config, opponent_card)  
+    turn_card.use_blitz(battle_config, opponent_card)
     return True
 
 
 async def player_boss_message_ability_use(battle_config, private_channel, button_ctx):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-    
+
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|5":
         if not turn_card.used_resolve and turn_card.used_focus:
-            if battle_config.is_boss_game_mode:
-                await button_ctx.ctx.send(embed=battle_config._boss_embed_message)
+            if battle_config.is_boss_game_mode and battle_config._boss_embed_message:
+                await private_channel.send(embed=battle_config._boss_embed_message)
 
 # This asynchronous function calculates damage inflicted by a player. It checks if a specific option 
 # from the main battle options is selected by the player (as indicated by the custom ID of the button 
@@ -1610,6 +1467,14 @@ async def ai_damage_calculation(battle_config, damage_calculation_response=None)
 def damage_calculation(battle_config, damage_calculation_response=None):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
+    if not damage_calculation_response:
+        # The move could not be worked out (an error inside the damage formula).
+        # Use up the turn instead of crashing the battle.
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {turn_card.name}'s move had no effect")
+        battle_config.turn_total = battle_config.turn_total + 1
+        battle_config.next_turn()
+        return
+
     turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
     if turn_card._blood_demon_art:
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {turn_card.name}'s Blood Demon Art -  Double Strike!")
@@ -1624,66 +1489,66 @@ def damage_calculation(battle_config, damage_calculation_response=None):
         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
         if souls_third_phase(turn_card,battle_config):
             damage_calculation_response = turn_card.damage_cal("Souls", battle_config, opponent_card)
-            turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+            if damage_calculation_response:
+                turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
         battle_config.next_turn()
     elif souls_third_phase(turn_card,battle_config):
         damage_calculation_response = turn_card.damage_cal("Souls", battle_config, opponent_card)
-        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+        if damage_calculation_response:
+            turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
         battle_config.next_turn()
     else:
         battle_config.next_turn()
 
 
 # This is an asynchronous function used to handle the end of the game for a player. The function 
-# saves the player's game status and then ends the game. The function sets the health of the player 
-# to 0, marks the game as over, and saves the current state of the game. If any errors occur during 
-# this process, the function captures the exception and prints a detailed traceback.
+# saves the player's game status and then ends the game.  Returns True when the game was saved
+# and the battle should stop.
 async def player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx):
-    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
+    if button_ctx.ctx.custom_id != f"{battle_config._uuid}|s":
+        return False
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|s":
-        try:
-            turn_player.make_available()
-            turn_player.health = 0
-            battle_config.game_over = True
-            await gs.save_spot(self, turn_player, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-            await battle_msg.delete(delay=1)
-            await asyncio.sleep(1)
-            battle_msg = await private_channel.send(embed=battle_config.saved_game_embed(turn_player,opponent_card, partner_card))
-            return battle_msg
-        except Exception as ex:
-            custom_logging.debug(ex)
-                                                    
-# This is an asynchronous function used to handle a player quitting the game. The function sets the 
-# health of the player's card to 0, marks the game as over, and logs the event. If the player quits, 
-# a message is sent to a private channel. If any errors occur during this process, the function 
-# captures the exception and prints a detailed traceback.
-async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx):
-    if battle_config.is_rpg:
-        if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|Q":
-            battle_config.rpg_config.adventuring = True
-            battle_config.rpg_config.battling = False
-            battle_config.rpg_config.encounter = False
-            battle_config.rpg_config.player_health = battle_config.player1_card.health
-            await battle_msg.delete(delay=1)
-            battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
-            return True
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     try:
-        if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|Q":
-            turn_player.make_available()
-            turn_card.health = 0
-            battle_config.game_over = True
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) **{turn_card.name}** quit the battle. The match is over.")
-            await battle_msg.delete(delay=1)
-            await exit_battle_embed(battle_config, button_ctx, private_channel)
-            return True
+        release_player(turn_player)
+        battle_config.game_over = True
+        await gs.save_spot(self, turn_player, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+        await safe_delete(battle_msg)
+        await private_channel.send(embed=battle_config.saved_game_embed(turn_card, opponent_card, partner_card))
     except Exception as ex:
         custom_logging.debug(ex)
+    return True
+
+# This is an asynchronous function used to handle a player quitting the game. The function sets the 
+# health of the player's card to 0, marks the game as over, and logs the event.  Returns True when
+# the player surrendered and the battle should stop.
+async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx):
+    if button_ctx.ctx.custom_id not in (f"{battle_config._uuid}|q", f"{battle_config._uuid}|Q"):
+        return False
+
+    if battle_config.is_rpg and getattr(battle_config, "rpg_config", None) is not None:
+        battle_config.rpg_config.adventuring = True
+        battle_config.rpg_config.battling = False
+        battle_config.rpg_config.encounter = False
+        battle_config.rpg_config.player_health = battle_config.player1_card.health
+        await safe_delete(battle_msg)
+        battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
+        return True
+
+    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
+    try:
+        release_player(turn_player)
+        turn_card.health = 0
+        battle_config.game_over = True
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) **{turn_card.name}** quit the battle. The match is over.")
+        await safe_delete(battle_msg)
+        await exit_battle_embed(battle_config, button_ctx, private_channel)
+    except Exception as ex:
+        custom_logging.debug(ex)
+    return True
 
 
 
 
 def setup(bot):
     Play(bot)
-              

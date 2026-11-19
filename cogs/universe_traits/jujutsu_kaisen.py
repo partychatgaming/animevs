@@ -32,9 +32,9 @@ def domain_expansion(player_card, battle_config, player_title, opponent_card):
         # Resolve Scaling
         resolve_health = round(fortitude + (.5 * player_card.resolve_value))
         resolve_attack_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
         resolve_defense_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
 
         title_message = ""
 

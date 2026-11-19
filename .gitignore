@@ -1,5 +1,8 @@
 .env
 env
+.venv/
 __pycache__/
 discord.log
 text.png
+image_cache/
+_backup_before_overhaul/

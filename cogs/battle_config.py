@@ -1,3 +1,4 @@
+import asyncio
 import crown_utilities
 import db
 from cogs.play import Play as play
@@ -38,11 +39,11 @@ class BattleConfig(Extension):
         else:
             if int(player.balance) <= entrance_fee:
                 await ctx.send(f"Tales require an 🪙 {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
-                db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
+                await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
                 return
             else:
                 if universe['GUILD'] != 'PCG':
-                    crest_guild = db.queryGuildAlt({'GNAME' : universe['GUILD']})
+                    crest_guild = await asyncio.to_thread(db.queryGuildAlt, {'GNAME' : universe['GUILD']})
                     if crest_guild:
                         await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
                         # await ctx.send(f"{crown_utilities.crest_dict[universe['TITLE']]} | {crest_guild['GNAME']} Universe Toll Paid! 🪙{'{:,}'.format(entrance_fee)}")
@@ -67,7 +68,7 @@ class BattleConfig(Extension):
         battle = Battle(mode, player)
         battle.selected_universe = selected_scenario["UNIVERSE"]
 
-        selected_scenario = db.queryScenario({"TITLE": selected_scenario["TITLE"]})
+        selected_scenario = await asyncio.to_thread(db.queryScenario, {"TITLE": selected_scenario["TITLE"]})
         battle.set_scenario_config(selected_scenario)
         await play.battle_commands(self, ctx, battle)
 
@@ -77,7 +78,7 @@ class BattleConfig(Extension):
         battle.selected_universe = selected_raid["UNIVERSE"]
         battle.is_raid_scenario = True
 
-        selected_raid = db.queryScenario({"TITLE": selected_raid["TITLE"]})
+        selected_raid = await asyncio.to_thread(db.queryScenario, {"TITLE": selected_raid["TITLE"]})
         battle.set_scenario_config(selected_raid)
         await play.battle_commands(self, ctx, battle)
 

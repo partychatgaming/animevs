@@ -12,9 +12,9 @@ def conquerors_haki(player_card, battle_config, opponent_card, player_title):
         # Resolve Scaling
         resolve_health = round(fortitude + (.5 * player_card.resolve_value))
         resolve_attack_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
         resolve_defense_value = round(
-            (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
+            (.60 * player_card.resolve_value))
 
         opponent_card.card_lvl_ap_buff = opponent_card.card_lvl_ap_buff - (100 * player_card.tier)
         if opponent_card.card_lvl_ap_buff <=0:

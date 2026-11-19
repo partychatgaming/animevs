@@ -1,3 +1,4 @@
+import asyncio
 from numpy import save
 import db
 import crown_utilities
@@ -370,8 +371,8 @@ class Player:
 
             self.summon_lvl_message = f"Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
 
-        except:
-            print("Error setting summon message")
+        except Exception as ex:
+            custom_logging.debug(ex)
             return "Error"
 
     
@@ -417,7 +418,7 @@ class Player:
     
     async def set_guild_data(self):
         if self.guild != "PCG":
-            self.guild_info = db.queryTeam({'TEAM_NAME': self.guild.lower()})
+            self.guild_info = await asyncio.to_thread(db.queryTeam, {'TEAM_NAME': self.guild.lower()})
             self.guild_buff = await crown_utilities.guild_buff_update_function(self.guild)
             if self.guild_buff:
                 if self.guild_buff['Rift'] is True:
@@ -428,7 +429,7 @@ class Player:
                 
 
             if self.association != "PCG":
-                self.association_info = db.queryGuildAlt({'GNAME': self.association})
+                self.association_info = await asyncio.to_thread(db.queryGuildAlt, {'GNAME': self.association})
                 if self.association_info:
                     self.crestlist = self.association_info['CREST']
                     self.crestsearch = True
@@ -444,7 +445,7 @@ class Player:
         guild_buff = await crown_utilities.guild_buff_update_function(self.guild.lower())
         if guild_buff['Auto Battle']:
             self.auto_battle = True
-            update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+            update_team_response = await asyncio.to_thread(db.updateTeam, guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
 
     def combine_duplicate_universes(self):
@@ -567,11 +568,11 @@ class Player:
                 upper = 100
                 tier = card.tier
                 if self.difficulty == "HARD":
-                    lowewr = 100
+                    lower = 100
                     upper = 500
                     tier = card.tier + 1
                 if self.difficulty == "EASY":
-                    lowewr = 1
+                    lower = 1
                     upper = 10
                 random_lvl = random.randint(lower, upper)
                 update_query = {
@@ -673,11 +674,13 @@ class Player:
 
 
     def save_title(self, universe, rpg_title_drop=None):
-        titles = [x for x in db.queryAllTitles() if x['UNIVERSE'] == universe and x['TITLE'] not in self.titles]
+        # Only this universe's titles are needed; this used to pull every title in the game.
+        titles = [x for x in db.queryAllTitlesBasedOnUniverses({'UNIVERSE': universe}) if x['TITLE'] not in self.titles]
         stats = db.query_stats_by_player(self.did)
         message = ""
         for title in titles:
-            if title['UNLOCK_METHOD'] and title['AVAILABLE']:
+            # A brand-new player has no stats document yet: nothing can be unlocked from stats.
+            if stats and title.get('UNLOCK_METHOD') and title.get('AVAILABLE'):
                 unlock_method = title['UNLOCK_METHOD']['METHOD']
                 value = title['UNLOCK_METHOD']['VALUE']
                 element = title['UNLOCK_METHOD'].get('ELEMENT', "N/A")
@@ -713,7 +716,7 @@ class Player:
 
     def tales_title_unlock_check(self, stats, universe, unlock_method, value, title):
         message = ""
-        for tale in stats['TALES_STATS']:
+        for tale in stats.get('TALES_STATS', []):
             if tale['UNIVERSE'] == universe:
                 if unlock_method == "TALES COMPLETED" and tale['TOTAL_CLEARS'] >= value:
                     update_query = {'$addToSet': {'TITLES': title['TITLE']}}
@@ -775,7 +778,7 @@ class Player:
 
     def boss_title_unlock_check(self, stats, universe, unlock_method, value, title):
         message = ""
-        for boss in stats['BOSS_STATS']:
+        for boss in stats.get('BOSS_STATS', []):
             if boss['UNIVERSE'] == universe:
                 if unlock_method == "BOSSES COMPLETED" and boss['TOTAL_CLEARS'] >= value:
                     update_query = {'$addToSet': {'TITLES': title['TITLE']}}
@@ -801,10 +804,11 @@ class Player:
                     update_query = {'$addToSet': {'TITLES': title['TITLE']}}
                     response = db.updateUserNoFilter(self.user_query, update_query)
                     message = f"🎗️ {title['TITLE']} Unlocked!\n"
+        return message
 
 
     def elemental_damage_unlock_check(self, unlock_method, stats, universe, value, title, element):
-        message = " "
+        message = ""
         if unlock_method == "ELEMENTAL DAMAGE DEALT" and element != "N/A":
             for elemental_damage in stats.get(f'{element}_DAMAGE_DONE', []):
                 if elemental_damage['UNIVERSE'] == universe:
@@ -849,6 +853,7 @@ class Player:
             arm.durability = 25
         update_query = {'$addToSet': {'ARMS': {"ARM": arm.name, "DUR": arm.durability}}}
         response = db.updateUserNoFilter(self.user_query, update_query)
+        return True
     
     
     def remove_arm(self, arm_name):
@@ -876,7 +881,8 @@ class Player:
                 summon_list.append(s['NAME'])
                 return False
         for s in self.storage:
-            if summon.name == s['NAME']:
+            # storage normally holds card names; only dict entries can be summons
+            if isinstance(s, dict) and summon.name == s.get('NAME'):
                 return False
             
         if len(summon_list) >= 80:

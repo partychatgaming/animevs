@@ -1,3 +1,4 @@
+import asyncio
 import crown_utilities
 import custom_logging
 import db
@@ -62,7 +63,7 @@ async def scenario_drop(player, scenario, difficulty):
         reward_money_message = f"You earned 🪙 **{round(scenario_gold):,}**!"
 
         if rewarded:
-            arm = db.queryArm({"ARM": rewarded})
+            arm = await asyncio.to_thread(db.queryArm, {"ARM": rewarded})
             if arm:
                 if rewarded in owned_arms:
                     return f"You already own 🦾 **{rewarded}**!\n{reward_money_message}"
@@ -70,29 +71,45 @@ async def scenario_drop(player, scenario, difficulty):
                     durability = random.randint(5, 125)
                     arm = crown_utilities.create_arm_from_data(arm)
                     arm.durability = durability
-                    response = player.save_arm(arm)
-                    if not response:
+                    response = await asyncio.to_thread(player.save_arm, arm)
+                    if response is not True:
                         return f"You are maxed out on 🦾 Arms!\n{reward_money_message}"
                     else:
                         return f"You earned 🦾 **{rewarded}** with ⚒️**{str(durability)} Durability**!\n{reward_money_message}"
-            else:
-                card_data = db.queryCard({"NAME": rewarded})
-                if rewarded in (player.cards or player.storage):
+            card_data = await asyncio.to_thread(db.queryCard, {"NAME": rewarded})
+            if card_data:
+                if rewarded in (player.cards or []) or rewarded in (player.storage or []):
                     return f"You already own 🎴 **{rewarded}**!\n{reward_money_message}"
-                else:
-                    lvl = random.randint(1, 100)
-                    card = crown_utilities.create_card_from_data(card_data)
-                    card.card_lvl = lvl
-                    response = player.save_card(card)
-                    if not response:
-                        return f"You are maxed out on 🎴 Cards!\n{reward_money_message}"
-                    else:
-                        return f"You earned 🎴 {card.name}!\n{reward_money_message}"
+                lvl = random.randint(1, 100)
+                card = crown_utilities.create_card_from_data(card_data)
+                card.card_lvl = lvl
+                response = await asyncio.to_thread(player.save_card, card)
+                if response is not True:
+                    return f"You are maxed out on 🎴 Cards!\n{reward_money_message}"
+                return f"You earned 🎴 {card.name}!\n{reward_money_message}"
+            summon_data = await asyncio.to_thread(db.querySummon, {"PET": rewarded})
+            if summon_data:
+                summon = crown_utilities.create_summon_from_data(summon_data)
+                response = await asyncio.to_thread(player.save_summon, summon)
+                if response is True:
+                    return f"You earned 🧬 **{rewarded}**!\n{reward_money_message}"
+                if response is False:
+                    return f"You already own 🧬 **{rewarded}**!\n{reward_money_message}"
+                return f"You are maxed out on 🧬 Summons!\n{reward_money_message}"
+            title_data = await asyncio.to_thread(db.queryTitle, {"TITLE": rewarded})
+            if title_data:
+                if rewarded in (player.titles or []):
+                    return f"You already own 🎗️ **{rewarded}**!\n{reward_money_message}"
+                await asyncio.to_thread(db.updateUserNoFilter, {'DID': str(player.did)}, {'$addToSet': {'TITLES': rewarded}})
+                return f"You earned 🎗️ **{rewarded}**!\n{reward_money_message}"
+            loggy.warning(f"Scenario reward '{rewarded}' is not a card, arm, summon or title")
+            return reward_money_message
         else:
             return reward_money_message
 
     except Exception as ex:
         custom_logging.debug(ex)
+        return "⚠️ The scenario reward could not be delivered."
 
 
 
@@ -120,7 +137,7 @@ async def reward_money(battle_config, player):
         amount = (1000 + (1000 * battle_config.current_opponent_number)) 
 
     try:
-        player.save_gems(battle_config.selected_universe, round(gem_amount))
+        await asyncio.to_thread(player.save_gems, battle_config.selected_universe, round(gem_amount))
         await crown_utilities.bless(amount, player.did)
         return f"You earned 🪙 **{'{:,}'.format(amount)}**\nYou earned 💎 **{'{:,}'.format(round(gem_amount))}** {battle_config.selected_universe} Gems"
     except Exception as e:
@@ -157,11 +174,11 @@ def get_drop_rate(battle_config, player):
         drop_style = "SCENARIO"
         # Not clear from original code what tiers should be in this case
 
-    # Determine drop type based on drop rate
-    for drop_type, value in drop_values:
-        if drop_rate >= 200:
-            return "CARD", drop_style
-        elif drop_rate >= value:
+    # Determine drop type based on drop rate: the highest threshold reached wins.
+    # (This used to walk the table from the bottom, so the first row - GOLD at 0 -
+    # always matched and arms, summons and rematches could never drop.)
+    for drop_type, value in reversed(drop_values):
+        if drop_rate >= value:
             return drop_type, drop_style
 
     # Log a warning if no drop type was determined
@@ -174,28 +191,29 @@ def get_drop_rate(battle_config, player):
 async def reward_message(battle_config, player, drop_type=None, reward_item=None, owned=None):
     user_query = {'DID': str(player.did)}
     reward_money_message = await reward_money(battle_config, player)
-    title_drop_message = player.save_title(battle_config.selected_universe)
+    title_drop_message = await asyncio.to_thread(player.save_title, battle_config.selected_universe)
     message = ""
-    print("reward_message")
 
     if drop_type == "GOLD" or drop_type is None:
         message = f"**{reward_money_message}**!"
-        print("money")
 
     elif drop_type == "REMATCH":
-        response = db.updateUserNoFilter(user_query, {'$inc': {'RETRIES': 1}})
+        response = await asyncio.to_thread(db.updateUserNoFilter, user_query, {'$inc': {'RETRIES': 1}})
         message = f"You earned 1 Rematch!\n{reward_money_message}"
-        print("rematch")
     
     elif drop_type == "ARM":
+        # reward_item is the arm's NAME; the arm object has to be built from its data
+        arm_data = await asyncio.to_thread(db.queryArm, {'ARM': reward_item})
+        arm = crown_utilities.create_arm_from_data(arm_data) if arm_data else False
         if reward_item in owned:
             message = f"You already own 🦾 **{reward_item}**!"
+        elif not arm:
+            message = ""
         else:
             durability = random.randint(5, 150)
-            arm = crown_utilities.create_arm_from_data(reward_item)
             arm.durability = durability
-            response = player.save_arm(arm)
-            if not response:
+            response = await asyncio.to_thread(player.save_arm, arm)
+            if response is not True:
                 message = "You are maxed out on 🦾 Arms!"
             else:
                 message = f"You earned 🦾 **{reward_item}** with ⚒️**{str(durability)} Durability**!"
@@ -203,8 +221,7 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 milestone_message = await Quests.milestone_check(player, "ARMS_OWNED", 1)
                 if milestone_message:
                     message += f"\n🏆 {milestone_message}"
-        message += f"\n{reward_money_message}"
-        print("arm")
+        message = f"{message}\n{reward_money_message}".strip()
     
     elif drop_type == "SUMMON":
         if len(player.summons) >= 25:
@@ -219,48 +236,46 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 await crown_utilities.bless(150, player.did)
                 message = f"You own 🐦 **{reward_item}**! Received extra + 🪙 150!"
             else:
-                selected_pet = db.querySummon({'PET': reward_item})
+                selected_pet = await asyncio.to_thread(db.querySummon, {'PET': reward_item})
                 summon = crown_utilities.create_summon_from_data(selected_pet)
-                player.save_summon(summon)
+                await asyncio.to_thread(player.save_summon, summon)
                 await crown_utilities.bless(50, player.did)
                 message = f"You earned 🐦 **{reward_item}** + 🪙 50!"
                 milestone_message = await Quests.milestone_check(player, "SUMMONS_OWNED", 1)
                 if milestone_message:
                     message += f"\n🏆 {milestone_message}"
         message += f"\n{reward_money_message}"
-        print("summon")
     elif drop_type == "CARD":
-        if reward_item in owned:
+        # reward_item is the card's NAME; the card object has to be built from its data
+        card_data = await asyncio.to_thread(db.queryCard, {'NAME': reward_item})
+        card = crown_utilities.create_card_from_data(card_data) if card_data else False
+        if reward_item in owned or reward_item in (player.storage or []):
             message = f"You already own 🎴 **{reward_item}**!"
+        elif not card:
+            message = ""
         else:
             lvl = random.randint(1, 100)
-            card = crown_utilities.create_card_from_data(reward_item)
             card.card_lvl = lvl
-            response = player.save_card(card)
-            if not response:
+            response = await asyncio.to_thread(player.save_card, card)
+            if response is not True:
                 message = "You are maxed out on 🎴 Cards!"
             else:
                 message = f"You earned 🎴 {card.name}!"
                 milestone_message = await Quests.milestone_check(player, "CARDS_OWNED", 1)
                 if milestone_message:
                     message += f"\n🏆 {milestone_message}"
-        message += f"\n{reward_money_message}"
-        print("card")
+        message = f"{message}\n{reward_money_message}".strip()
 
     if message and title_drop_message:
         message = f"{message}\n{title_drop_message}"
         milestone_message = await Quests.milestone_check(player, "TITLES_OWNED", 1)
-        print("message and title_drop_message")
     elif title_drop_message:
         message = title_drop_message
         milestone_message = await Quests.milestone_check(player, "TITLES_OWNED", 1)
-        print("title_drop_message")
         if milestone_message:
             message += f"\n🏆 {milestone_message}"
-            print("milestone_message")
     else:
         message = f"{message}"
-    print("Final message", message)
     return message
 
 async def reward_drop(self, battle_config, player, guranteed_drop=None, guranteed_drop_type=None):
@@ -269,27 +284,26 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
     else:
         drop_type, drop_style = get_drop_rate(battle_config, player)
         if battle_config.is_easy_difficulty:
-            return reward_money(battle_config, player)
+            return await reward_money(battle_config, player)
         owned_arms = [arm['ARM'] for arm in player.arms]
         try:
-            print("Drop type", drop_type, "Drop style", drop_style)
             if drop_type == "REMATCH":
                 if player.retries <= 25:
                     message = await reward_message(battle_config, player, drop_type)
                 else:
-                    message = reward_money(battle_config, player)
+                    message = await reward_money(battle_config, player)
                 return message
             elif drop_type == "ARM":
-                all_available_drop_arms_cursor = db.queryDropArms(battle_config.selected_universe, drop_style)
+                all_available_drop_arms_cursor = await asyncio.to_thread(db.queryDropArms, battle_config.selected_universe, drop_style)
                 all_available_drop_arms = list(all_available_drop_arms_cursor)  # Convert cursor to list
                 if all_available_drop_arms:
                     rand_arm = random.choice(all_available_drop_arms)['ARM']
                     message = await reward_message(battle_config, player, drop_type, rand_arm, owned_arms)
                 else:
-                    message = reward_money(battle_config, player)
+                    message = await reward_money(battle_config, player)
                 return message
             elif drop_type == "SUMMON":
-                all_available_drop_summons_cursor = db.queryDropSummons(battle_config.selected_universe, drop_style)
+                all_available_drop_summons_cursor = await asyncio.to_thread(db.queryDropSummons, battle_config.selected_universe, drop_style)
                 all_available_drop_summons = list(all_available_drop_summons_cursor)  # Convert cursor to list
                 if all_available_drop_summons:
                     rand_summon = random.choice(all_available_drop_summons)['PET']
@@ -298,7 +312,7 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
                     message = await reward_message(battle_config, player)
                 return message
             elif drop_type == "CARD":
-                all_available_drop_cards_cursor = db.queryDropCards(battle_config.selected_universe, drop_style)
+                all_available_drop_cards_cursor = await asyncio.to_thread(db.queryDropCards, battle_config.selected_universe, drop_style)
                 all_available_drop_cards = list(all_available_drop_cards_cursor)  # Convert cursor to list
                 if all_available_drop_cards:
                     rand_card = random.choice(all_available_drop_cards)['NAME']

@@ -42,7 +42,7 @@ class Quests(Extension):
 
     
     async def quest_check(player, quest_type):
-        player_data = db.queryUser({"DID": str(player.did)})
+        player_data = await asyncio.to_thread(db.queryUser, {"DID": str(player.did)})
         quest_list = []
         if player_data:
             player = crown_utilities.create_player_from_data(player_data)
@@ -58,12 +58,12 @@ class Quests(Extension):
                                     '$set': {'QUESTS.$[type].COMPLETED': True}}
                     filter_query = [{'type.' + 'TYPE': quest["TYPE"]}]
                     bless = await crown_utilities.bless(quest['REWARD'], str(player.did))
-                    response = db.updateUser({"DID": str(player.did)}, update_query, filter_query)
+                    response = await asyncio.to_thread(db.updateUser, {"DID": str(player.did)}, update_query, filter_query)
                     return f"Congratulations! You have completed your {quest['NAME'].title()} quest and have received 💎 {int(quest['REWARD']):,} as a reward"
                 else:
                     update_query = {'$inc': {'QUESTS.$[type].' + 'AMOUNT': 1}}
                     filter_query = [{'type.' + 'TYPE': quest["TYPE"]}]
-                    response = db.updateUser({"DID": str(player.did)}, update_query, filter_query)
+                    response = await asyncio.to_thread(db.updateUser, {"DID": str(player.did)}, update_query, filter_query)
                     return ""
         return ""
 
@@ -89,7 +89,8 @@ class Quests(Extension):
         # This will check for misc milestones and universe milestones
         initiated_milestones = await initiate_milestone_checks(player, universe_title)
 
-        player.quests = db.queryUser({"DID": str(player.did)})["QUESTS"]
+        user_data = await asyncio.to_thread(db.queryUser, {"DID": str(player.did)})
+        player.quests = (user_data or {}).get("QUESTS", []) if isinstance(user_data, dict) else []
         # This is a check for misc milestones, if universe_title is None
         if not universe_title:
             processed_types = set()  # Set to keep track of processed milestone types

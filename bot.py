@@ -17,7 +17,6 @@ cls_log.setLevel(logging.WARNING)
 translator = tm.TranslationManager(default_language="en")
 language_cache = LanguageCache()
 
-heartbeat_started = False
 class CustomClient(Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,16 +37,33 @@ bot = CustomClient(
     )
 
 
+startup_done = False
+
+
 @listen()
 async def on_ready():
-    global heartbeat_started
+    """
+    Runs on every READY (the first connect and any full reconnect), so the
+    one-time work is guarded.  Application commands are already synced by the
+    client itself (sync_interactions=True); syncing them again here only
+    doubled the start-up API traffic.
+    """
+    global startup_done
     server_count = len(bot.guilds)
-    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!\nGAME OVERHAUL HAS BEEN RELEASED! All accounts have been reset. Please use /register to start!", type=1))
+    try:
+        await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!\nGAME OVERHAUL HAS BEEN RELEASED! All accounts have been reset. Please use /register to start!", type=1))
+    except Exception as ex:
+        loggy.warning(f"Could not set presence: {ex}")
     loggy.info('The bot is up and running')
-    await bot.synchronise_interactions()
-    if not heartbeat_started:
+    if not startup_done:
+        startup_done = True
         check_heartbeat.start()
-        heartbeat_started = True
+        # Index creation talks to MongoDB; keep it off the event loop.
+        try:
+            created = await asyncio.to_thread(db.ensure_indexes)
+            loggy.info(f"Database indexes ensured: {len(created)}")
+        except Exception as ex:
+            loggy.warning(f"Could not ensure database indexes: {ex}")
 
 
 async def load(ctx, extension):
@@ -64,7 +80,7 @@ async def unload(ctx, extension):
     except Exception as e:
         await ctx.send(f"Failed to unload {extension}: {e}")
 
-for filename in os.listdir('./cogs'):
+for filename in sorted(os.listdir('./cogs')):
     if filename.endswith('.py'):
         try:
             bot.load_extension(f'cogs.{filename[:-3]}')
@@ -75,38 +91,38 @@ for filename in os.listdir('./cogs'):
 
 @listen()
 async def on_disconnect():
-    loggy.warning("Bot disconnected. Attempting to reconnect...")
-    await asyncio.sleep(5)  # Wait before attempting to reconnect
+    # The client reconnects (and resumes) by itself; nothing to do but note it.
+    loggy.warning("Bot disconnected; the client will reconnect automatically.")
 
-async def restart_bot():
-    loggy.info("Restarting bot...")
-    await bot.stop()
-    await asyncio.sleep(5)  # Wait before restarting
-    await bot.start()
 
 @Task.create(IntervalTrigger(minutes=5))
 async def check_heartbeat():
+    """
+    Log the gateway latency.
+
+    This used to "restart" the bot when latency went over 2 seconds by calling
+    bot.stop() and then bot.start() from inside the running bot.  bot.start()
+    cannot run inside an event loop, so the restart never happened: the bot just
+    shut down, every battle in progress died, and the process exited.  The
+    client already reconnects on its own when the gateway connection is bad.
+    """
     try:
         latency = bot.latency
-        loggy.info(f'Heartbeat check - latency: {latency}')
-        if latency and latency > 2.0:  # Adjusted threshold to 2 seconds
-            loggy.warning('High latency detected, restarting bot...')
-            await restart_bot()
+        if latency and latency > 2.0:
+            loggy.warning(f'High gateway latency: {latency:.2f}s')
+        else:
+            loggy.info(f'Heartbeat check - latency: {latency}')
     except Exception as e:
         loggy.error(f'Error during heartbeat check: {e}')
-        await restart_bot()
 
-# Run the bot
+
+# Run the bot (blocks until the bot shuts down)
 try:
     bot.start()
 except KeyboardInterrupt:
     loggy.info("Bot stopped by user")
 except Exception as e:
     loggy.error(f"An error occurred while running the bot: {e}")
-finally:
-    # Ensure the bot is properly closed
-    if not bot.is_closed:
-        asyncio.run(bot.stop())  # Use asyncio.run to properly close the bot
 
 
 async def validate_user(ctx):
