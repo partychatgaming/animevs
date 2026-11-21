@@ -190,19 +190,6 @@ async def safe_delete(message):
         pass
 
 
-async def render_card(card, arm, turn_total, opponent_defense, mode):
-    """Render a card off the event loop and return the PNG bytes (never None)."""
-    image_binary = await render_cache.render_async(card.showcard, arm, turn_total, opponent_defense, mode)
-    try:
-        return image_binary.getvalue()
-    finally:
-        image_binary.close()
-
-
-def image_file(image_bytes, file_name="image.png"):
-    return File(file_name=file_name, file=BytesIO(image_bytes))
-
-
 async def show_battle_view(private_channel, battle_msg, container, image_bytes=None, file_name=battle_view.SCENE_FILE):
     """
     Put the current state of the battle on screen.
@@ -256,15 +243,10 @@ async def end_battle_on_error(self, private_channel, state, battle_config, ex):
                                    else "You can start a new battle right away."),
                       color=0xE74C3C)
         embed.set_footer(text=crown_utilities.clip(f"{type(ex).__name__}: {ex}", 300))
-        if state.get("battle_msg") is not None:
-            await safe_delete(state.get("battle_msg"))
-            state["battle_msg"] = None
-        elif state.get("start_msg") is not None:
-            try:
-                await state["start_msg"].edit(embed=embed, components=[])
-                return
-            except Exception:
-                pass
+        for key in ("battle_msg", "start_msg"):
+            if state.get(key) is not None:
+                await safe_delete(state.get(key))
+                state[key] = None
         await private_channel.send(embed=embed)
     except Exception as notify_error:
         custom_logging.debug(notify_error)
@@ -329,20 +311,19 @@ async def run_match(self, ctx, battle_config, private_channel, state, game_start
     battle_config.set_who_starts_match()
 
     user1, user2, opponent_ping, user3 = await get_users_and_opponent_ping(self, battle_config)
-    match_start_embed = await build_match_start_embed(battle_config, user1, user2)
     battle_config.turn_zero_has_happened = False
     battle_config._actions_taken = 0
 
-    if battle_config.is_pvp_game_mode:
-        image_bytes = await render_card(battle_config.player1_card, battle_config.player1_arm, battle_config.turn_total, battle_config.player2_card.defense, battle_config.mode)
-    else:
-        image_bytes = await render_card(battle_config.player2_card, battle_config.player2_arm, battle_config.turn_total, battle_config.player1_card.defense, battle_config.mode)
-
+    # The old start screen drew this card, which also set its per-turn move
+    # values for turn 0; keep that so nothing changes in the first turn.
+    battle_view.refresh_move_values(battle_config.player1_card if battle_config.is_pvp_game_mode else battle_config.player2_card,
+                                    battle_config.turn_total)
+    if opponent_ping == "...":
+        opponent_ping = f"**{battle_config.player2_card.name}**"
+    image_bytes = await battle_view.render_matchup(battle_config)
     battle_start_msg = await private_channel.send(
-        content=f"{user1.mention} 🆚 {opponent_ping}",
-        embed=match_start_embed,
-        components=[start_buttons_action_rows],
-        file=image_file(image_bytes)
+        components=[battle_view.start_view(battle_config, start_buttons_action_rows, f"{user1.mention} 🆚 {opponent_ping}")],
+        file=battle_view.scene_file(image_bytes, battle_view.START_FILE),
     )
     state["start_msg"] = battle_start_msg
 
@@ -372,7 +353,7 @@ async def run_match(self, ctx, battle_config, private_channel, state, game_start
         await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
         release_all_players(battle_config)
         try:
-            await battle_start_msg.edit(components=[])
+            await battle_start_msg.edit(components=[battle_view.start_banner(battle_config, "💾 Saved. Pick up from this match next time.")], files=[])
         except HTTPException:
             pass
         await private_channel.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
@@ -388,8 +369,9 @@ async def run_match(self, ctx, battle_config, private_channel, state, game_start
         await safe_delete(battle_start_msg)
         state["start_msg"] = None
     else:
+        started = "🤖 Auto battle" if custom_id.endswith("|start_game_auto_battle_mode") else "▶️ Match started"
         try:
-            await battle_start_msg.edit(components=[])
+            await battle_start_msg.edit(components=[battle_view.start_banner(battle_config, started)], files=[])
         except HTTPException:
             pass
 
@@ -826,14 +808,10 @@ def config_battle_starting_buttons(battle_config):
 
     start_tales_buttons = [
         Button(
-            style=ButtonStyle.BLUE,
-            label=f"{start_message}",
+            style=ButtonStyle.GREEN,
+            label=crown_utilities.clip(f"{start_message}", 80),
+            emoji="⚔️",
             custom_id=f"{battle_config._uuid}|start_game"
-        ),
-        Button(
-            style=ButtonStyle.RED,
-            label="End",
-            custom_id=f"{battle_config._uuid}|quit_game"
         ),
     ]
 
@@ -842,20 +820,29 @@ def config_battle_starting_buttons(battle_config):
             Button(
                 style=ButtonStyle.GREY,
                 label="Auto Battle",
+                emoji="🤖",
                 custom_id=f"{battle_config._uuid}|start_game_auto_battle_mode"
             )
-
         )
-    
+
     if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on() and not battle_config.is_rpg:
         if battle_config.current_opponent_number > 0:
             start_tales_buttons.append(
                 Button(
-                    style=ButtonStyle.GREEN,
-                    label="Save Game",
+                    style=ButtonStyle.GREY,
+                    label="Save & Quit",
+                    emoji="💾",
                     custom_id=f"{battle_config._uuid}|save_game"
                 )
             )
+
+    start_tales_buttons.append(
+        Button(
+            style=ButtonStyle.RED,
+            label="Flee" if battle_config.is_rpg else "End",
+            custom_id=f"{battle_config._uuid}|quit_game"
+        )
+    )
 
     start_tales_buttons_action_row = ActionRow(*start_tales_buttons)    
 
@@ -1159,44 +1146,6 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     await channel.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
 
 
-async def build_match_start_embed(battle_config, user1, user2):
-    """
-    Builds the match start embed for the battle.
-
-    Parameters:
-    - battle_config: Configuration object for the battle.
-    - user1: User object representing the first player.
-    - user2: User object representing the second player.
-
-    Returns:
-    Embed: The built match start embed (a minimal one if a detail cannot be rendered).
-    """
-    embed = Embed(title=crown_utilities.clip(f"{battle_config.set_levels_message()}", 256))
-    try:
-        embed.set_author(name=crown_utilities.clip(f"{battle_config.get_starting_match_title()}", 256))
-
-        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
-            footer = (f"Your Affinities:\n{battle_config.player1_card.set_battle_menu_affinity_message()}\n\n"
-                      f"Opponent Affinities:\n{battle_config.player2_card.set_battle_menu_affinity_message()}\n\n"
-                      f"Companion Affinities:\n{battle_config.player3_card.set_battle_menu_affinity_message()}")
-            embed.set_footer(text=crown_utilities.clip(footer, 2048), icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
-        else:
-            footer = (f"Your Affinities:\n{battle_config.player1_card.set_battle_menu_affinity_message()}\n\n"
-                      f"Opponent Affinities:\n{battle_config.player2_card.set_battle_menu_affinity_message()}\n\n")
-            embed.set_footer(text=crown_utilities.clip(footer, 2048))
-
-        embed.set_image(url="attachment://image.png")
-
-        if battle_config.is_pvp_game_mode and user2 is not None:
-            embed.set_thumbnail(url=user2.avatar_url)
-        else:
-            embed.set_thumbnail(url=user1.avatar_url)
-    except Exception as ex:
-        custom_logging.debug(ex)
-        embed.set_image(url="attachment://image.png")
-    return embed
-
-
 def check_if_game_over(battle_config):
     player3_card = battle_config.player3_card if battle_config.is_duo_mode or battle_config.is_co_op_mode else None
     if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
@@ -1252,8 +1201,9 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
     # starting traits / arm messages (the embed it also builds is no longer shown)
     await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
     battle_view.refresh_move_values(turn_card, battle_config.turn_total)
-    image_bytes = await battle_view.render_scene(battle_config)
-    battle_msg = await show_battle_view(private_channel, battle_msg, battle_view.ai_turn_view(battle_config, turn_card), image_bytes)
+    image_bytes, image_name, announcement = await battle_view.render_scene(battle_config)
+    battle_msg = await show_battle_view(private_channel, battle_msg, battle_view.ai_turn_view(battle_config, turn_card, image_name, announcement),
+                                        image_bytes, image_name)
     await asyncio.sleep(AI_TURN_READ_DELAY)
 
     selected_move = battle_config.ai_battle_command(turn_card, opponent_card)
@@ -1312,9 +1262,9 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
     turn_card.set_stat_icons()
 
     tutorial_text = battle_config.get_tutorial_message(turn_card) if battle_config.is_tutorial_game_mode else None
-    container, listen = battle_view.human_turn_view(battle_config, turn_card, tutorial_text)
-    image_bytes = await battle_view.render_scene(battle_config)
-    battle_msg = await show_battle_view(private_channel, battle_msg, container, image_bytes)
+    image_bytes, image_name, announcement = await battle_view.render_scene(battle_config)
+    container, listen = battle_view.human_turn_view(battle_config, turn_card, tutorial_text, image_name, announcement)
+    battle_msg = await show_battle_view(private_channel, battle_msg, container, image_bytes, image_name)
     return battle_msg, listen
 
 

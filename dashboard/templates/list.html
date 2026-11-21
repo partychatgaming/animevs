@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}{{ catalog.label }}{% endblock %}
+{% block page %}list{% endblock %}
+{% macro view_link(name, label) -%}
+  {%- set p = dict(params) -%}{%- set _ = p.pop('page', None) -%}{%- set _ = p.update({'view': name if name != 'grid' else None}) -%}
+  <a href="{{ url_for('listing', catalog_key=catalog_key, **p) }}" class="{% if view == name %}on{% endif %}">{{ label }}</a>
+{%- endmacro %}
+{% block body %}
+  <section class="intro list-head" style="--c: {{ catalog.color }}">
+    <div>
+      <p class="eyebrow">{{ "{:,}".format(total) }} {{ catalog.label|lower }}</p>
+      <h1>{{ catalog.label }}</h1>
+    </div>
+    <div class="tools">
+      <div class="seg" role="tablist" aria-label="View">
+        {{ view_link('grid', 'Grid') }}
+        {{ view_link('table', 'Table') }}
+        {{ view_link('3d', '3D') }}
+      </div>
+      <button type="button" class="pink" data-create="{{ catalog_key }}" data-universe="{{ universe }}">New <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <form class="toolbar" method="get" id="toolbar">
+    {% if view != 'grid' %}<input type="hidden" name="view" value="{{ view }}">{% endif %}
+    <label class="search">Search
+      <input type="search" name="q" value="{{ q }}" placeholder="Name…" autocomplete="off">
+    </label>
+    {% if catalog.universe %}
+      <label>Universe
+        <select name="universe" data-autosubmit>
+          <option value="">All universes</option>
+          {% for name in universes %}<option value="{{ name }}" {% if name == universe %}selected{% endif %}>{{ name }}</option>{% endfor %}
+        </select>
+      </label>
+    {% endif %}
+    <div class="more">
+      <label>Sort
+        <select name="sort" data-autosubmit>
+          {% for key, label in catalog.sorts %}<option value="{{ key }}" {% if key == sort %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </label>
+      {% if catalog_key == 'cards' %}
+        <label>Class
+          <select name="cls" data-autosubmit>
+            <option value="">Any class</option>
+            {% for c in classes %}<option value="{{ c }}" {% if filters.cls == c %}selected{% endif %}>{{ class_emoji.get(c, '') }} {{ c.title() }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Tier
+          <select name="tier" data-autosubmit>
+            <option value="">Any tier</option>
+            {% for t in range(1, 11) %}<option value="{{ t }}" {% if filters.tier == t|string %}selected{% endif %}>{{ '★' * t if t <= 5 else t ~ '★' }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Type
+          <select name="type" data-autosubmit>
+            <option value="">Any type</option>
+            {% for e in elements %}<option value="{{ e }}" {% if filters.type == e %}selected{% endif %}>{{ element_style(e).emoji }} {{ e.title() }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Art
+          <select name="art" data-autosubmit>
+            <option value="">Any</option>
+            <option value="art" {% if filters.art == 'art' %}selected{% endif %}>Has card art</option>
+            <option value="none" {% if filters.art == 'none' %}selected{% endif %}>Template only</option>
+          </select>
+        </label>
+      {% endif %}
+      <label>Status
+        <select name="avail" data-autosubmit>
+          <option value="">All</option>
+          <option value="1" {% if filters.avail == '1' %}selected{% endif %}>Available</option>
+          <option value="0" {% if filters.avail == '0' %}selected{% endif %}>Hidden</option>
+        </select>
+      </label>
+    </div>
+    <button type="button" class="ghost more-toggle" data-toggle-filters>Filters</button>
+    <button type="submit">Apply</button>
+  </form>
+
+  {% if view == 'grid' %}
+    {% if catalog_key == 'cards' %}
+      <div class="gallery" id="gallery">
+        {% for t in tiles %}
+          <article class="tile {% if not t.available %}off{% endif %}" data-id="{{ t.id }}" data-tilt style="--glow: {{ t.type.glow }}">
+            <a class="face" href="{{ t.edit }}" aria-label="Edit {{ t.name }}">
+              {% if not t.available %}<span class="badge-off">Hidden</span>{% endif %}
+              <img src="{{ t.render }}" alt="{{ t.name }} card" loading="lazy" decoding="async" onload="this.dataset.loaded=1" width="480" height="720">
+              <span class="skeleton"></span>
+            </a>
+            <div class="tools">
+              <button type="button" class="cyan" data-quick="{{ catalog_key }}/{{ t.id }}" title="Quick edit" aria-label="Quick edit {{ t.name }}">✏️</button>
+              <button type="button" class="pink" data-spin="{{ t.render_full }}" data-name="{{ t.name }}" data-glow="{{ t.type.glow }}" title="View in 3D" aria-label="View {{ t.name }} in 3D">🌀</button>
+            </div>
+            <div class="meta">
+              <a href="{{ t.edit }}">{{ t.name }}, {{ t.universe }}</a>
+              <small>{{ t.chips[1] }} · {{ t.chips[2] }}</small>
+            </div>
+          </article>
+        {% else %}
+          <p class="muted">Nothing matches. Try clearing a filter.</p>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="gallery items" id="gallery">
+        {% for t in tiles %}
+          <article class="item {% if not t.available %}off{% endif %}" data-id="{{ t.id }}" style="--c: {{ t.type.color }}; --g: {{ t.type.glow }}">
+            <div class="tools">
+              <button type="button" class="cyan" data-quick="{{ catalog_key }}/{{ t.id }}" aria-label="Quick edit {{ t.name }}">✏️</button>
+              {% if t.image %}<button type="button" class="pink" data-spin="{{ t.image }}" data-name="{{ t.name }}" data-glow="{{ t.type.glow }}" data-shape="art" aria-label="View {{ t.name }} in 3D">🌀</button>{% endif %}
+            </div>
+            <a class="banner" href="{{ t.edit }}" tabindex="-1">
+              <span class="art-bg"></span>
+              {% if t.image %}<img src="{{ t.image }}" alt="" loading="lazy">{% else %}<span class="emblem">{{ t.type.emoji if t.type.key else catalog.icon }}</span>{% endif %}
+              {% if not t.available %}<span class="pill">Hidden</span>{% endif %}
+            </a>
+            <div class="body">
+              <a class="name" href="{{ t.edit }}" style="text-decoration: none">{{ t.name }}</a>
+              {% if t.universe %}<span class="uni">🌌 {{ t.universe }}</span>{% endif %}
+              {% for emoji, text in t.abilities %}<div class="ability"><span>{{ emoji }}</span><span>{{ text }}</span></div>{% endfor %}
+              {% if t.stats %}
+                <div class="chips">{% for label, value, cls in t.stats %}<span class="chip">{{ label }}: {{ value }}</span>{% endfor %}</div>
+              {% endif %}
+              <div class="chips">
+                {% for chip in t.chips %}<span class="chip">{{ chip }}</span>{% endfor %}
+              </div>
+            </div>
+          </article>
+        {% else %}
+          <p class="muted">Nothing matches. Try clearing a filter.</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  {% elif view == 'table' %}
+    <p class="hint">Tip: cells with a dotted underline can be edited right here. Type, then press Enter or tap away to save.</p>
+    <div class="table-scroll">
+      <table class="grid" data-catalog="{{ catalog_key }}">
+        <thead>
+          <tr>
+            {% for label, key in catalog.columns %}<th>{{ label }}</th>{% endfor %}
+            <th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr class="{% if not row.available %}off{% endif %}" data-id="{{ row.id }}">
+              {% for cell in row.cells %}
+                {% set key = catalog.columns[loop.index0][1] %}
+                {% if loop.first %}
+                  <td><a href="{{ url_for('edit', catalog_key=catalog_key, doc_id=row.id) }}">{{ cell }}</a></td>
+                {% elif key in editable %}
+                  <td class="num" contenteditable="true" data-key="{{ key }}" inputmode="decimal" style="text-decoration: underline dotted var(--dim)">{{ cell }}</td>
+                {% else %}
+                  <td>{{ cell }}</td>
+                {% endif %}
+              {% endfor %}
+              <td>
+                <label class="toggle" title="Available"><input type="checkbox" data-avail {% if row.available %}checked{% endif %}><span class="sw"></span></label>
+              </td>
+              <td><button type="button" class="small cyan" data-quick="{{ catalog_key }}/{{ row.id }}">✏️</button></td>
+            </tr>
+          {% else %}
+            <tr><td colspan="10">Nothing matches.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% else %}
+    <div class="stage3d" id="stage3d">
+      <div class="caption" id="stage-caption"></div>
+      <canvas id="stage-canvas"></canvas>
+      <div class="stage-ui">
+        <button type="button" class="ghost" data-stage="prev" aria-label="Previous">←</button>
+        <button type="button" class="pink" data-stage="open">Open <span class="arrow">→</span></button>
+        <button type="button" data-stage="flip">Flip</button>
+        <button type="button" class="ghost" data-stage="next" aria-label="Next">→</button>
+      </div>
+    </div>
+    <p class="hint">Swipe or drag to turn the ring, tap a card to bring it forward, double-tap to flip it.</p>
+  {% endif %}
+
+  {% if pages > 1 %}
+    <nav class="pager" aria-label="Pages">
+      {% if page > 1 %}<a class="btn small ghost" href="{{ url_for('listing', catalog_key=catalog_key, page=page-1, **params) }}">← Prev</a>{% endif %}
+      <span>Page {{ page }} / {{ pages }}</span>
+      {% if page < pages %}<a class="btn small" href="{{ url_for('listing', catalog_key=catalog_key, page=page+1, **params) }}">Next →</a>{% endif %}
+    </nav>
+  {% endif %}
+
+  <dialog id="quick-dialog" class="sheet">
+    <form id="quick-form">
+      <div class="dlg-head"><h3 id="quick-title">Quick edit</h3><button type="button" class="small ghost" data-close>✕</button></div>
+      <div class="dlg-body" id="quick-body"><p class="muted">Loading…</p></div>
+      <div class="dlg-foot">
+        <a class="btn ghost" id="quick-full" href="#">Full editor ↗</a>
+        <button type="submit" class="pink">Save</button>
+      </div>
+    </form>
+  </dialog>
+{% endblock %}
+{% block scripts %}
+  <script>
+    window.AVS_PAGE = { catalog: {{ catalog_key|tojson }}, tiles: {{ tiles|tojson }}, view: {{ view|tojson }} };
+  </script>
+{% endblock %}

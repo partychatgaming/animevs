@@ -6,3 +6,6 @@ discord.log
 text.png
 image_cache/
 _backup_before_overhaul/
+tools/.card_art_state.json*
+tools/card_art_report.csv
+assets/card_overlays/*.png

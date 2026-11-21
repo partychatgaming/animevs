@@ -397,5 +397,75 @@ class Admin(Extension):
 
 
 
+    @slash_command(name="cardart", description="admin only: set a card's art (plain art, any shape; no template)", scopes=crown_utilities.guild_ids)
+    @slash_option(name="card", description="Card name", opt_type=OptionType.STRING, required=True)
+    @slash_option(name="art", description="The one image this card uses", opt_type=OptionType.STRING, required=False)
+    @slash_option(name="crop_center", description="Where to centre the crop, as x,y from 0 to 1 (e.g. 0.5,0.3); 'auto' to reset", opt_type=OptionType.STRING, required=False)
+    @slash_option(name="clear", description="Remove this card's plain art (falls back to the art inside its premade card)", opt_type=OptionType.BOOLEAN, required=False)
+    async def cardart(self, ctx, card: str, art: str = None, crop_center: str = None, clear: bool = False):
+        await ctx.defer(ephemeral=True)
+        if ctx.author.id not in [306429381948211210, 263564778914578432]:
+            await ctx.send("🛑 You know damn well this command isn't for you.", ephemeral=True)
+            return
+        import battle_panels
+        import battle_scene
+        import render_cache
+        card_data = await asyncio.to_thread(db.queryCard, {"NAME": {"$regex": f"^{__import__('re').escape(card)}$", "$options": "i"}})
+        if not card_data:
+            await ctx.send(f"❌ No card named **{card}**.", ephemeral=True)
+            return
+        name = card_data["NAME"]
+        fields = ("CARD_ART", "CARD_FOCUS_ART", "CARD_RESOLVE_ART", "CARD_ART_CROP")
+        if clear:
+            await asyncio.to_thread(db.updateCard, {"NAME": name}, {"$unset": {f: "" for f in fields}})
+            await ctx.send(f"🧹 Removed the plain art from **{name}**; it uses the art inside its premade card again.", ephemeral=True)
+            return
+        update = {}
+        unset = {}
+        if art:
+            url = art.strip()
+            if not url.lower().startswith(("http://", "https://")):
+                await ctx.send("❌ `art` must be a link (http/https).", ephemeral=True)
+                return
+            if await asyncio.to_thread(render_cache.fetch_image_bytes, url) is None:
+                await ctx.send(f"❌ I couldn't download that image: {url}", ephemeral=True)
+                return
+            update["CARD_ART"] = url
+            update["PATH"] = url
+            unset["CARD_FOCUS_ART"] = ""
+            unset["CARD_RESOLVE_ART"] = ""
+        if crop_center:
+            if crop_center.strip().lower() == "auto":
+                unset["CARD_ART_CROP"] = ""
+            else:
+                point = battle_panels.parse_focus(crop_center)
+                if point is None:
+                    await ctx.send("❌ crop_center should look like `0.5,0.3` (x,y from 0 to 1) or `auto`.", ephemeral=True)
+                    return
+                update["CARD_ART_CROP"] = f"{point[0]:.3f},{point[1]:.3f}"
+        if not update and not unset:
+            if not card_data.get("CARD_ART"):
+                await ctx.send(f"**{name}** has no plain art yet. Give me at least `art`.", ephemeral=True)
+                return
+        elif not (update.get("CARD_ART") or card_data.get("CARD_ART")):
+            await ctx.send("❌ Set `art` first. The crop centre builds on that one image.", ephemeral=True)
+            return
+        change = {}
+        if update:
+            change["$set"] = update
+        if unset:
+            change["$unset"] = unset
+        if change:
+            await asyncio.to_thread(db.updateCard, {"NAME": name}, change)
+        fresh = await asyncio.to_thread(db.queryCard, {"NAME": name})
+        preview_card = crown_utilities.create_card_from_data(fresh)
+        image = await render_cache.render_async(battle_scene.render_art_preview, preview_card)
+        card_image = await render_cache.render_async(preview_card.showcard)
+        from interactions import File
+        await ctx.send(f"✅ Art for **{name}** (the battle picture, then the card as /viewcard shows it):",
+                       files=[File(file_name="battle_art_preview.jpg", file=image), File(file_name="card_preview.png", file=card_image)],
+                       ephemeral=True)
+
+
 def setup(bot):
     Admin(bot)

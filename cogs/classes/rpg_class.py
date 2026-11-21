@@ -3218,7 +3218,7 @@ class RPG:
 
 
         map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self.universe}*\n**🗺️** | *{self._player.map['map_name']}*\n{self.get_map_message()}", color=0xFFD700)
-        map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+        map_embed.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}", 2048))
 
         quest_embed = Embed(title=f"🔍Adventure Mission Progress...", description="*Your Mission & Quest progress will be shown below*", color=0xFFD700)
         quest_embed.add_field(name=f"🪜 Floor Mission: **{self.mission_message}!**", value=f"Mission count: {self._player.mission_count} / Mission requirements: {self._player.mission_requirements}")
@@ -3305,7 +3305,7 @@ class RPG:
         if self.mission_completed:
             map_embed = Embed(title=f"🪜 Floor {self._player.map_level} Completed!", description="🏆 Good luck on the next floor!\n🗺️*Your Adventure Map will be shown below*", color=0xFFD700)
             map_embed.add_field(name=f"**🗺️ Final Map", value=f"{self.get_map_message()}")
-        map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+        map_embed.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}", 2048))
 
 
         quest_embed = Embed(title=f"🔍Adventure Mission Progress!", description="🪜 Complete the floor mission to increase your map level!\n*Your Mission & Quests progress will be shown below*", color=0x00FF00)

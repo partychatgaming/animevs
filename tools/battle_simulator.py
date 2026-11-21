@@ -21,7 +21,7 @@ Run:            python tools/battle_simulator.py --battles 500
 Options:        --seed N  --modes Tales,Dungeon,RPG  --render  --detail <text>
 
 Modes: Tales Dungeon Boss PVP Tutorial Explore Abyss Scenario ATales RPG
---render draws the real card images (slower, ~1-2 s per battle).
+--render draws the real card images and power-up animations (slower, ~1-2 s per battle).
 """
 import os, sys, random, asyncio, traceback, time, collections, io, json, re, builtins, argparse
 
@@ -134,6 +134,12 @@ def _fake_http(url, timeout):
         size = (64, 64) if ("emoji" in url or "twemoji" in url or "cdn" in url and url.endswith(".png") and "card" not in url) else (1200, 600)
         if "/card/" in url or "/summon/" in url or "/uni/" in url:
             size = (1200, 600) if "/card/" in url else (600, 600)
+        if "/raw/" in url:
+            size = {"tall": (640, 900), "square": (700, 700), "wide": (1280, 720)}.get(url.split("/raw/")[1].split("/")[0], (800, 1000))
+            if "/upload/c_fill" in url:
+                STATS["cloudinary_crops"] += 1
+                if random.random() < 0.2:
+                    return None          # Cloudinary refused the transformation: must fall back
         h = __import__("hashlib").md5(url.encode()).digest()
         im = Image.new("RGBA", size, (h[0], h[1], h[2], 255))
         b = io.BytesIO(); im.save(b, "PNG"); _png_cache[url] = b.getvalue()
@@ -175,6 +181,13 @@ if not RENDER:
         return io.BytesIO(b"\x89PNG fake")
     Card.showcard = _fast_showcard
     crown_utilities.showsummon = lambda *a, **kw: io.BytesIO(b"\x89PNG fake")
+    import battle_scene as _bs
+    def _fast_power_up(left, right, sides, *a, **kw):
+        STATS["power_up_gif"] += 1
+        for side, state in sides.items():
+            STATS[f"power_up_{state}"] += 1
+        return io.BytesIO(b"GIF89a fake"), "gif"
+    _bs.render_power_up = _fast_power_up
 
 # ------------------------------------------------------------------ coverage counters
 COVER = collections.Counter()
@@ -236,7 +249,23 @@ def make_card(name, universe, drop_style, tier=None, cls=None):
         "REPEL": pool[6:6 + random.randint(0, 1)], "ABSORB": pool[7:7 + random.randint(0, 1)],
         "IMMUNE": pool[8:8 + random.randint(0, 1)], "CLASS": cls or random.choice(CLASSES),
         "DROP_STYLE": drop_style, "DESCRIPTIONS": [], "STOCK": 5, "HAS_COLLECTION": False, "COLLECTION": "N/A",
+        **battle_art_fields(name),
     }
+
+def battle_art_fields(name):
+    """About half the cards get raw battle art (Cloudinary-style URLs, various shapes)."""
+    r = random.random()
+    if r < 0.5:
+        return {}
+    shape = random.choice(["tall", "square", "wide"])
+    out = {"CARD_ART": f"https://res.cloudinary.com/sim/image/upload/v1/raw/{shape}/{name}.png"}
+    if random.random() < 0.5:
+        out["CARD_FOCUS_ART"] = f"https://img.test/raw/{shape}/{name}_f.png"
+    if random.random() < 0.5:
+        out["CARD_RESOLVE_ART"] = f"https://img.test/raw/{shape}/{name}_r.png"
+    if random.random() < 0.3:
+        out["CARD_ART_CROP"] = random.choice(["0.5,0.3", [0.4, 0.2], "70,40", "junk", {"x": 0.6, "y": 0.5}])
+    return out
 
 def make_title(name, universe, n_abilities):
     abilities = []
@@ -390,7 +419,7 @@ class FakeMessage:
         self.attachments = _file_names(payload)
     async def edit(self, **kw):
         STATS["edit"] += 1
-        has_files = kw.get("file") is not None or bool(kw.get("files"))
+        has_files = kw.get("file") is not None or bool(kw.get("files")) or kw.get("files") == []
         attachments = _file_names(kw) if has_files else self.attachments
         validate_payload(kw, "edit", attachments)
         new_v2 = is_v2(kw.get("components"))
@@ -725,6 +754,16 @@ async def run_one(i, mode):
     STATS["max_turn"] = max(STATS["max_turn"], getattr(b, "turn_total", 0))
 
 LONG = []
+HITS = []
+_orig_damage_done = Card.damage_done
+def _track_damage_done(self, battle_config, dmg, opponent_card, *a, **kw):
+    try:
+        if dmg and not dmg.get("ENHANCE") and dmg.get("DMG") and getattr(opponent_card, "max_health", 0):
+            HITS.append(100.0 * float(dmg["DMG"]) / float(opponent_card.max_health))
+    except Exception:
+        pass
+    return _orig_damage_done(self, battle_config, dmg, opponent_card, *a, **kw)
+Card.damage_done = _track_damage_done
 ALL_MODES = ["Tales", "Dungeon", "Boss", "PVP", "Tutorial", "Explore", "Abyss", "Scenario", "ATales", "RPG"]
 
 async def main():
@@ -745,6 +784,14 @@ async def main():
     builtins.print = _real_print
     print(f"\n=== {N} battles in {dt:.1f}s  stats={dict(STATS)} slept={SLEEPS[0]:.0f}s hangs={hangs}")
     print("COVER", dict(COVER))
+    turns = sorted(row[0] for row in LONG if row[0])
+    if turns:
+        pct = lambda q: turns[min(len(turns) - 1, int(q * len(turns)))]
+        print(f"TURNS per match: median {pct(0.5)}  p90 {pct(0.9)}  max {turns[-1]}  (n={len(turns)})")
+    if HITS:
+        h = sorted(HITS)
+        pct = lambda q: h[min(len(h) - 1, int(q * len(h)))]
+        print(f"HIT size (% of target max HP): median {pct(0.5):.1f}  p90 {pct(0.9):.1f}  p99 {pct(0.99):.1f}  max {h[-1]:.1f}  (n={len(h)})")
     for (n, where), c in DBCALLS.most_common(40):
         print(f"DB {c:6d} {n:32s} {where}")
     for row in sorted(LONG, reverse=True)[:int(os.environ.get("SIM_LONG", 0))]:

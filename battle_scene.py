@@ -21,6 +21,7 @@ while it is being drawn), then draw in the render pool::
 
 ``render`` never raises: if anything goes wrong a plain text scene is drawn.
 """
+import random
 import threading
 from collections import OrderedDict
 from io import BytesIO
@@ -28,6 +29,9 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageOps
 
 import battle_frames
+import battle_panels
+import battle_fx
+import element_art
 import render_cache
 from logger import loggy
 
@@ -44,13 +48,17 @@ PORTRAIT_R = 128
 PORTRAIT_Y = 200
 LEFT_PORTRAIT_X = 186
 RIGHT_PORTRAIT_X = WIDTH - LEFT_PORTRAIT_X
-TEXT_INNER = 340              # text column starts this far from the outer edge
-TEXT_WIDTH = 228
+TEXT_INNER = 352              # text column starts this far from the outer edge
+TEXT_WIDTH = 220
 BAR_MARGIN = 36
 HP_BAR_Y, HP_BAR_H = 392, 44
 ST_BAR_Y, ST_BAR_H = 446, 28
 CHIPS_Y = 492
 JPEG_QUALITY = 86
+RESOLVE_RADIUS_BONUS = 12      # a resolved fighter's portrait grows
+GIF_SIZE = (900, 450)
+PANEL_W, PANEL_H = 236, 296     # raw battle art panels (4:5)
+PANEL_RESOLVE_SCALE = 1.06
 
 WHITE = (255, 255, 255)
 MUTED = (196, 202, 220)
@@ -126,13 +134,13 @@ def short_number(value):
 
 
 def art_for(card):
-    """The art the card shows right now (same rule as Card.showcard)."""
-    if _num(getattr(card, "health", 0)) > 0:
-        if getattr(card, "used_resolve", False) and getattr(card, "rpath", None):
-            return card.rpath
-        if getattr(card, "used_focus", False) and getattr(card, "fpath", None):
-            return card.fpath
+    """The one picture this card uses, including while focused or resolved."""
     return getattr(card, "path", None)
+
+
+def battle_art_for(card):
+    """Raw (template-free) art for this card, or None. Focus and resolve use the same picture."""
+    return getattr(card, "battle_art", None) or None
 
 
 def status_chips(card, opponent):
@@ -205,6 +213,10 @@ def snapshot(card, opponent=None):
         "tier": int(_num(getattr(card, "tier", 1), 1)) or 1,
         "universe": str(getattr(card, "universe", "") or ""),
         "resolved": bool(getattr(card, "used_resolve", False)),
+        "focused": bool(getattr(card, "used_focus", False)),
+        "element": element_art.element_of(card),
+        "battle_art": battle_art_for(card),
+        "art_focus": getattr(card, "battle_art_focus", None),
     }
 
 
@@ -221,14 +233,14 @@ class _ArtCache:
         self._max = max_items
         self._lock = threading.Lock()
 
-    def get(self, url, label):
-        key = (url, label)
+    def get(self, url, label, maker=None):
+        key = (url, label, maker is not None)
         with self._lock:
             hit = self._items.get(key)
             if hit is not None:
                 self._items.move_to_end(key)
                 return hit
-        made = _make_art(url, label)
+        made = (maker or _make_art)(url, label)
         with self._lock:
             self._items[key] = made
             while len(self._items) > self._max:
@@ -238,6 +250,35 @@ class _ArtCache:
     def clear(self):
         with self._lock:
             self._items.clear()
+
+
+def _backdrop_from(full):
+    bw = HALF + 80
+    small = battle_panels.smart_crop(full, bw / HEIGHT).resize((64, max(1, 64 * HEIGHT // bw)), Image.BILINEAR)
+    backdrop = small.filter(ImageFilter.GaussianBlur(3)).resize((bw, HEIGHT), Image.BICUBIC)
+    backdrop = ImageEnhance.Brightness(backdrop).enhance(0.42)
+    return ImageEnhance.Color(backdrop).enhance(1.25)
+
+
+def _make_panel(url, focus, kind, label):
+    """(panel art at resolve size, blurred backdrop): plain art, or the art cut from a premade card."""
+    w, h = int(PANEL_W * PANEL_RESOLVE_SCALE), int(PANEL_H * PANEL_RESOLVE_SCALE)
+    if kind == "raw":
+        panel, full = battle_panels.load_panel_art(url, w, h, focus)
+    else:
+        panel, full = battle_panels.load_template_panel(url, w, h, label)
+    return panel, _backdrop_from(full)
+
+
+def side_art(snap):
+    """(panel art, backdrop, True) for a snapshot.  Every card is a portrait panel."""
+    if snap.get("battle_art"):
+        url, kind, focus = snap["battle_art"], "raw", snap.get("art_focus")
+    else:
+        url, kind, focus = snap.get("art"), "template", None
+    panel, backdrop = ART_CACHE.get(url, f"{kind}|{focus}|{snap['name']}",
+                                    maker=lambda u, _label: _make_panel(u, focus, kind, snap["name"]))
+    return panel, backdrop, True
 
 
 def _make_art(url, label):
@@ -422,8 +463,87 @@ def draw_chips(draw, chips, x_edge, y, max_width, flip=False, max_rows=2):
 
 
 # --------------------------------------------------------------------------- the scene
-def _paste_portrait(canvas, draw, snap, center, radius, active, flip=False, framed=True):
-    portrait, _ = ART_CACHE.get(snap["art"], snap["name"])
+_GLOWS = {}
+
+
+def glow_mask(radius):
+    """Soft disc behind the acting fighter (cached per size)."""
+    glow = _GLOWS.get(radius)
+    if glow is None:
+        spread = max(14, radius // 2)
+        g = radius * 2 + 4 * spread
+        glow = Image.new("L", (g, g), 0)
+        ImageDraw.Draw(glow).ellipse((spread, spread, g - spread, g - spread), fill=230)
+        glow = _GLOWS[radius] = glow.filter(ImageFilter.GaussianBlur(max(5, spread // 2)))
+    return glow
+
+
+_PANEL_GLOWS = {}
+
+
+def panel_glow(w, h):
+    glow = _PANEL_GLOWS.get((w, h))
+    if glow is None:
+        glow = Image.new("L", (w + 120, h + 120), 0)
+        ImageDraw.Draw(glow).rounded_rectangle((40, 40, w + 80, h + 80), radius=40, fill=230)
+        glow = _PANEL_GLOWS[(w, h)] = glow.filter(ImageFilter.GaussianBlur(16))
+    return glow
+
+
+_PANEL_MASKS = {}
+
+
+def panel_mask(w, h):
+    mask = _PANEL_MASKS.get((w, h))
+    if mask is None:
+        big = Image.new("L", (w * 3, h * 3), 0)
+        ImageDraw.Draw(big).rounded_rectangle((0, 0, w * 3 - 1, h * 3 - 1), radius=66, fill=255)
+        mask = _PANEL_MASKS[(w, h)] = big.resize((w, h), Image.LANCZOS)
+    return mask
+
+
+def _type_color(snap, which="glow"):
+    name, emoji, dark, mid, light, glow, motif = element_art.style(snap.get("element"))
+    return {"glow": glow, "light": light, "mid": mid}[which]
+
+
+def _active_color(snap):
+    state = battle_fx.state_of(snap)
+    return _type_color(snap, "glow") if state == "focus" else _type_color(snap, "light") if state == "resolve" else GOLD
+
+
+def _paste_panel(canvas, draw, snap, center, panel, active, flip, glow=True):
+    """Raw battle art in a tall framed panel."""
+    cx, cy = center
+    scale = PANEL_RESOLVE_SCALE if battle_fx.state_of(snap) == "resolve" else 1.0
+    w, h = int(PANEL_W * scale), int(PANEL_H * scale)
+    art = panel if panel.size == (w, h) else panel.resize((w, h), Image.LANCZOS)
+    dead = snap["health"] <= 0
+    if dead:
+        art = ImageEnhance.Brightness(ImageOps.grayscale(art).convert("RGB")).enhance(0.55)
+    elif not active:
+        art = ImageEnhance.Brightness(art).enhance(0.8)
+    x0, y0 = cx - w // 2, cy - h // 2
+    if active and glow and not dead:
+        halo = panel_glow(w, h)
+        canvas.paste(_active_color(snap), (x0 - 60, y0 - 60, x0 - 60 + halo.width, y0 - 60 + halo.height), halo)
+    canvas.paste(art, (x0, y0), panel_mask(w, h))
+    frame, pad = battle_panels.get_panel_frame(w, h, snap.get("tier", 1), snap.get("level", 0), universe_accent(snap.get("universe")),
+                                               flip=flip, crest_text=universe_initials(snap.get("universe")))
+    canvas.paste(frame, (x0 - pad, y0 - pad), frame)
+    deco = element_art.overlay(snap.get("element"), w, h, pad)      # the card's type: element of its Ultimate
+    canvas.paste(deco, (x0 - pad, y0 - pad), deco)
+    if dead:
+        draw_text(draw, (cx, cy), "KO", font(FONT_VS, 84), fill=(235, 70, 70), anchor="mm", stroke=5)
+
+
+def _paste_portrait(canvas, draw, snap, center, radius, active, flip=False, framed=True, glow=True):
+    portrait, _, is_panel = side_art(snap)
+    if is_panel and framed:
+        return _paste_panel(canvas, draw, snap, center, portrait, active, flip, glow)
+    if is_panel:
+        # small round badge (co-op partner): the top of the panel art, where the face is
+        portrait = portrait.crop((0, 0, portrait.width, portrait.width))
     size = radius * 2
     if portrait.size != (size, size):
         portrait = portrait.resize((size, size), Image.LANCZOS)
@@ -434,14 +554,11 @@ def _paste_portrait(canvas, draw, snap, center, radius, active, flip=False, fram
     elif not active:
         portrait = ImageEnhance.Brightness(portrait).enhance(0.78)
     cx, cy = center
-    if active and not dead:
+    if active and glow and not dead:
         # soft gold glow behind the active fighter
-        spread = max(14, radius // 2)
-        g = size + 4 * spread
-        glow = Image.new("L", (g, g), 0)
-        ImageDraw.Draw(glow).ellipse((spread, spread, g - spread, g - spread), fill=230)
-        glow = glow.filter(ImageFilter.GaussianBlur(max(5, spread // 2)))
-        canvas.paste(Image.new("RGB", glow.size, GOLD), (cx - g // 2, cy - g // 2), glow)
+        halo = glow_mask(radius)
+        g = halo.size[0]
+        canvas.paste(_active_color(snap), (cx - g // 2, cy - g // 2, cx - g // 2 + g, cy - g // 2 + g), halo)
     canvas.paste(portrait, (cx - radius, cy - radius), circle_mask(size))
     if framed:
         frame = battle_frames.get_frame(radius, snap.get("tier", 1), snap.get("level", 0), universe_accent(snap.get("universe")),
@@ -456,14 +573,16 @@ def _paste_portrait(canvas, draw, snap, center, radius, active, flip=False, fram
         draw_text(draw, (cx, cy), "KO", font(FONT_VS, 84), fill=(235, 70, 70), anchor="mm", stroke=5)
 
 
-def _draw_side(canvas, draw, snap, side, active, ally=None, ally_active=False):
+def _draw_side(canvas, draw, snap, side, active, ally=None, ally_active=False, shake=(0, 0), glow=True):
     flip = side == "right"
     edge = WIDTH if flip else 0
     sign = -1 if flip else 1
     px = RIGHT_PORTRAIT_X if flip else LEFT_PORTRAIT_X
     hp_rgb = health_rgb(snap["health"], snap["max_health"])
 
-    _paste_portrait(canvas, draw, snap, (px, PORTRAIT_Y), PORTRAIT_R, active, flip=flip)
+    state = battle_fx.state_of(snap)
+    radius = PORTRAIT_R + (RESOLVE_RADIUS_BONUS if state == "resolve" else 0)
+    _paste_portrait(canvas, draw, snap, (px + shake[0], PORTRAIT_Y + shake[1]), radius, active, flip=flip, glow=glow)
 
     # name / level / class column
     tx = edge + sign * TEXT_INNER
@@ -474,7 +593,13 @@ def _draw_side(canvas, draw, snap, side, active, ally=None, ally_active=False):
         draw_text(draw, (tx, y), line, name_font, anchor=anchor_l, stroke=3)
         y += int(name_font.size * 1.12)
     meta = snap["class_name"].upper() if snap["class_name"] else f"LV {snap['level']}"
-    draw_text(draw, (tx, y + 6), meta, fit_font(draw, meta, FONT_BOLD, 24, TEXT_WIDTH), fill=MUTED, anchor=anchor_l, stroke=2)
+    meta_color = MUTED
+    if state == "resolve":
+        meta, meta_color = f"RESOLVED  ·  {meta}", _type_color(snap, "light")
+    elif state == "focus":
+        meta, meta_color = f"FOCUSED  ·  {meta}", _type_color(snap, "glow")
+    draw_text(draw, (tx, y + 6), meta, fit_font(draw, meta, FONT_BLACK if state != "normal" else FONT_BOLD, 24, TEXT_WIDTH),
+              fill=meta_color, anchor=anchor_l, stroke=2)
 
     # attack / defense
     label_font = font(FONT_BLACK, 20)
@@ -505,7 +630,7 @@ def _draw_side(canvas, draw, snap, side, active, ally=None, ally_active=False):
         r = 21
         ax = (st_x1 + 14 + r) if not flip else (st_x0 - 14 - r)
         ay = ST_BAR_Y + ST_BAR_H // 2
-        _paste_portrait(canvas, draw, ally, (ax, ay), r, ally_active, flip=flip, framed=False)
+        _paste_portrait(canvas, draw, ally, (ax, ay), r, ally_active, flip=flip, framed=False, glow=glow)
         label = short_number(ally["health"])
         hp_font = font(FONT_NUM, 24)
         tx2 = ax + sign * (r + 10)
@@ -518,8 +643,8 @@ def _draw_side(canvas, draw, snap, side, active, ally=None, ally_active=False):
 
 def _backdrop(left, right):
     canvas = Image.new("RGB", (WIDTH, HEIGHT), (14, 16, 24))
-    _, lb = ART_CACHE.get(left["art"], left["name"])
-    _, rb = ART_CACHE.get(right["art"], right["name"])
+    _, lb, _ = side_art(left)
+    _, rb, _ = side_art(right)
     canvas.paste(lb, (0, 0))
     seam = Image.new("L", (WIDTH, HEIGHT), 0)
     ImageDraw.Draw(seam).polygon([(HALF + 60, 0), (WIDTH, 0), (WIDTH, HEIGHT), (HALF - 60, HEIGHT)], fill=255)
@@ -535,7 +660,8 @@ _BASE_LOCK = threading.Lock()
 
 def _base_layer(left, right):
     """Backdrop + seam + vignette for a pair of arts (cached: identical every turn)."""
-    key = (left["art"], left["name"], right["art"], right["name"])
+    key = (left.get("battle_art") or left["art"], left["name"], str(left.get("art_focus")),
+           right.get("battle_art") or right["art"], right["name"], str(right.get("art_focus")), "panels")
     with _BASE_LOCK:
         hit = _BASE_CACHE.get(key)
         if hit is not None:
@@ -557,14 +683,53 @@ def _base_layer(left, right):
     return canvas.copy()
 
 
-def _center(draw, turn_total):
+def _center(draw, turn_total, label=None):
     draw_text(draw, (HALF, PORTRAIT_Y + 10), "VS", font(FONT_VS, 86), fill=WHITE, anchor="mm", stroke=6)
-    label = f"TURN {max(0, int(_num(turn_total)))}"
+    label = label or f"TURN {max(0, int(_num(turn_total)))}"
     fnt = font(FONT_BLACK, 24)
     w = text_width(draw, label, fnt) + 36
     box = (HALF - w // 2, 18, HALF + w // 2, 56)
     draw.rounded_rectangle(box, radius=19, fill=(20, 22, 32), outline=GOLD, width=3)
     draw.text((HALF, 37), label, fill=GOLD, font=fnt, anchor="mm")
+
+
+_SIDE_MASKS = {}
+
+
+def side_mask(side):
+    """L mask of one fighter's half (split along the diagonal seam)."""
+    mask = _SIDE_MASKS.get(side)
+    if mask is None:
+        right = Image.new("L", (WIDTH, HEIGHT), 0)
+        ImageDraw.Draw(right).polygon([(HALF + 60, 0), (WIDTH, 0), (WIDTH, HEIGHT), (HALF - 60, HEIGHT)], fill=255)
+        mask = right if side == "right" else ImageOps.invert(right)
+        _SIDE_MASKS[side] = mask
+    return mask
+
+
+def _compose(left, right, turn_total, active, left_ally, right_ally, fx_t=None, frame=0, shake=None, label=None, spotlight=True):
+    fx_t = fx_t or {}
+    shake = shake or {}
+    canvas = _base_layer(left, right)
+    for side, snap, px in (("left", left, LEFT_PORTRAIT_X), ("right", right, RIGHT_PORTRAIT_X)):
+        state = battle_fx.state_of(snap)
+        if state != "normal":
+            radius = PORTRAIT_R + (RESOLVE_RADIUS_BONUS if state == "resolve" else 0)
+            battle_fx.apply(canvas, side_mask(side), (px, PORTRAIT_Y), radius, state, name=snap["name"],
+                            turn=int(_num(turn_total)), t=fx_t.get(side, 1.0), frame=frame, element=snap.get("element"))
+    draw = ImageDraw.Draw(canvas)
+    # the seam is drawn again so the effects stay on their own side
+    draw.line([(HALF + 60, 0), (HALF - 60, HEIGHT)], fill=(0, 0, 0), width=12)
+    draw.line([(HALF + 60, 0), (HALF - 60, HEIGHT)], fill=(235, 238, 255), width=4)
+    if spotlight:
+        _draw_side(canvas, draw, left, "left", active == "left", left_ally, active == "left_ally", shake.get("left", (0, 0)))
+        _draw_side(canvas, draw, right, "right", active == "right", right_ally, active == "right_ally", shake.get("right", (0, 0)))
+    else:
+        # nobody is acting yet (match start): everyone at full brightness, no glow
+        _draw_side(canvas, draw, left, "left", True, left_ally, True, glow=False)
+        _draw_side(canvas, draw, right, "right", True, right_ally, True, glow=False)
+    _center(draw, turn_total, label)
+    return canvas
 
 
 def render(left, right, turn_total=0, active="left", left_ally=None, right_ally=None, fmt="JPEG"):
@@ -574,15 +739,57 @@ def render(left, right, turn_total=0, active="left", left_ally=None, right_ally=
     """
     try:
         with render_cache.RENDER_LOCK:
-            canvas = _base_layer(left, right)
-            draw = ImageDraw.Draw(canvas)
-            _draw_side(canvas, draw, left, "left", active == "left", left_ally, active == "left_ally")
-            _draw_side(canvas, draw, right, "right", active == "right", right_ally, active == "right_ally")
-            _center(draw, turn_total)
+            canvas = _compose(left, right, turn_total, active, left_ally, right_ally)
         return encode(canvas, fmt)
     except Exception as ex:
         loggy.warning(f"battle scene render failed: {type(ex).__name__}: {ex}")
         return fallback(left, right, turn_total, fmt)
+
+
+def render_matchup(left, right, label="MATCH", left_ally=None, right_ally=None):
+    """The match start scene: both fighters at full brightness, ``label`` in the centre pill."""
+    try:
+        with render_cache.RENDER_LOCK:
+            canvas = _compose(left, right, 0, None, left_ally, right_ally, label=label, spotlight=False)
+        return encode(canvas)
+    except Exception as ex:
+        loggy.warning(f"matchup render failed: {type(ex).__name__}: {ex}")
+        return fallback(left, right, 0)
+
+
+def render_power_up(left, right, sides, turn_total=0, active="left", left_ally=None, right_ally=None):
+    """Animated GIF of a fighter entering Focus or Resolve (``sides``: e.g. {"left": "resolve"}).
+
+    Plays once and holds on the final frame (the long last frame also keeps
+    clients that loop GIFs from replaying it constantly).  Returns (BytesIO,
+    extension): ("gif") normally, or a still ("jpg") if anything fails.
+    """
+    try:
+        resolve = "resolve" in sides.values()
+        count = 14 if resolve else 10
+        frames, durations = [], []
+        rng = random.Random(battle_fx._seed(str(sides)) + int(_num(turn_total)))
+        for i in range(count):
+            t = (i + 1) / count
+            shake = {}
+            for side, state in sides.items():
+                if state == "resolve" and t < 0.7:
+                    amp = 9 * (1 - t / 0.7)
+                    shake[side] = (int(rng.uniform(-amp, amp)), int(rng.uniform(-amp, amp)))
+            with render_cache.RENDER_LOCK:
+                canvas = _compose(left, right, turn_total, active, left_ally, right_ally,
+                                  fx_t={side: t for side in sides}, frame=i, shake=shake)
+            frame = canvas.resize(GIF_SIZE, Image.BILINEAR).quantize(colors=255, method=Image.Quantize.FASTOCTREE)
+            frames.append(frame)
+            durations.append(70 if resolve else 80)
+        durations[-1] = 60000
+        out = BytesIO()
+        frames[0].save(out, "GIF", save_all=True, append_images=frames[1:], duration=durations, optimize=False, disposal=1)
+        out.seek(0)
+        return out, "gif"
+    except Exception as ex:
+        loggy.warning(f"power-up animation failed: {type(ex).__name__}: {ex}")
+        return render(left, right, turn_total, active, left_ally, right_ally), "jpg"
 
 
 def encode(canvas, fmt="JPEG"):
@@ -616,3 +823,25 @@ def fallback(left, right, turn_total=0, fmt="JPEG"):
     except Exception:
         pass
     return encode(canvas, fmt)
+
+
+def render_art_preview(card):
+    """The one battle picture for this card (for the /battleart admin command)."""
+    try:
+        base = snapshot(card)
+        url = getattr(card, "battle_art", None)
+        cell_w, height = 330, 470
+        canvas = Image.new("RGB", (cell_w, height), (24, 26, 34))
+        with render_cache.RENDER_LOCK:
+            draw = ImageDraw.Draw(canvas)
+            snap = dict(base, battle_art=url, resolved=False, focused=False, health=max(1.0, base["health"]))
+            if url:
+                panel, _, _ = side_art(snap)
+                _paste_panel(canvas, draw, snap, (cell_w // 2, 215), panel, True, False)
+            else:
+                draw_text(draw, (cell_w // 2, 215), "no art", font(FONT_BOLD, 28), fill=DIM, anchor="mm")
+            draw_text(draw, (cell_w // 2, height - 40), "Card", font(FONT_BLACK, 28), anchor="mm")
+        return encode(canvas)
+    except Exception as ex:
+        loggy.warning(f"battle art preview failed: {type(ex).__name__}: {ex}")
+        return encode(Image.new("RGB", (330, 470), (24, 26, 34)))

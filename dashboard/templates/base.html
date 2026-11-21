@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>{% block title %}Anime VS+ dashboard{% endblock %} · Anime VS+</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}?v=4">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+{% set path = request.path %}
+<body data-page="{% block page %}{% endblock %}">
+  <header class="top">
+    <a class="brand" href="{{ url_for('home') }}">Anime VS<small>+</small></a>
+    <nav aria-label="Sections">
+      <a href="{{ url_for('home') }}" class="{% if path == '/' %}on{% endif %}">Home</a>
+      <a href="{{ url_for('play_page') }}" class="{% if path.startswith('/play') %}on{% endif %}">Play</a>
+      {% for key, catalog in catalogs.items() %}
+        <a href="{{ url_for('listing', catalog_key=key) }}" class="{% if path.startswith('/' ~ key) %}on{% endif %}">{{ catalog.label }}</a>
+      {% endfor %}
+      <a href="{{ url_for('stats_page') }}" class="{% if path.startswith('/stats') %}on{% endif %}">Stats</a>
+      <a href="{{ url_for('images') }}" class="{% if path.startswith('/images') %}on{% endif %}">Images</a>
+    </nav>
+    <span class="db-badge {% if database == 'PCGPROD' %}prod{% endif %}" title="Saves go to this database">
+      {% if database == 'PCGPROD' %}Live · prod{% else %}Test DB{% endif %}
+    </span>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p class="flash {{ category }}" role="status">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+    {% block body %}{% endblock %}
+  </main>
+
+  <nav class="tabbar" aria-label="Sections">
+    <a href="{{ url_for('home') }}" class="{% if path == '/' %}on{% endif %}"><span class="ic">🏠</span>Home</a>
+    <a href="{{ url_for('play_page') }}" class="{% if path.startswith('/play') %}on{% endif %}"><span class="ic">🎮</span>Play</a>
+    <a href="{{ url_for('listing', catalog_key='cards') }}" class="{% if path.startswith('/cards') %}on{% endif %}"><span class="ic">🃏</span>Cards</a>
+    <a href="{{ url_for('listing', catalog_key='titles') }}" class="{% if path.startswith('/titles') %}on{% endif %}"><span class="ic">👑</span>Titles</a>
+    <button type="button" data-open="more-dialog" class="{% if path.startswith(('/arms', '/summons', '/universes', '/bosses', '/scenarios', '/stats', '/images')) %}on{% endif %}"><span class="ic">✨</span>More</button>
+  </nav>
+
+  <dialog id="more-dialog" class="sheet">
+    <div class="dlg-head"><h3>Everything</h3><button type="button" class="small ghost" data-close>✕</button></div>
+    <div class="dlg-body">
+      <div class="catalog-grid">
+        <a class="catalog-card" href="{{ url_for('play_page') }}"><span class="thumb-art" style="height: 70px"><span class="art-bg" style="--g: #ff8a65"></span><span class="icon">🎮</span></span><span class="cap"><strong>Play</strong></span></a>
+        {% for key, catalog in catalogs.items() %}
+          <a class="catalog-card" style="--c: {{ catalog.color }}; --g: {{ catalog.color }}" href="{{ url_for('listing', catalog_key=key) }}">
+            <span class="thumb-art" style="height: 70px"><span class="art-bg" style="--g: {{ catalog.color }}"></span><span class="icon">{{ catalog.icon }}</span></span>
+            <span class="cap"><strong>{{ catalog.label }}</strong></span>
+          </a>
+        {% endfor %}
+        <a class="catalog-card" href="{{ url_for('stats_page') }}"><span class="thumb-art" style="height: 70px"><span class="art-bg" style="--g: #77d4ff"></span><span class="icon">📊</span></span><span class="cap"><strong>Stats</strong></span></a>
+        <a class="catalog-card" href="{{ url_for('images') }}"><span class="thumb-art" style="height: 70px"><span class="art-bg" style="--g: #a6ff3c"></span><span class="icon">🖼️</span></span><span class="cap"><strong>Card images</strong></span></a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="create-dialog">
+    <form method="post" action="" id="create-form">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="dlg-head"><h3>Create new</h3><button type="button" class="small ghost" data-close>✕</button></div>
+      <div class="dlg-body">
+        <label>What
+          <select id="create-kind">
+            {% for key, catalog in catalogs.items() %}<option value="{{ key }}">{{ catalog.icon }} {{ catalog.label[:-1] if catalog.label.endswith('s') else catalog.label }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Name
+          <input name="name" required autocomplete="off" placeholder="e.g. Gojo Satoru">
+        </label>
+        <label id="create-universe-wrap">Universe
+          <select name="universe">
+            {% for name in all_universes %}<option value="{{ name }}">{{ name }}</option>{% endfor %}
+          </select>
+        </label>
+        <p class="hint">New records start <b>unavailable</b>, with sensible default stats and moves, so nothing reaches players until you switch them on. You land on the editor right after.</p>
+      </div>
+      <div class="dlg-foot">
+        <button type="button" class="ghost" data-close>Cancel</button>
+        <button type="submit" class="pink">Create <span class="arrow">→</span></button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="viewer" class="viewer" aria-label="3D card viewer">
+    <div class="viewer-stage">
+      <div class="viewer-title" id="viewer-title"></div>
+      <button type="button" class="icon ghost close" data-close aria-label="Close">✕</button>
+      <canvas id="viewer-canvas"></canvas>
+    </div>
+    <div class="viewer-bar">
+      <button type="button" class="pink" data-viewer="spin">Spin</button>
+      <button type="button" data-viewer="flip">Flip</button>
+      <button type="button" data-viewer="shine">Shine</button>
+      <button type="button" class="ghost" data-viewer="reset">Reset</button>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="tip" id="tip"></div>
+
+  <script>
+    window.AVS = {
+      csrf: {{ csrf|tojson }},
+      builder: {{ builder|tojson }},
+      threeUrl: {{ url_for('static', filename='vendor/three.module.min.js')|tojson }}
+    };
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}?v=7" defer></script>
+  <script type="module" src="{{ url_for('static', filename='card3d.js') }}?v=4"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

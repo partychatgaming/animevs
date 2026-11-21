@@ -6,6 +6,9 @@ import uuid
 from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, SlashCommandOption, OptionType, SlashCommandChoice, Embed, Extension
 from interactions.ext.paginators import Paginator
 from logger import loggy
+import market_trade
+import render_cache
+from cogs.classes.custom_paginator import CustomPaginator
 
 class Marketplace(Extension):
     def __init__(self, bot):
@@ -52,38 +55,9 @@ class Marketplace(Extension):
         try:
             player = crown_utilities.create_player_from_data(a_registered_player)
             if market == "card":
-                list_of_cards = db.queryAllMarketByParam({"MARKET_TYPE": "CARD"})
-                if not list_of_cards:
-                    embed = Embed(title="🏷️ Marketplace", description="There are no cards on the marketplace.", color=0x7289da)
-                    await ctx.send(embed=embed)
-                    return
-                cards = [x for x in list_of_cards]
-                all_cards = []
-                embed_list = []
-                
-                sorted_card_list = sorted(cards, key=lambda card: card["ITEM_NAME"])
-                for index, card in enumerate(sorted_card_list):
-                    card_data = db.queryCard({"NAME": card["ITEM_NAME"]})
-                    c = crown_utilities.create_card_from_data(card_data)
-                    card_level = [{"CARD": c.name,"LVL": card["CARD_LEVEL"], "EXP": 0}]
-                    c.set_card_level_buffs(card_level)
-                    all_cards.append(f"🏷️ **{card['MARKET_CODE']}** 🪙 **{'{:,}'.format(card['PRICE'])}**\n[{str(index)}] {c.universe_crest} : 🀄 **{c.tier}** **{c.name}** [{c.class_emoji}] {c.move1_emoji} {c.move2_emoji} {c.move3_emoji}\n{c.drop_emoji} **{c.level_icon}**: {str(c.card_lvl)} ❤️ {c.health} 🗡️ {c.attack} 🛡️ {c.defense}\n")
-                
-                for i in range(0, len(all_cards), 10):
-                    sublist = all_cards[i:i+10]
-                    embedVar = Embed(title=f"🏷️ Cards on the Marketplace", description="\n".join(sublist), color=0x7289da)
-                    embedVar.set_footer(text=f"{len(all_cards)} Total Cards on the Marketplace\nTo purchase a card, use the /buy command and enter the Market Code for the card.")
-                    embed_list.append(embedVar)
+                await self.show_card_market(ctx, player)
+                return
 
-                if embed_list:
-                    pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
-                    pagination.show_select_menu = True
-                    await pagination.send(ctx)
-                else:
-                    embed = Embed(title="🏷️ Marketplace", description="There are no cards on the marketplace.", color=0x7289da)
-                    await ctx.send(embed=embed)
-                    return
-                
             if market == "summon":
                 list_of_summons = db.queryAllMarketByParam({"MARKET_TYPE": "SUMMON"})
                 if not list_of_summons:
@@ -155,6 +129,84 @@ class Marketplace(Extension):
             await ctx.send(embed=embed)
 
 
+    async def show_card_market(self, ctx, player):
+        """One listing per page: the portrait card, price, code, seller, and a Buy button."""
+        listings = await asyncio.to_thread(lambda: list(db.queryAllMarketByParam({"MARKET_TYPE": "CARD"}) or []))
+        if not listings:
+            await ctx.send(embed=Embed(title="🏷️ Marketplace", description="There are no cards on the marketplace right now.", color=0x7289da))
+            return
+        listings.sort(key=lambda l: (str(l.get("ITEM_NAME", "")).lower(), int(l.get("PRICE") or 0)))
+
+        card_docs = await asyncio.gather(*[asyncio.to_thread(db.queryCard, {"NAME": l.get("ITEM_NAME")}) for l in listings])
+        seller_ids = sorted({str(l.get("ITEM_OWNER")) for l in listings})
+        seller_docs = await asyncio.gather(*[asyncio.to_thread(db.queryUser, {"DID": did}) for did in seller_ids])
+        seller_names = {did: (doc or {}).get("DISNAME") or "a player" for did, doc in zip(seller_ids, seller_docs)}
+
+        entries = []
+        for listing, card_data in zip(listings, card_docs):
+            if not card_data:
+                continue
+            c = crown_utilities.create_card_from_data(card_data)
+            if not c:
+                continue
+            c.set_card_level_buffs([{"CARD": c.name, "LVL": listing.get("CARD_LEVEL", 1), "EXP": 0}])
+            c.set_affinity_message()
+            c.set_card_level_icon(player)
+            entries.append((listing, c))
+        if not entries:
+            await ctx.send(embed=Embed(title="🏷️ Marketplace", description="There are no cards on the marketplace right now.", color=0x7289da))
+            return
+
+        embeds = []
+        for i, (listing, c) in enumerate(entries):
+            price = int(listing.get("PRICE") or 0)
+            code = listing.get("MARKET_CODE")
+            seller = seller_names.get(str(listing.get("ITEM_OWNER")), "a player")
+            if str(listing.get("ITEM_OWNER")) == str(player.did):
+                status = "🏷️ This is your listing"
+            elif player.balance >= price:
+                status = f"✅ You can afford this (you have 🪙 {player.balance:,})"
+            else:
+                status = f"❌ You need 🪙 {price - player.balance:,} more"
+            embed = Embed(title=f"{c.name}", description=(
+                f"## 🪙 {price:,}\n"
+                f"🏷️ Code `{code}`  ·  sold by **{seller}**\n"
+                f"{c.universe_crest} {c.universe}  ·  {c.class_emoji} {c.class_message}\n"
+                f"{c.level_icon} Level **{c.card_lvl}**  ·  🀄 Tier **{c.tier}**\n"
+                f"{status}"
+            ), color=0xF1C40F)
+            embed.add_field(name="__Affinities__", value=f"{c.affinity_message or 'None'}")
+            embed.set_image(url="attachment://card.png")
+            embed.set_footer(text=f"Listing {i + 1} of {len(entries)}  ·  Press Buy, or /buy card {code}")
+            embeds.append(embed)
+
+        rendered = {}
+
+        async def card_picture(index):
+            if index in rendered:
+                return rendered[index]
+            image = await render_cache.render_async(entries[index][1].showcard)
+            try:
+                data = image.getvalue()
+            finally:
+                image.close()
+            rendered[index] = data
+            while len(rendered) > 12:
+                rendered.pop(next(iter(rendered)))
+            return data
+
+        async def buy_page(button_ctx, index):
+            listing = entries[index][0]
+            await market_trade.confirm_and_buy(self.bot, button_ctx, button_ctx.author, listing.get("MARKET_CODE"), "card", ephemeral=True)
+
+        paginator = CustomPaginator.create_from_embeds(self.bot, *embeds, timeout=300, custom_buttons=["Buy"])
+        paginator.show_select_menu = True
+        paginator.page_image = card_picture
+        paginator.page_image_name = "card.png"
+        paginator.page_action = buy_page
+        await paginator.send(ctx)
+
+
     @slash_command(description="Buy from marketplace command",
                     options=[
                         SlashCommandOption(
@@ -190,157 +242,13 @@ class Marketplace(Extension):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
-
         try:
-            _uuid = uuid.uuid4()
-            market_item_info = db.queryMarket({"MARKET_CODE": code})
-            if not market_item_info:
-                embed = Embed(title="🏷️ Marketplace", description="There are no items on the marketplace with this code number.", color=0x7289da)
-                await ctx.send(embed=embed)
-                return
-            player = crown_utilities.create_player_from_data(a_registered_player)
-            market_seller = crown_utilities.create_player_from_data(db.queryUser({"DID": market_item_info["ITEM_OWNER"]}))
-            confirmation_buttons = [
-                Button(
-                    style=ButtonStyle.GREEN,
-                    label="Yes",
-                    custom_id = f"{_uuid}|yes"
-                ),
-                Button(
-                    style=ButtonStyle.RED,
-                    label="No",
-                    custom_id = f"{_uuid}|no"
-                )
-            ]
-            row = ActionRow(*confirmation_buttons)
-
-            if player.balance < market_item_info["PRICE"]:
-                embed = Embed(title="🏷️ Marketplace", description=f"You do not have enough gold to purchase this item.", color=0x7289da)
-                await ctx.send(embed=embed)
-                return
-            price = market_item_info["PRICE"]
-            if market == "card":
-                card_data = db.queryCard({"NAME": market_item_info["ITEM_NAME"]})
-                c = crown_utilities.create_card_from_data(card_data)
-                card_level = [{"CARD": c.name, "LVL": market_item_info["CARD_LEVEL"], "EXP": 0}]
-                c.set_card_level_buffs(card_level)
-                market_seller.remove_card(c)
-                embed = Embed(title="🏷️ Marketplace", description=f"Are you sure you want to purchase {c.name}?", color=0x7289da)
-                message = await ctx.send(embed=embed, components=[row])
-                
-                def check(component: Button) -> bool:
-                    return component.ctx.author == ctx.author
-
-                try:
-                    button_ctx = await self.client.wait_for_component(components=[row], check=check, timeout=120)
-
-                    if button_ctx.ctx.custom_id == f"{_uuid}|yes":
-                        response = player.save_card(c)
-                        if response:
-                            removal = db.deleteMarketEntry({"MARKET_CODE": code})
-                            purchase = await crown_utilities.curse(price, player.did)
-                            embed = Embed(title=f"🏷️ Success", description=f"{c.name} has been removed from the market.")
-                            await message.edit(embed=embed, components=[])
-                            return
-                        else:
-                            embed = Embed(title=f"🏷️ Error", description=f"You are unable to purchase this card at this time. Please check if you already have this card or if your storage is full.", color=0xff0000)
-                            await message.edit(embed=embed, components=[])
-                            return
-                    
-                    if button_ctx.ctx.custom_id == f"{_uuid}|no":
-                        await message.delete()
-                        return
-
-                except asyncio.TimeoutError:
-                    await ctx.send("You took too long to respond.")
-                    return
-                except Exception as ex:
-                    custom_logging.debug(ex)
-                    await ctx.send("Something went wrong. Please try again later.")
-                    return
-
-            if market == "summon":
-                summon_data = db.querySummon({"PET": market_item_info["ITEM_NAME"]})
-                s = crown_utilities.create_summon_from_data(summon_data)
-                s.level = market_item_info["SUMMON_LEVEL"]
-                s.bond = market_item_info["BOND_LEVEL"]
-                market_seller.remove_summon(s.name)
-                embed = Embed(title="🏷️ Marketplace", description=f"Are you sure you want to purchase {s.name}?", color=0x7289da)
-                message = await ctx.send(embed=embed, components=[row])
-                
-                def check(component: Button) -> bool:
-                    return component.ctx.author == ctx.author
-
-                try:
-                    button_ctx = await self.client.wait_for_component(components=[row], check=check, timeout=120)
-
-                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
-                        response = player.save_summon(s)
-                        if response:
-                            removal = db.deleteMarketEntry({"MARKET_CODE": code})
-                            purchase = crown_utilities.curse(price, player.did)
-                            embed = Embed(title=f"🏷️ Success", description=f"{s.name} has been removed from the market.")
-                            await message.edit(embed=embed, components=[])
-                            return
-                        else:
-                            embed = Embed(title=f"🏷️ Error", description=f"You are unable to purchase this summon at this time. Please check if you already have this summon.", color=0xff0000)
-                            await message.edit(embed=embed, components=[])
-                            return                    
-                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
-                        await message.delete()
-                        return
-
-                except asyncio.TimeoutError:
-                    await ctx.send("You took too long to respond.")
-                    return
-                except Exception as ex:
-                    custom_logging.debug(ex)
-                    await ctx.send("Something went wrong. Please try again later.")
-                    return
-
-            if market == "arm":
-                arm_data = db.queryArm({"ARM": market_item_info["ITEM_NAME"]})
-                a = crown_utilities.create_arm_from_data(arm_data)
-                a.durability = 25
-                market_seller.remove_arm(a.name)
-                embed = Embed(title="🏷️ Marketplace", description=f"Are you sure you want to purchase {a.name}?", color=0x7289da)
-                message = await ctx.send(embed=embed, components=[row])
-                
-                def check(component: Button) -> bool:
-                    return component.ctx.author == ctx.author
-
-                try:
-                    button_ctx = await self.client.wait_for_component(components=[row], check=check, timeout=120)
-
-                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
-                        response = player.save_arm(a)
-                        if response:
-                            removal = db.deleteMarketEntry({"MARKET_CODE": code})
-                            purchase = crown_utilities.curse(price, player.did)
-                            embed = Embed(title=f"🏷️ Success", description=f"{a.name} has been removed from the market.")
-                            await message.edit(embed=embed, components=[])
-                            return
-                        else:
-                            embed = Embed(title=f"🏷️ Error", description=f"You are unable to purchase this arm at this time. Please check if you already have this arm or if your storage is full.", color=0xff0000)
-                            await message.edit(embed=embed, components=[])
-                            return
-
-                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
-                        await message.delete()
-                        return
-
-                except asyncio.TimeoutError:
-                    await ctx.send("You took too long to respond.")
-                    return
-                except Exception as ex:
-                    custom_logging.debug(ex)
-                    await ctx.send("Something went wrong. Please try again later.")
-                    return
-
+            await market_trade.confirm_and_buy(self.bot, ctx, ctx.author, code, market, ephemeral=False)
         except Exception as ex:
             custom_logging.debug(ex)
             embed = Embed(title="🏷️ Error", description="Something went wrong with the Marketplace command. Please try again later.", color=0xff0000)
             await ctx.send(embed=embed)
+
 
 def setup(bot):
     Marketplace(bot)

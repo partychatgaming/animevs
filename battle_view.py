@@ -24,12 +24,14 @@ from io import BytesIO
 from interactions import (ActionRow, Button, ButtonStyle, ContainerComponent, File, MediaGalleryComponent,
                           MediaGalleryItem, SeparatorComponent, TextDisplayComponent)
 
+import battle_fx
 import battle_scene
 import crown_utilities
 import custom_logging
 import render_cache
 
 SCENE_FILE = "battle.jpg"
+POWER_UP_FILE = "battle.gif"
 SUMMON_FILE = "summon.png"
 TEXT_LIMIT = 4000          # Discord: total characters of text in one V2 message
 LOG_LINES_ON_SCREEN = 3
@@ -105,16 +107,66 @@ def scene_positions(battle_config):
     return left, right, ally, active
 
 
+_RANK = {"normal": 0, "focus": 1, "resolve": 2}
+
+
+def power_ups(battle_config, sides):
+    """Which sides just entered Focus or Resolve since the last screen.
+
+    ``sides`` maps "left"/"right" to (card, snapshot).  States are remembered
+    per card object, so a new opponent in the next match starts fresh.
+    """
+    seen = getattr(battle_config, "_scene_fx_states", None)
+    if seen is None:
+        seen = {}
+        try:
+            battle_config._scene_fx_states = seen
+        except Exception:
+            pass
+    changed = {}
+    for side, (card, snap) in sides.items():
+        if card is None or snap is None:
+            continue
+        state = battle_fx.state_of(snap)
+        before = seen.get(id(card), "normal")
+        if _RANK[state] > _RANK.get(before, 0):
+            changed[side] = state
+        seen[id(card)] = state
+    return changed
+
+
+def power_up_text(changed, snaps):
+    lines = []
+    for side, state in changed.items():
+        name = snaps[side]["name"]
+        lines.append(f"## ⚡ {name} has RESOLVED!" if state == "resolve" else f"### 💖 {name} enters Focus!")
+    return "\n".join(lines)
+
+
 async def render_scene(battle_config):
-    """PNG/JPEG bytes of the battle scene for the current state (never raises)."""
+    """Battle scene for the current state: (image bytes, file name, announcement text).
+
+    On the screen right after a fighter enters Focus or Resolve, the image is a
+    short animated GIF of the power-up (it plays once and holds on the final
+    frame); otherwise a still JPEG.  Never raises.
+    """
     left, right, ally, active = scene_positions(battle_config)
     left_snap = battle_scene.snapshot(left, right)
     right_snap = battle_scene.snapshot(right, left)
     ally_snap = battle_scene.snapshot(ally, right) if ally is not None else None
-    out = await render_cache.render_async(battle_scene.render, left_snap, right_snap,
-                                          turn_total=battle_config.turn_total, active=active, left_ally=ally_snap)
+    snaps = {"left": left_snap, "right": right_snap}
+    changed = power_ups(battle_config, {"left": (left, left_snap), "right": (right, right_snap)})
+    if changed:
+        out, ext = await render_cache.render_async(battle_scene.render_power_up, left_snap, right_snap, changed,
+                                                   turn_total=battle_config.turn_total, active=active, left_ally=ally_snap)
+        name = POWER_UP_FILE if ext == "gif" else SCENE_FILE
+        announcement = power_up_text(changed, snaps)
+    else:
+        out = await render_cache.render_async(battle_scene.render, left_snap, right_snap,
+                                              turn_total=battle_config.turn_total, active=active, left_ally=ally_snap)
+        name, announcement = SCENE_FILE, ""
     try:
-        return out.getvalue()
+        return out.getvalue(), name, announcement
     finally:
         out.close()
 
@@ -214,17 +266,19 @@ def listen_ids(rows, battle_config):
     return ids
 
 
-def human_turn_view(battle_config, turn_card, tutorial_text=None):
+def human_turn_view(battle_config, turn_card, tutorial_text=None, image_name=SCENE_FILE, announcement=""):
     rows = move_rows(battle_config)
-    extra = f"-# 🧠 **Tutorial task:** {_one_line(tutorial_text)}" if tutorial_text else None
-    container = battle_container(header_text(battle_config, turn_card, True, extra), recent_log_text(battle_config),
-                                 rows, turn_card.health_color)
+    extra = [announcement] if announcement else []
+    if tutorial_text:
+        extra.append(f"-# 🧠 **Tutorial task:** {_one_line(tutorial_text)}")
+    container = battle_container(header_text(battle_config, turn_card, True, "\n".join(extra) or None),
+                                 recent_log_text(battle_config), rows, turn_card.health_color, image_name=image_name)
     return container, listen_ids(rows, battle_config)
 
 
-def ai_turn_view(battle_config, turn_card):
-    return battle_container(header_text(battle_config, turn_card, False), recent_log_text(battle_config), [],
-                            turn_card.health_color)
+def ai_turn_view(battle_config, turn_card, image_name=SCENE_FILE, announcement=""):
+    return battle_container(header_text(battle_config, turn_card, False, announcement or None), recent_log_text(battle_config), [],
+                            turn_card.health_color, image_name=image_name)
 
 
 def summon_view(battle_config, turn_card, summon_message):
@@ -276,6 +330,13 @@ def _move_lines(card):
         return []
 
 
+def damage_help_line():
+    import damage
+    return (f"-# 💥 Damage ≈ move AP × {damage.DAMAGE_SCALE:g}, more when your ATK beats their DEF (up to ×{damage.STAT_FACTOR_MAX:g}), "
+            f"less when it doesn't. Strong ×{damage.STRONG:g} · Crit ×{damage.CRITICAL:g} · Weakness ×{damage.WEAKNESS:g} · "
+            f"Resist ×{damage.RESISTANCE:g}. One hit can't take more than {round(damage.MAX_HIT_SHARE * 100)}% of max HP.")
+
+
 def more_panel(battle_config):
     """Private panel: full kit for both sides, longer log, Save & quit, Surrender."""
     positions = crown_utilities.get_battle_positions(battle_config)
@@ -284,6 +345,7 @@ def more_panel(battle_config):
 
     sections = [f"### 🎒 {turn_card.name}"]
     sections += _move_lines(turn_card)
+    sections.append(damage_help_line())
     sections += _kit_lines(turn_card, turn_title)
     if (battle_config.is_co_op_mode or battle_config.is_duo_mode) and partner_card is not None and partner_card is not turn_card:
         sections.append(f"### 🤝 {partner_card.name}")
@@ -329,3 +391,151 @@ def surrender_confirm_panel(battle_config):
 
 def notice_panel(text, accent=0x5865F2):
     return ContainerComponent(TextDisplayComponent(text), accent_color=accent)
+
+
+# --------------------------------------------------------------------------- match start screen
+START_FILE = "matchup.jpg"
+
+_RELATIONS = (
+    ("weaknesses", "is **weak** to", "✅"),
+    ("immunity", "is **immune** to", "🚫"),
+    ("repels", "**repels**", "↩️"),
+    ("absorbs", "**absorbs**", "💚"),
+    ("resistances", "**resists**", "🛡️"),
+)
+
+
+def _elements(values):
+    return {str(v).upper() for v in (values or []) if v}
+
+
+def move_matchups(attacker, defender, limit=4):
+    """Lines like '✅ Crablante is weak to 👊 Scissor Punch' for the attacker's three attacks."""
+    lines = []
+    try:
+        for i in (1, 2, 3):
+            element = str(getattr(attacker, f"move{i}_element", "") or "").upper()
+            name = getattr(attacker, f"move{i}", "")
+            if not element:
+                continue
+            for attr, verb, icon in _RELATIONS:
+                if element in _elements(getattr(defender, attr, None)):
+                    lines.append(f"{icon} {defender.name} {verb} {crown_utilities.set_emoji(element)} {name}")
+                    break
+    except Exception as ex:
+        custom_logging.debug(ex)
+    return lines[:limit]
+
+
+def affinity_line(card):
+    parts = []
+    try:
+        for attr, label in (("weaknesses", "Weak"), ("resistances", "Resist"), ("immunity", "Immune"),
+                            ("repels", "Repel"), ("absorbs", "Absorb")):
+            icons = " ".join(crown_utilities.set_emoji(e) for e in (getattr(card, attr, None) or []) if e)
+            if icons.strip():
+                parts.append(f"{label} {icons}")
+    except Exception as ex:
+        custom_logging.debug(ex)
+    return " · ".join(parts) or "No affinities"
+
+
+def moves_line(card):
+    try:
+        suffix = crown_utilities.enhancer_suffix_mapping.get(card.move4enh, "")
+        moves = [
+            f"{card.move1_emoji} {card.move1} **{card.move1ap}**",
+            f"{card.move2_emoji} {card.move2} **{card.move2ap}**",
+            f"{card.move3_emoji} {card.move3} **{card.move3ap}**",
+            f"🦠 {card.move4} **{str(card.move4enh).title()} {card.move4ap}{suffix}**",
+        ]
+        return f"{moves[0]} · {moves[1]}\n{moves[2]} · {moves[3]}"
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return ""
+
+
+def match_label(battle_config):
+    """Short label for the scene's centre pill, e.g. 'MATCH 3/22'."""
+    if battle_config.is_tutorial_game_mode:
+        return "TUTORIAL"
+    if battle_config.is_pvp_game_mode:
+        return "PVP"
+    if battle_config.is_boss_game_mode:
+        return "BOSS FIGHT"
+    total = int(getattr(battle_config, "total_number_of_opponents", 0) or 0)
+    number = int(getattr(battle_config, "current_opponent_number", 0) or 0) + 1
+    return f"MATCH {number}/{total}" if total > 1 else "MATCH"
+
+
+def match_title(battle_config):
+    if battle_config.is_tutorial_game_mode:
+        return "🧠 Tutorial match"
+    if battle_config.is_pvp_game_mode:
+        return "⚔️ PvP duel"
+    if battle_config.is_boss_game_mode:
+        return "👹 Boss fight"
+    total = int(getattr(battle_config, "total_number_of_opponents", 0) or 0)
+    number = int(getattr(battle_config, "current_opponent_number", 0) or 0) + 1
+    return f"⚔️ Match {number} of {total}" if total > 1 else "⚔️ Match"
+
+
+async def render_matchup(battle_config):
+    left, right, ally, _ = scene_positions(battle_config)
+    left_snap = battle_scene.snapshot(left, right)
+    right_snap = battle_scene.snapshot(right, left)
+    ally_snap = battle_scene.snapshot(ally, right) if ally is not None else None
+    out = await render_cache.render_async(battle_scene.render_matchup, left_snap, right_snap,
+                                          label=match_label(battle_config), left_ally=ally_snap)
+    try:
+        return out.getvalue()
+    finally:
+        out.close()
+
+
+def start_view(battle_config, buttons_row, pings=""):
+    """Match start screen: who fights whom, the matchup scene, intel, and Start / Auto / Save / End."""
+    you = battle_config.player1_card
+    opp = battle_config.player2_card
+    partner = battle_config.player3_card if (battle_config.is_co_op_mode or battle_config.is_duo_mode) else None
+    where = [mode_name(battle_config)]
+    universe = getattr(battle_config, "selected_universe", None) or getattr(opp, "universe", "")
+    if universe and str(universe) not in where:
+        where.append(str(universe))
+    header = f"### {match_title(battle_config)}\n-# {' · '.join(w for w in where if w)}"
+    if pings:
+        header += f"\n{pings}"
+
+    intel = [f"**🎴 {opp.name}'s moves**", moves_line(opp) or "-# Unknown"]
+    yours = move_matchups(you, opp)
+    theirs = move_matchups(opp, you)
+    if partner is not None:
+        yours += [f"-# {partner.name}: " + l for l in move_matchups(partner, opp, 2)]
+    intel.append("**⚔️ Your attacks**")
+    intel += yours or ["-# No element advantages either way; every move hits normally."]
+    intel.append(f"**⚠️ {opp.name}'s attacks**")
+    intel += theirs or ["-# Nothing special against you."]
+    affinities = [f"-# **You:** {affinity_line(you)}"]
+    if partner is not None:
+        affinities.append(f"-# **{partner.name}:** {affinity_line(partner)}")
+    affinities.append(f"-# **{opp.name}:** {affinity_line(opp)}")
+
+    accent = 0xE74C3C if battle_config.is_boss_game_mode else 0x5865F2
+    return ContainerComponent(
+        TextDisplayComponent(crown_utilities.clip(header, 600)),
+        MediaGalleryComponent([MediaGalleryItem(f"attachment://{START_FILE}")]),
+        TextDisplayComponent(crown_utilities.clip("\n".join(intel), 2000)),
+        TextDisplayComponent(crown_utilities.clip("\n".join(affinities), 800)),
+        SeparatorComponent(divider=True),
+        buttons_row,
+        accent_color=accent,
+    )
+
+
+def start_banner(battle_config, text):
+    """What the start screen collapses to once a choice is made (no image, no buttons)."""
+    you, opp = battle_config.player1_card, battle_config.player2_card
+    return ContainerComponent(
+        TextDisplayComponent(f"**{match_title(battle_config)}:** {you.name} 🆚 {opp.name}\n-# {text}"),
+        accent_color=0x95A5A6,
+    )

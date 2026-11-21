@@ -607,7 +607,7 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 cardlogger = await crown_utilities.cardlevel(user1, "Tales")
 
                 embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
-                embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
+                embedVar.set_footer(text=crown_utilities.clip_tail(f"{battle_config.get_previous_moves_embed()}", 2048))
                 if quest_response:
                     embedVar.add_field(name="**Quest Complete**",
                         value=f"{quest_response}")
@@ -653,7 +653,7 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 {save_scen}
                 {unlock_message}
                 """),color=0xe91e63)
-                embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
+                embedVar.set_footer(text=crown_utilities.clip_tail(f"{battle_config.get_previous_moves_embed()}", 2048))
                 exp = (len(battle_config.list_of_opponents_by_name) * 100) * battle_config._ai_opponent_card_lvl
                 await crown_utilities.cardlevel(user1, "Scenario", exp)
 

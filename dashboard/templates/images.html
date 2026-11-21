@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Card images{% endblock %}
+{% block page %}images{% endblock %}
+{% block body %}
+  <section class="intro">
+    <p class="eyebrow">Supabase bucket {{ bucket }}</p>
+    <h1>Card images</h1>
+    <p class="lede">Each row is a character. Put an image link in that row, then match the cards. The dashboard downloads the pictures, stores a JPEG on Supabase, and writes the public link to that card’s art. The old template image is left alone. A new picture clears the previous crop so the frame is not stuck on the old focal point.</p>
+    {% if storage_problem %}<p class="flash error">{{ storage_problem }}</p>{% endif %}
+  </section>
+
+  <form class="toolbar" method="get" action="{{ url_for('images') }}">
+    <label>Universe
+      <select name="universe">
+        <option value="">Choose</option>
+        {% for name in universes %}
+          <option value="{{ name }}" {% if name == universe %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Load names</button>
+  </form>
+
+  <form method="post" action="{{ url_for('images_preview') }}" class="panel">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="universe" value="{{ universe }}">
+    <div class="link-scroll">
+      <table class="link-table">
+        <thead>
+          <tr><th></th><th>Character</th><th>Image link</th></tr>
+        </thead>
+        <tbody id="link-rows">
+          {% for row in entries %}
+            <tr>
+              <td class="art-cell">{% if row.current %}<img class="thumb" src="{{ row.current }}" alt="">{% endif %}</td>
+              <td><input name="name" value="{{ row.name }}" autocomplete="off" placeholder="Character name"></td>
+              <td><input name="url" value="{{ row.url }}" autocomplete="off" placeholder="https://..."></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">Rows without a link are skipped. The picture on the left is the art already saved on the card.</p>
+    <div class="actions">
+      <button type="button" class="secondary" id="add-row">Add character</button>
+      <button type="submit">Match cards</button>
+    </div>
+  </form>
+  <template id="blank-row">
+    <tr>
+      <td class="art-cell"></td>
+      <td><input name="name" value="" autocomplete="off" placeholder="Character name"></td>
+      <td><input name="url" value="" autocomplete="off" placeholder="https://..."></td>
+    </tr>
+  </template>
+  <script>
+    document.getElementById("add-row").addEventListener("click", function () {
+      var row = document.getElementById("blank-row").content.cloneNode(true);
+      document.getElementById("link-rows").appendChild(row);
+    });
+  </script>
+
+  {% if preview %}
+    <h2>{{ preview.matched|length }} matched</h2>
+    {% if preview.matched %}
+      <div class="table-scroll"><table class="grid">
+        <thead><tr><th></th><th>Card</th><th>Universe</th><th>Source</th></tr></thead>
+        <tbody>
+          {% for item in preview.matched %}
+            <tr>
+              <td data-label="Art">{% if item.current %}<img class="thumb" src="{{ item.current }}" alt="">{% endif %}</td>
+              <td data-label="Card">{{ item.card.NAME }}</td>
+              <td data-label="Universe">{{ item.card.UNIVERSE }}</td>
+              <td data-label="Source" class="clip"><a href="{{ item.url }}">{{ item.url }}</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+      <form method="post" action="{{ url_for('images_apply') }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <input type="hidden" name="universe" value="{{ universe }}">
+        {% for row in entries %}
+          {% if row.url %}
+            <input type="hidden" name="name" value="{{ row.name }}">
+            <input type="hidden" name="url" value="{{ row.url }}">
+          {% endif %}
+        {% endfor %}
+        <div class="actions">
+          <button type="submit" {% if not storage_ready %}disabled{% endif %}>Download, host, and save</button>
+        </div>
+      </form>
+    {% endif %}
+    {% if preview.unmatched %}
+      <h2>{{ preview.unmatched|length }} skipped</h2>
+      <ul class="skipped">
+        {% for item in preview.unmatched %}
+          <li>Line {{ item.line }}: {{ item.text }} — {{ item.error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endif %}
+
+  {% if results %}
+    <h2>Saved art</h2>
+    <div class="table-scroll"><table class="grid">
+      <thead><tr><th></th><th>Card</th><th>Status</th><th>Supabase link</th></tr></thead>
+      <tbody>
+        {% for item in results %}
+          <tr>
+            <td data-label="Art">{% if item.link %}<img class="thumb" src="{{ item.link }}" alt="">{% endif %}</td>
+            <td data-label="Card">{{ item.name }}</td>
+            <td data-label="Status">{{ item.status }}{% if item.error %}<small>{{ item.error }}</small>{% endif %}</td>
+            <td data-label="Link" class="clip">{% if item.link %}<a href="{{ item.link }}">{{ item.link }}</a>{% endif %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  {% endif %}
+{% endblock %}

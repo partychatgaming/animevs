@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}{{ doc.get(catalog.name) }}{% endblock %}
+{% block page %}edit{% endblock %}
+{% set slot_names = ['Basic', 'Special', 'Ultimate', 'Enhancer'] %}
+
+{% macro render_field(field) %}
+  {% set wide = field.type in ('list', 'json', 'elements', 'roster') or field.type == 'url' %}
+  <div class="field {% if wide %}wide{% endif %}">
+    {% if field.type == "bool" %}
+      <label class="toggle"><input type="checkbox" name="{{ field.key }}" {% if field.value %}checked{% endif %}><span class="sw"></span>{{ field.label }}</label>
+    {% else %}
+      <span class="field-name">{{ field.label }}{% if field.identity %} <em>identity</em>{% endif %}</span>
+      {% if field.type == "elements" %}
+        <div class="el-chips">
+          {% for choice in field.choices %}
+            {% set st = element_style(choice) %}
+            <label class="el-chip" style="--ec: {{ st.glow }}">
+              <input type="checkbox" name="{{ field.key }}" value="{{ choice }}" {% if choice in field.selected %}checked{% endif %}>
+              <span>{{ st.emoji }} {{ choice.title() }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      {% elif field.type == "select" %}
+        <select name="{{ field.key }}">
+          {% for choice in field.choices %}
+            <option value="{{ choice }}" {% if choice|string == field.value|string %}selected{% endif %}>{{ choice if choice != "" else "—" }}</option>
+          {% endfor %}
+        </select>
+      {% elif field.type == "json" and field.builder %}
+        <div class="ability-builder" data-builder="{{ field.builder }}" data-target="{{ field.key }}"></div>
+        <button type="button" class="small lime" data-add-ability="{{ field.key }}" style="justify-self: start">+ Add ability</button>
+        <details class="raw">
+          <summary>Raw JSON</summary>
+          <textarea name="{{ field.key }}" id="raw-{{ field.key }}" rows="6">{{ field.value }}</textarea>
+        </details>
+      {% elif field.type == "roster" %}
+        <div class="roster" data-roster data-name="{{ field.key }}" data-universe="{{ doc.get('TITLE', '') }}">
+          <ol class="roster-list">
+            {% for name in field.value %}
+              <li class="roster-row">
+                <button type="button" class="grip" draggable="true" aria-label="Drag {{ name }} to a new place">⋮⋮</button>
+                <span class="ord">{{ loop.index }}</span>
+                <span class="who">{{ name }}</span>
+                <button type="button" class="rm ghost" aria-label="Remove {{ name }}">✕</button>
+                <input type="hidden" name="{{ field.key }}" value="{{ name }}">
+              </li>
+            {% endfor %}
+          </ol>
+          <p class="roster-empty hint" {% if field.value %}hidden{% endif %}>No fights yet. Search below and the card is added at the end.</p>
+          <label class="roster-find">Search cards in this universe
+            <input type="search" placeholder="Type a card name" autocomplete="off" enterkeyhint="search">
+          </label>
+          <div class="roster-results" hidden></div>
+        </div>
+      {% elif field.type in ("list", "json") %}
+        <textarea name="{{ field.key }}" rows="{% if field.type == 'json' %}7{% else %}5{% endif %}">{{ field.value }}</textarea>
+      {% elif field.type in ('int', 'float') and field.max is defined %}
+        <div class="num-wrap">
+          <input type="range" min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step or 1 }}" value="{{ field.value or 0 }}" data-sync="{{ field.key }}"
+                 style="--c: {% if field.key == 'HLT' %}var(--hp){% elif 'ATK' in field.key %}var(--atk){% elif 'DEF' in field.key %}var(--def){% elif field.key == 'STAM' %}var(--st){% else %}var(--pink){% endif %}" aria-label="{{ field.label }}">
+          <input type="number" name="{{ field.key }}" value="{{ field.value }}" {% if field.type == "float" %}step="any"{% endif %}>
+        </div>
+      {% else %}
+        <input type="{% if field.type in ('int', 'float') %}number{% elif field.type == 'url' %}url{% else %}text{% endif %}"
+               name="{{ field.key }}" value="{{ field.value }}" {% if field.type == "float" %}step="any"{% endif %} {% if field.type in ('int','float') %}inputmode="decimal"{% endif %}>
+      {% endif %}
+    {% endif %}
+    {% if field.hint %}<small>{{ field.hint }}</small>{% endif %}
+  </div>
+{% endmacro %}
+
+{% block body %}
+  <section class="intro row-head">
+    <div>
+      <p class="eyebrow"><a href="{{ url_for('listing', catalog_key=catalog_key) }}">{{ catalog.icon }} {{ catalog.label }}</a></p>
+      <h1>{{ doc.get(catalog.name) }}</h1>
+    </div>
+    <div class="actions" style="margin: 0">
+      <form method="post" action="{{ url_for('duplicate', catalog_key=catalog_key, doc_id=doc_id) }}" class="inline-form" style="margin: 0" data-duplicate>
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <input type="hidden" name="name" value="">
+        <button type="submit" class="ghost">Duplicate</button>
+      </form>
+      <button type="button" class="pink" data-create="{{ catalog_key }}" data-universe="{{ doc.get('UNIVERSE', '') }}">New <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <div class="editor-layout">
+    <aside class="preview-col">
+      {% if catalog_key == 'cards' and tile %}
+        <div class="preview-card" id="preview-card" data-tilt style="--glow: {{ tile.type.glow }}">
+          <img id="preview-img" src="{{ tile.render_full }}" alt="{{ tile.name }} as Discord shows it" width="720" height="1080">
+          <span class="busy pill">Rendering…</span>
+        </div>
+        <div class="preview-tools">
+          <button type="button" class="pink" data-spin-preview data-name="{{ tile.name }}" data-glow="{{ tile.type.glow }}">Spin in 3D</button>
+          <a class="btn ghost" id="preview-open" href="{{ tile.render_full }}" target="_blank" rel="noopener">Full size ↗</a>
+          <p class="hint" style="margin: 0">Live preview: drawn by the bot as you edit. Nothing is saved until you hit Save.</p>
+        </div>
+      {% elif tile %}
+        <article class="item editor-portrait {% if not tile.available %}off{% endif %}" style="--c: {{ tile.type.color }}; --g: {{ tile.type.glow }}">
+          <div class="banner">
+            <span class="art-bg"></span>
+            {% if tile.image %}<img src="{{ tile.image }}" alt="">{% else %}<span class="emblem" style="font-size: 84px">{{ tile.type.emoji if tile.type.key else catalog.icon }}</span>{% endif %}
+          </div>
+          <div class="body">
+            <span class="name">{{ tile.name }}</span>
+            {% if tile.universe %}<span class="uni">🌌 {{ tile.universe }}</span>{% endif %}
+            <div id="ability-preview">{% for emoji, text in tile.abilities %}<div class="ability"><span>{{ emoji }}</span><span>{{ text }}</span></div>{% endfor %}</div>
+            <div class="chips">{% for chip in tile.chips %}<span class="chip">{{ chip }}</span>{% endfor %}</div>
+          </div>
+        </article>
+        {% if tile.image %}
+          <div class="preview-tools"><button type="button" class="pink" data-spin="{{ tile.image }}" data-name="{{ tile.name }}" data-glow="{{ tile.type.glow }}" data-shape="art">Spin in 3D</button></div>
+        {% endif %}
+      {% endif %}
+    </aside>
+
+    <form method="post" class="editor" id="editor-form" novalidate data-catalog="{{ catalog_key }}" data-preview="{% if catalog_key == 'cards' %}{{ url_for('card_preview_img', doc_id=doc_id) }}{% endif %}">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      {% for group in groups %}
+        <section class="panel group">
+          <h3>{{ group.name }}</h3>
+          <div class="fields">
+            {% for field in group.fields %}{{ render_field(field) }}{% endfor %}
+          </div>
+        </section>
+
+        {% if group.name == 'Stats' and moves is not none %}
+          <section class="panel group">
+            <h3>Moves</h3>
+            <p class="hint" style="margin-top: 0">Basic, Special and Ultimate attack with an element. The Ultimate's element is the card's type (it colors the frame). The fourth move is the enhancer: tag it Type.</p>
+            <input type="hidden" name="move_count" value="{{ moves|length }}">
+            <div class="moves-grid">
+              {% for move in moves %}
+                {% set i = loop.index0 %}
+                {% set st = element_style(move.tag_value) %}
+                <div class="move" data-move style="--ec: {{ st.glow }}">
+                  <span class="slot">{{ slot_names[i] if i < 4 else 'Move ' ~ (i + 1) }}</span>
+                  <span class="emoji" data-move-emoji>{{ st.emoji if move.tag == 'ELEMENT' else '🦠' }}</span>
+                  <input class="name-in" name="m_name_{{ i }}" value="{{ move.name }}" placeholder="Move name" aria-label="Move name">
+                  <div class="pair">
+                    <label>Power<input name="m_power_{{ i }}" type="number" inputmode="numeric" value="{{ move.power }}"></label>
+                    <label>Stamina<input name="m_stam_{{ i }}" type="number" inputmode="numeric" value="{{ move.stam }}"></label>
+                  </div>
+                  <div class="pair">
+                    <label>Tag
+                      <select name="m_tag_{{ i }}">
+                        <option value="ELEMENT" {% if move.tag == "ELEMENT" %}selected{% endif %}>Element</option>
+                        <option value="TYPE" {% if move.tag == "TYPE" %}selected{% endif %}>Type</option>
+                      </select>
+                    </label>
+                    <label>Value
+                      <select name="m_tagval_{{ i }}" data-move-value>
+                        <option value="">—</option>
+                        <optgroup label="Element">
+                          {% for name in elements %}<option value="{{ name }}" {% if move.tag_value == name %}selected{% endif %}>{{ element_style(name).emoji }} {{ name.title() }}</option>{% endfor %}
+                        </optgroup>
+                        <optgroup label="Enhancer type">
+                          {% for name in enhancers %}<option value="{{ name }}" {% if move.tag_value == name %}selected{% endif %}>{{ name }}</option>{% endfor %}
+                        </optgroup>
+                        {% if move.tag_value and move.tag_value not in elements and move.tag_value not in enhancers %}
+                          <option value="{{ move.tag_value }}" selected>{{ move.tag_value }}</option>
+                        {% endif %}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+      {% endfor %}
+
+      <div class="savebar" id="savebar">
+        <div class="left">
+          <label class="check"><input type="checkbox" name="allow_rename"> Allow rename</label>
+          {% if catalog_key == 'cards' %}
+            <label class="check"><input type="checkbox" name="host_art"> Host card art on Supabase</label>
+          {% endif %}
+          <span class="dirty">● Unsaved</span>
+        </div>
+        <button type="submit" class="pink">Save changes</button>
+      </div>
+      <p class="hint">"Allow rename" changes the identity field. Existing players keep the old name until their records are updated. "Host card art" downloads the card image, stores it on Supabase, and saves that one link.</p>
+    </form>
+  </div>
+
+  {% if previous_art %}
+    <form method="post" action="{{ url_for('restore_art', doc_id=doc_id) }}" class="inline-form">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button type="submit" class="ghost">Restore previous art</button>
+      <span class="hint">Previous art is saved. Restoring it leaves the other fields alone.</span>
+    </form>
+  {% endif %}
+{% endblock %}

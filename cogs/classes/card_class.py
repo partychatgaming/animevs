@@ -10,6 +10,7 @@ import ai
 import db
 import random
 import render_cache
+import damage
 from PIL import Image, ImageFont, ImageDraw
 from pilmoji import Pilmoji
 from io import BytesIO
@@ -1500,106 +1501,21 @@ class Card:
 
 
     def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle", encounter=False):
-        """Render this card as an in-memory PNG.
+        """Render this card as a portrait PNG (rewound BytesIO); see card_render.py.
 
-        Always returns a rewound ``BytesIO``.  Art, fonts, star sprites and emoji
-        come from ``render_cache`` (no per-turn downloads), and if anything fails
-        while drawing a plain fallback card is returned instead of ``None`` so a
-        render problem can never end a battle.
+        Always returns an image.  For a card that is still standing it also runs
+        the per-turn move calculations the old template render performed
+        (WAVE/CREATION/BLAST/DESTRUCTION enhancer power, DRACONIC ultimate,
+        trimmed move names), so game numbers are unchanged.
         """
         try:
-            if self.health <= 0:
-                return render_cache.encode_png(get_card(self.path, self.name, "base"))
-
-            if self.used_resolve:
-                im = get_card(self.rpath, self.rname, "resolve")
-            elif self.used_focus and self.fpath:
-                im = get_card(self.fpath, self.name, "focus")
-            else:
-                im = get_card(self.path, self.name, "base")
-
-            font = render_cache.get_font
-            with render_cache.RENDER_LOCK:
-                draw = ImageDraw.Draw(im)
-                paste_stars(im, render_cache.get_star(self.tier), self.tier)
-
-                name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size = calculate_font_sizes(self.name, self.rname, self.used_resolve)
-                universe_font_size = 35
-                if self.universe == "That Time I Got Reincarnated as a Slime":
-                    universe_font_size = 26
-
+            if self.health > 0:
                 self.get_evasion()
-
-                ebasic, especial, eultimate, engagement_basic, engagement_special, engagement_ultimate = calculate_engagement_levels(opponent_card_defense, mode, self)
-                move1_text, move2_text, move3_text, move_enhanced_text, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size = calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eultimate)
-
-                header = font("YesevaOne-Regular.ttf", name_font_size)
-                title_font = font("YesevaOne-Regular.ttf", title_font_size)
-                passive_font = font("YesevaOne-Regular.ttf", universe_font_size)
-                lvl_font = font("Neuton-Bold.ttf", 60)
-                health_and_stamina_font = font("Neuton-Light.ttf", 41)
-                attack_and_shield_font = font("Neuton-Bold.ttf", 48)
-                moveset_font_1 = font("Jersey20-Regular.ttf", basic_font_size)
-                moveset_font_2 = font("Jersey20-Regular.ttf", super_font_size)
-                moveset_font_3 = font("Jersey20-Regular.ttf", ultimate_font_size)
-                moveset_font_4 = font("Jersey20-Regular.ttf", enhancer_font_size)
-                encounter_font = font("Jersey20-Regular.ttf", 33)
-
-                health_bar, character_name = get_character_name_and_health_bar(self, draw, header, title_size)
-
-                get_lvl_sizing(self, draw, lvl_font)
-
-                # Health & Stamina
-                rift_universes = ['Crown Rift Awakening']
-                if self.universe in rift_universes or self.is_skin_drop or self.is_scenario_drop:
-                    draw.text((710, 417), health_bar, (0, 0, 0), font=health_and_stamina_font, align="left")
-                    draw.text((710, 457), f"{round(self.stamina)}", (0, 0, 0), font=health_and_stamina_font, align="left")
-                else:
-                    draw.text((710, 417), health_bar, (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
-                            stroke_fill=(0, 0, 0), align="left")
-                    draw.text((710, 457), f"{round(self.stamina)}", (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
-                            stroke_fill=(0, 0, 0), align="left")
-
-                # Attack & Shield (Defense)
-                a_sizing = (89, 515)
-                d_sizing = (1062, 515)
-                if int(self.attack) > 99:
-                    a_sizing = (78, 515)
-                if int(self.defense) > 99:
-                    d_sizing = (1048, 515)
-                if int(self.attack) > 999:
-                    a_sizing = (70, 515)
-                if int(self.defense) > 999:
-                    d_sizing = (1040, 515)
-
-                draw.text(a_sizing, f"{format_number(round(self.attack))}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
-                        stroke_fill=(0, 0, 0), align="center")
-                draw.text(d_sizing, f"{format_number(round(self.defense))}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
-                        stroke_fill=(0, 0, 0), align="center")
-
-                with Pilmoji(im, source=render_cache.EMOJI_SOURCE, cache=False) as pilmoji:
-                    pilmoji.text((602, 133), f"{crown_utilities.class_emojis[self.card_class]} {self.class_message}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                        align="left")
-                    pilmoji.text((602, 180), f"{self.universe_crest} {self.universe}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                        align="left")
-                    if mode == "RPG" and encounter:
-                        wrapped_message = wrap_text(self.ai_encounter_message or "", 40)
-                        pilmoji.text((602, 230), wrapped_message, (255, 255, 255), font=encounter_font, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
-                    else:
-                        pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
-                                    stroke_fill=(0, 0, 0))
-                        pilmoji.text((600, 290), move2_text.strip(), (255, 255, 255), font=moveset_font_2, stroke_width=2,
-                                    stroke_fill=(0, 0, 0))
-                        pilmoji.text((600, 330), move3_text.strip(), (255, 255, 255), font=moveset_font_3, stroke_width=2,
-                                    stroke_fill=(0, 0, 0))
-                        pilmoji.text((600, 370), move_enhanced_text.strip(), (255, 255, 255), font=moveset_font_4, stroke_width=2,
-                                    stroke_fill=(0, 0, 0))
-
-            return render_cache.encode_png(im)
-
+                calculate_move_text_and_font_sizes(self, turn_total, "", "", "")
         except Exception as ex:
             custom_logging.debug(ex)
-            return fallback_card_png(self)
+        import card_render
+        return card_render.render(self, mode=mode, encounter=encounter)
 
     async def set_ai_encounter_message(self, opponent_card, location):
         ai_encounter_message =  await ai.rpg_encounter_message(self.name, self.universe, opponent_card, location)
@@ -1933,67 +1849,18 @@ class Card:
 
         else:
             try:  
-                #Getting the defense power of the opponent
-                defensepower = _opponent_card.defense - self.attack
-                # if self.sleep_exhaustion_bool:
-                #     defensepower = 2000
-                if defensepower <= 0:
-                    defensepower = 0
-
-                #Checking for Bonus Attack or Defense
+                # ------------------------------------------------------------------
+                # Attack damage.  The numbers live in damage.py (and are explained
+                # there); this block applies them in a fixed order:
+                #   base (power x attack vs defense) -> pre-roll effects -> hit roll
+                #   -> hit quality -> weakness -> 40% max-health cap -> resistances.
+                # ------------------------------------------------------------------
                 bonus_damage = 0
                 if self.universe == "Full Metal Alchemist":
                     bonus_damage = equivalent_exchange(self, battle_config, self.attack, move_stamina)
 
-                #Getting Attack Power of the Attacked
-                attackpower = round(self.attack + ap + bonus_damage)
-                if attackpower <= 0:
-                    attackpower = 25
-
-                #Getting the Ability Power
-                abilitypower = attackpower - defensepower
-                if abilitypower <= 0:
-                    abilitypower = ap + bonus_damage
-
-                #Engagement Checks
-                dmg = abilitypower
-                if dmg >= ap * 2:
-                    dmg = ap * 2
-                if dmg <= ap / 3:
-                    dmg = ap / 3
-                engagement_low = .70
-                engagmement_high = .90
-                if self.attack >= (_opponent_card.defense * 2):
-                    engagement_low = 1.0
-                    engagmement_high = 1.2
-                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    # print("Lethal Engagement Damage", dmg)
-                elif self.attack > (_opponent_card.defense + (_opponent_card.defense * .05)):
-                    engagement_low = 0.80
-                    engagmement_high = 1.1
-                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    # print("Agrresssive Engagement Damage", dmg)
-                elif self.attack < (_opponent_card.defense - (_opponent_card.defense * .05)):  
-                    engagement_low = .50
-                    engagmement_high = .80
-                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    # print("Cautious Engagement Damage", dmg)
-                elif self.attack <= (_opponent_card.defense / 2):
-                    engagement_low = .30
-                    engagmement_high = .60
-                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    # print("Brave Engagement Damage", dmg)
-                else:
-                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
-                    # print("Neutral Engagement Damage", dmg)
-                #Variance for flavor
-                low = dmg - (dmg * .05)
-                high = dmg + (dmg * .05)
-                true_dmg = (round(random.randint(int(low), int(high))))
-
-                #Checking for Minimum True Damage
-                if true_dmg <= 0:
-                    true_dmg = 50
+                true_dmg = damage.base_damage(ap + bonus_damage, self.attack, _opponent_card.defense)
+                min_dmg = max(1, round((ap + bonus_damage) * damage.MIN_DAMAGE_SHARE))
 
                 #Enhanced Guard Effect
                 if opponent_title.enhanced_guard_effect and opponent_card.used_block:
@@ -2003,19 +1870,16 @@ class Card:
                 #Naruto Chakra Control Trait
                 if self.universe == "Naruto" and self.stamina >= 100:
                     true_dmg = round(true_dmg + (true_dmg * .60))
-                
-                #Setting Evastion Variables and Message Variable
-                message = ""            
+
+                #Hit roll bands (d20, after the speed / trait modifiers in adjust_hit_roll)
+                message = ""
                 miss_hit = 1
                 low_hit = 6
                 med_hit = 15
                 standard_hit = 19
                 high_hit = 20
 
-                #Generate a random integer between 1 and 20 inclusive
-                hit_roll = round(random.randint(1, 20))  
-                
-                #Evasion Modifiers
+                hit_roll = round(random.randint(1, 20))
                 hit_roll = self.adjust_hit_roll(battle_config, hit_roll, _opponent_card, summon_used, true_dmg, move_element, low_hit, med_hit, standard_hit, high_hit, miss_hit)
                 if move_element in ["RECKLESS", "RECOIL"] and hit_roll > miss_hit:
                     if self.used_resolve:
@@ -2046,106 +1910,99 @@ class Card:
                 if summon_used and self.universe == "Soul Eater":
                     hit_roll = 0
 
-                #Set Attacker Message
-                attacker = self.name
-                if summon_used:
-                    attacker = self.summon_name
+                attacker = self.summon_name if summon_used else self.name
 
-
-                #Apply Hit Dice and Final Damage Modification and create message
+                #Hit quality
                 is_crit = False
-                if hit_roll < miss_hit: #Missed Hit
+                missed = False
+                lead = ""                    # e.g. "🩸Feint Attack! "
+                tags = []                    # shown after the damage, e.g. (strong · fire weakness)
+                if hit_roll < miss_hit:
                     if self.universe == 'Soul Eater':
                         is_crit = True
-                        true_dmg = round(true_dmg * 2.5)
-                        message = f'🩸Feint Attack! {move_emoji} {attacker} critically hit {_opponent_card.name} for {true_dmg:,} damage'
+                        true_dmg = round(true_dmg * damage.CRITICAL)
+                        lead = "🩸Feint Attack! "
                     elif self.wind_element_activated:
                         true_dmg = round(true_dmg)
-                        message = f'🌪️ {attacker} hit {_opponent_card.name} for {true_dmg:,} damage'       
+                        lead = "🌪️ "
                     elif turn_title.sharpshooter_effect:
                         true_dmg = round(true_dmg)
-                        message = f'{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage [🎗️Sharpshooter]'
+                        tags.append("🎗️Sharpshooter")
                     else:
                         true_dmg = 0
-                        message = f'{move_emoji} {attacker} attack missed {_opponent_card.name} 💨'
-                
-                elif hit_roll <= low_hit and hit_roll > miss_hit:#Low Hit
-                    true_dmg = round(true_dmg * .70)
-                    message = f'{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage'
-                
-                elif hit_roll <= med_hit and hit_roll > low_hit:#Med Hit
+                        missed = True
+                elif hit_roll <= low_hit:
+                    true_dmg = round(true_dmg * damage.GLANCING)
+                    tags.append("glancing")
+                elif hit_roll <= med_hit:
                     true_dmg = round(true_dmg)
-                    message = f'{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage'
-                
-                elif hit_roll <= standard_hit and hit_roll > med_hit:#Standard Hit
-                    true_dmg = round(true_dmg * 1.2)
-                    message = f'{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage'
-                
-                elif hit_roll >= 20:#Critical Hit
+                elif hit_roll <= standard_hit:
+                    true_dmg = round(true_dmg * damage.STRONG)
+                    tags.append("strong")
+                else:
                     is_crit = True
                     if self.wind_element_activated:
                         battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * self.wind_buff_value))
                         battle_config.add_to_battle_log(f"🌪️ All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
                         true_dmg = round(true_dmg + battle_config._wind_buff)
-
                     if self.stagger:
                         self.stagger_activated = True
-                    if self.universe =="Crown Rift Awakening":
-                        true_dmg = round(true_dmg * 4)
-                        message = f"🩸 {move_emoji} Blood Awakening - {attacker} critically hits {_opponent_card.name} for {true_dmg:,} damage"
+                    if self.universe == "Crown Rift Awakening":
+                        true_dmg = round(true_dmg * damage.CRITICAL_BLOOD_AWAKENING)
+                        lead = "🩸 Blood Awakening - "
                     else:
-                        true_dmg = round(true_dmg * 2.5)
-                        message = f"{move_emoji} {attacker} critically hits {_opponent_card.name} for {true_dmg:,} damage"
-                
-                else:
-                    message = f"{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage"
+                        true_dmg = round(true_dmg * damage.CRITICAL)
 
                 if is_physical_element:
                     if self.stamina > 80:
                         true_dmg = round(true_dmg * 1.5)
 
-                #Affinity Checks to update message
+                if not missed:
+                    true_dmg = max(true_dmg, min_dmg)
+
+                #Weakness (before the cap, so a weakness can't push a hit past it)
                 does_repel = False
-                if (move_element in _opponent_card.weaknesses or self._tactician_stack_5 ==True) and not (hit_roll <= miss_hit):
-                    true_dmg = round(true_dmg * 1.6)
-                    hit_type = "hit"
-                    if is_crit:
-                        hit_type = "Critically Hit"
-                    if summon_used:
-                        message = f"{move_emoji} {turn_card.summon_name} {hit_type} {_opponent_card.name} for {true_dmg:,} damage ({move_element.lower()} weakness)"
-                    else:
-                        message = f"{move_emoji} {turn_card.name} {hit_type} {_opponent_card.name} for {true_dmg:,} damage ({move_element.lower()} weakness)"
-                
-                if not self._talisman == move_element and not self._is_boss and not self._tactician_stack_3:
-                    if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit):
-                        true_dmg = round(true_dmg * .45)
-                        if summon_used:
-                            message = f"{move_emoji} {turn_card.summon_name} chips {_opponent_card.name} for {true_dmg:,} damage ({move_element.lower()} resistance)"
-                        else:
-                            message = f"{move_emoji} {turn_card.name} chips {_opponent_card.name} for {true_dmg:,} damage ({move_element.lower()} resistance)"
-                    if move_element in _opponent_card.immunity and not (hit_roll <= miss_hit):
+                element_name = str(move_element).lower()
+                if (move_element in _opponent_card.weaknesses or self._tactician_stack_5 == True) and not missed:
+                    true_dmg = round(true_dmg * damage.WEAKNESS)
+                    tags.append(f"{element_name} weakness")
+
+                #No single hit takes more than MAX_HIT_SHARE of the target's max health
+                cap = damage.max_hit(_opponent_card)
+                if true_dmg > cap:
+                    true_dmg = cap
+                    tags.append("max hit")
+
+                special_message = None
+                resisted = False
+                if not self._talisman == move_element and not self._is_boss and not self._tactician_stack_3 and not missed:
+                    if move_element in _opponent_card.resistances:
+                        true_dmg = round(true_dmg * damage.RESISTANCE)
+                        resisted = True
+                        tags.append(f"{element_name} resistance")
+                    if move_element in _opponent_card.immunity:
                         true_dmg = 0
-                        if summon_used:
-                            message = f"{move_emoji} {turn_card.summon_name} cannot effect {_opponent_card.name} ({move_emoji} immunity)"
-                        else:
-                            message = f"{move_emoji} {turn_card.name} cannot effect {_opponent_card.name} ({move_emoji} immunity)"
-                    if move_element in _opponent_card.repels and not (hit_roll <= miss_hit):
+                        special_message = f"{move_emoji} {attacker} cannot effect {_opponent_card.name} ({move_emoji} immunity)"
+                    if move_element in _opponent_card.repels:
                         self.health = self.health - true_dmg
-                        if summon_used:
-                            message = f"{_opponent_card.name} repelled {turn_card.summon_name}'s attack dealing {true_dmg:,} damage ({move_emoji} repelled)"
-                        else:
-                            message = f"{_opponent_card.name} repelled {turn_card.name}'s attack dealing {true_dmg:,} damage ({move_emoji} repelled)"
+                        special_message = f"{_opponent_card.name} repelled {attacker}'s attack dealing {true_dmg:,} damage ({move_emoji} repelled)"
                         does_repel = True
-                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
-                    if move_element in _opponent_card.absorbs and not (hit_roll <= miss_hit):
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {special_message}")
+                    if move_element in _opponent_card.absorbs:
                         _opponent_card.health = _opponent_card.health + true_dmg
-                        if summon_used:
-                            message = f"{_opponent_card.name} absorbed {turn_card.summon_name}'s attack for {true_dmg:,} healing ({move_emoji} absorbed)"
-                        else:
-                            message = f"{_opponent_card.name} absorbed {turn_card.name}'s attack for {true_dmg:,} healing ({move_emoji} absorbed)"
+                        special_message = f"{_opponent_card.name} absorbed {attacker}'s attack for {true_dmg:,} healing ({move_emoji} absorbed)"
                         does_absorb = True
-                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
-                
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {special_message}")
+
+                if special_message:
+                    message = special_message
+                elif missed:
+                    message = f'{move_emoji} {attacker} attack missed {_opponent_card.name} 💨'
+                else:
+                    verb = "critically hits" if is_crit else ("chips" if resisted else "hits")
+                    suffix = f" ({' · '.join(tags)})" if tags else ""
+                    message = f"{lead}{move_emoji} {attacker} {verb} {_opponent_card.name} for {true_dmg:,} damage{suffix}"
+
                 #Assasin Strike Checks
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1

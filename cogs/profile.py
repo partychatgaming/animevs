@@ -586,20 +586,30 @@ class Profile(Extension):
         player = crown_utilities.create_player_from_data(d)
         
         try:
-            # Fetch all cards and market data in batches
             card_names = player.cards
+            if len(card_names) > 80 and not (universe_filter or element_filter):
+                embed = Embed(title="🎴 Cards", description="You have too many cards to display. Please use the filters to narrow down list", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
+
+            # Fetch all cards and market data in batches
             card_queries = [asyncio.to_thread(db.queryCard, {"NAME": name}) for name in card_names]
             market_queries = [asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": player.did, "ITEM_NAME": name}) for name in card_names]
-            
+
             card_data_list, market_data_list = await asyncio.gather(
                 asyncio.gather(*card_queries),
                 asyncio.gather(*market_queries)
             )
-            
+
             embed_list = []
-            
+            shown_cards = []
+
             for i, card_data in enumerate(card_data_list):
+                if not card_data:
+                    continue
                 c = crown_utilities.create_card_from_data(card_data)
+                if not c:
+                    continue
                 if universe_filter:
                     if universe_filter.lower() != c.universe.lower():
                         continue
@@ -610,46 +620,61 @@ class Profile(Extension):
                 c.set_affinity_message()
                 c.set_evasion_message(player)
                 c.set_card_level_icon(player)
-                
+
                 currently_on_market = market_data_list[i]
-                
+                equipped = "  ·  ✅ Equipped" if c.name == player.equipped_card else ""
+
+                # Name, art, level, stats and moves are on the card picture; the
+                # embed keeps what the picture doesn't show.  The title must stay
+                # the exact card name: Equip / Dismantle / Trade / Market read it.
                 embedVar = Embed(title=f"{c.name}", description=textwrap.dedent(f"""\
-                {c.universe_crest} {c.universe}
-                {c.drop_emoji} **[{i}]** 
-                {c.class_emoji} {c.class_message}
-                🀄 {c.tier}: {c.level_icon} {c.card_lvl}
-                ❤️ **{c.health}** 🗡️ **{c.attack}** 🛡️ **{c.defense}**
-                
-                {c.move1_emoji} **{c.move1}:** {c.move1ap}
-                {c.move2_emoji} **{c.move2}:** {c.move2ap}
-                {c.move3_emoji} **{c.move3}:** {c.move3ap}
-                🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{c.move4enh_suffix}
+                {c.universe_crest} {c.universe}  ·  {c.drop_emoji} #{i}{equipped}
+                🏃 {c.evasion_message}
                 """), color=0x7289da)
-                
-                embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
-                embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
-                embedVar.set_thumbnail(url=c.universe_image)
-                embedVar.set_footer(text=f"{len(player.cards)} Total Cards")
-                
+                embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message or 'None'}")
                 if currently_on_market:
-                    embedVar.add_field(name="🏷️__Currently On Market__", value="Press the market button if you'd like to remove this product from the Market.")
-                
+                    embedVar.add_field(name="🏷️__Currently On Market__", value="Press the market button if you'd like to remove this product from the Market.", inline=False)
+                embedVar.set_image(url="attachment://card.png")
+                embedVar.set_footer(text=f"{len(embed_list) + 1} of {{total}}  ·  {len(player.cards)} total cards")
+
                 embed_list.append(embedVar)
-            
+                shown_cards.append(c)
+
             if not embed_list:
-                embed = Embed(title="🎴 Cards", description="You currently own no Cards.", color=0x7289da)
+                embed = Embed(title="🎴 Cards", description="You currently own no Cards." if not (universe_filter or element_filter) else "No cards match those filters.", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
 
-            if len(player.cards) > 80:
+            if len(embed_list) > 80:
                 embed = Embed(title="🎴 Cards", description="You have too many cards to display. Please use the filters to narrow down list", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
-            
+
+            for embedVar in embed_list:
+                embedVar.set_footer(text=embedVar.footer.text.replace("{total}", str(len(embed_list))))
+
+            rendered = {}
+
+            async def card_picture(index):
+                # portrait card for page `index`; the last few are kept so paging back is instant
+                if index in rendered:
+                    return rendered[index]
+                image = await render_cache.render_async(shown_cards[index].showcard)
+                try:
+                    data = image.getvalue()
+                finally:
+                    image.close()
+                rendered[index] = data
+                while len(rendered) > 12:
+                    rendered.pop(next(iter(rendered)))
+                return data
+
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Cards")
             paginator.show_select_menu = True
+            paginator.page_image = card_picture
+            paginator.page_image_name = "card.png"
             await paginator.send(ctx)
-        
+
         except Exception as ex:
             custom_logging.debug(ex)
             embed = Embed(title="🎴 Cards Error", description="There's an issue with loading your cards. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0xff0000)

@@ -1383,7 +1383,7 @@ class Battle:
         embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!",color=0x2ECC71)
         embedVar.add_field(name="💽 | Saved Data",
                                 value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
-        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}")
+        embedVar.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}", 2048))
         return embedVar
 
 
@@ -2128,7 +2128,7 @@ class Battle:
                 win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {self.turn_total} rounds.", description=f"View a summary of the rewards and match history here\n\n🪙 {'{:,}'.format(bounty_amount)} Coin Received!\n{drop_response}", color=0x1abc9c)
                 
                 battle_history_embed = Embed(title=f"📜 Match History", description=f"View the match history here", color=0x1abc9c)
-                battle_history_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+                battle_history_embed.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}", 2048))
 
                 battle_stats_embed = Embed(title=f"📊 Battle Stats", description=f"View the battle stats here", color=0x1abc9c)
 
@@ -2518,7 +2518,7 @@ class Battle:
 
     def create_embed_var(self, winner, winner_card, loser, loser_card, gameClock):
         embedVar = self.embed_title(winner, winner_card)
-        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n\n{self.format_game_clock(gameClock)}")
+        embedVar.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}"f"\n\n{self.format_game_clock(gameClock)}", 2048))
         self.add_stat_fields_to_embed(embedVar, winner_card, loser_card)
         return embedVar
 
@@ -2546,7 +2546,7 @@ class Battle:
                     embedVar.add_field(name="🏆 Milestone", value=message)
 
 
-        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n\n{self.format_game_clock(gameClock)}")
+        embedVar.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}"f"\n\n{self.format_game_clock(gameClock)}", 2048))
         self.add_stat_fields_to_embed(embedVar, player_card, opponent_card, companion_card)
         return embedVar
 
@@ -2564,7 +2564,7 @@ class Battle:
             victory_description = f"Match concluded in {self.turn_total} turns."
         
         embed = Embed(title=f"{victory_message}\n{victory_description}", color=0xe91e63)
-        embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+        embed.set_footer(text=crown_utilities.clip_tail(f"{self.get_previous_moves_embed()}", 2048))
         return embed
 
 

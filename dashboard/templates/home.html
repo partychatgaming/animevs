@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block page %}home{% endblock %}
+{% block body %}
+  <section class="hero">
+    <div>
+      <p class="eyebrow">✦ {{ database }} · live game data</p>
+      <h1>Every card, title and arm, in one place</h1>
+      <p class="lede">Edit cards, titles, arms and the rest straight in the database the bot battles with. Cards here are drawn by the bot's own renderer, so what you see is what Discord shows.</p>
+      <div class="kpis">
+        <div class="kpi"><b>{{ "{:,}".format(mini.total) }}</b><span>Cards</span></div>
+        <div class="kpi"><b>{{ ((mini.available / mini.total * 100) if mini.total else 0)|round|int }}%</b><span>Available</span>
+          <div class="bar"><i style="width: {{ (mini.available / mini.total * 100) if mini.total else 0 }}%"></i></div></div>
+        <div class="kpi"><b>{{ ((mini.with_art / mini.total * 100) if mini.total else 0)|round|int }}%</b><span>Have card art</span>
+          <div class="bar"><i style="width: {{ (mini.with_art / mini.total * 100) if mini.total else 0 }}%; background: var(--cyan)"></i></div></div>
+      </div>
+      <div class="actions">
+        <a class="btn pink" href="{{ url_for('play_page') }}">Play now <span class="arrow">→</span></a>
+        <button type="button" class="ghost" data-create="cards">New card</button>
+        <button type="button" class="ghost" data-create="titles">New title</button>
+        <button type="button" class="ghost" data-create="arms">New arm</button>
+        <a class="btn ghost" href="{{ url_for('stats_page') }}">View stats</a>
+      </div>
+    </div>
+    <div class="hero-stage" id="hero-stage">
+      <canvas id="hero-canvas" aria-label="Spinning showcase of cards"></canvas>
+      <span class="stage-hint">Drag to spin · tap a card to open it</span>
+    </div>
+  </section>
+
+  <p class="section-label" style="margin-top: 64px">Collections</p>
+  <h2 style="margin-top: 0">Jump in</h2>
+  <section class="catalog-grid">
+    {% for item in counts %}
+      <a class="catalog-card" href="{{ url_for('listing', catalog_key=item.key) }}">
+        <span class="thumb-art"><span class="art-bg" style="--g: {{ item.color }}; --c: #0b2a4a"></span><span class="icon">{{ item.icon }}</span><span class="count">{{ "{:,}".format(item.count) }}</span></span>
+        <span class="cap"><strong>{{ item.label }}</strong><span>{{ item.blurb }}</span></span>
+      </a>
+    {% endfor %}
+    <a class="catalog-card" href="{{ url_for('images') }}">
+      <span class="thumb-art"><span class="art-bg" style="--g: #a6ff3c; --c: #0b2a4a"></span><span class="icon">🖼️</span><span class="count">Bulk</span></span>
+      <span class="cap"><strong>Card images</strong><span>Paste names and image links. Each image is hosted and saved as that card’s art.</span></span>
+    </a>
+  </section>
+
+  <p class="section-label" style="margin-top: 64px">Overview</p>
+  <h2 style="margin-top: 0">At a glance</h2>
+  <section class="mini-charts">
+    <div class="panel chart-card"><h3>Cards per tier</h3><p class="sub">Tap a bar to see those cards</p><div class="chart" id="mini-tier"></div></div>
+    <div class="panel chart-card"><h3>Card types</h3><p class="sub">Element of each card's Ultimate</p><div class="chart" id="mini-type"></div></div>
+    <div class="panel chart-card"><h3>Biggest universes</h3><p class="sub">Cards per universe</p><div class="chart" id="mini-uni"></div></div>
+  </section>
+{% endblock %}
+{% block scripts %}
+  <script>
+    window.AVS_PAGE = {
+      showcase: {{ showcase|tojson }},
+      mini: {{ mini|tojson }},
+      cardsUrl: {{ url_for('listing', catalog_key='cards')|tojson }}
+    };
+  </script>
+  <script src="{{ url_for('static', filename='charts.js') }}?v=4" defer></script>
+{% endblock %}

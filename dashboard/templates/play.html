@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Play{% endblock %}
+{% block page %}play{% endblock %}
+{% block body %}
+  <!-- ============================== lobby -->
+  <section id="lobby">
+    <div class="intro">
+      <p class="eyebrow">✦ Live on {{ database }} · wins and losses count</p>
+      <h1>Battle in the browser</h1>
+      <p class="lede">This runs the bot's own game code, the same battles, buttons, rewards and drops as Discord. Everything you win or lose is saved to the player's account exactly like it is in Discord.</p>
+    </div>
+
+    <div class="play-grid">
+      <aside class="panel player-panel">
+        <p class="section-label">Player</p>
+        <div class="player-search">
+          <input type="search" id="player-q" placeholder="Search players by name…" autocomplete="off" aria-label="Search players">
+          <div class="player-results" id="player-results" role="listbox"></div>
+        </div>
+        <div id="player-card" class="player-card empty">
+          <p class="muted" style="margin: 0">Pick who you're playing as.</p>
+        </div>
+      </aside>
+
+      <div class="play-main">
+        <div class="row-head" style="margin-bottom: 14px">
+          <div>
+            <p class="section-label">Modes</p>
+            <h2 style="margin: 0">Choose a battle</h2>
+          </div>
+          <label style="min-width: 220px">Universe
+            <select id="play-universe">
+              <option value="">Choose in game (or random)</option>
+              {% for name in universes %}<option value="{{ name }}">{{ name }}</option>{% endfor %}
+            </select>
+          </label>
+        </div>
+        <div class="mode-grid">
+          {% for m in modes %}
+            <button type="button" class="mode-tile" data-mode="{{ m.key }}" data-uni="{{ 1 if m.universe else 0 }}">
+              <span class="thumb-art"><span class="art-bg" style="--g: {{ m.color }}; --c: #0b2a4a"></span><span class="icon">{{ m.icon }}</span></span>
+              <span class="cap"><strong>{{ m.label }}</strong><span>{{ m.blurb }}</span></span>
+            </button>
+          {% endfor %}
+          <button type="button" class="mode-tile" data-command="explore" data-uni="1">
+            <span class="thumb-art"><span class="art-bg" style="--g: #3cc8ff; --c: #0b2a4a"></span><span class="icon">🧭</span></span>
+            <span class="cap"><strong>Explore</strong><span>Wander a universe and run into random cards to battle and catch.</span></span>
+          </button>
+        </div>
+
+        <p class="section-label" style="margin-top: 40px">Your stuff</p>
+        <h2 style="margin: 0 0 14px">Build, collection and rewards</h2>
+        <div class="tool-chips">
+          {% for key, label, icon, args in tools %}
+            <button type="button" class="tool-chip" data-command="{{ key }}" data-args='{{ args|tojson }}'>{{ icon }} {{ label }}</button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== arena -->
+  <section id="arena" hidden>
+    <div class="arena-bar">
+      <button type="button" class="ghost small" id="arena-leave">← Lobby</button>
+      <div class="arena-title"><span id="arena-name"></span><span class="cap-sub" id="arena-sub"></span></div>
+      <button type="button" class="ghost small" id="arena-type" hidden title="Type a reply">⌨ Reply</button>
+      <span class="pill" id="arena-record">0W · 0L</span>
+      <span class="status-dot" id="arena-status" title="">●</span>
+    </div>
+    <div class="arena-stage" id="stage">
+      <div class="feed" id="feed"></div>
+      <div class="fx" id="fx"></div>
+      <canvas class="fx-canvas" id="fx-canvas"></canvas>
+      <div class="banner-fx" id="banner-fx"></div>
+    </div>
+    <form class="typebar" id="typebar" hidden>
+      <span class="cap-sub">The game is waiting for you to type</span>
+      <input id="type-input" autocomplete="off" placeholder="Type your answer…">
+      <button type="submit" class="pink">Send</button>
+    </form>
+  </section>
+
+  <dialog id="ephemeral" class="sheet">
+    <div class="dlg-head"><h3>Only you can see this</h3><button type="button" class="small ghost" data-close>✕</button></div>
+    <div class="dlg-body" id="ephemeral-body"></div>
+  </dialog>
+
+  <dialog id="args-dialog">
+    <form id="args-form">
+      <div class="dlg-head"><h3 id="args-title">Options</h3><button type="button" class="small ghost" data-close>✕</button></div>
+      <div class="dlg-body" id="args-body"></div>
+      <div class="dlg-foot"><button type="button" class="ghost" data-close>Cancel</button><button type="submit" class="pink">Run <span class="arrow">→</span></button></div>
+    </form>
+  </dialog>
+{% endblock %}
+{% block scripts %}
+  <script>window.AVS_PLAY = { database: {{ database|tojson }} };</script>
+  <script src="{{ url_for('static', filename='play.js') }}?v=1" defer></script>
+{% endblock %}

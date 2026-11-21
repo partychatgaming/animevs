@@ -26,6 +26,7 @@ from interactions import (
     StringSelectOption,
     Color,
     BrandColors,
+    File,
 )
 
 from interactions.ext.paginators import Page, Paginator
@@ -128,6 +129,14 @@ class CustomPaginator(Paginator):
         self.raid_start = False
         self.quit = False
 
+        # Optional picture per page (e.g. the portrait card in /cards):
+        # an async function page_index -> PNG bytes, drawn when the page is shown.
+        self.page_image = None
+        self.page_image_name = "card.png"
+
+        # Optional handler for a "Buy" custom button: async (ctx, page_index).
+        self.page_action = None
+
     """
     Paginators are a way to display multiple pages of information in a single message.
     Paginators may have custom buttons. In the case where they have custom buttons,
@@ -178,6 +187,7 @@ class CustomPaginator(Paginator):
                     f"{self._uuid}|🦾protectionarms",
                     f"{self._uuid}|🧬summons",
                     f"{self._uuid}|draw",
+                    f"{self._uuid}|buy",
                     
                 ],
             )
@@ -294,6 +304,10 @@ class CustomPaginator(Paginator):
                     self.dismantle_summon = True
                     response = await self.activate_summon_action(ctx, self._message.embeds[0].title, self.dismantle_summon)
                 # await ctx.edit_origin(content="Dismantled!")
+            case "buy":
+                if self.page_action is not None:
+                    await self.page_action(ctx, self.page_index)
+                return None
             case "market":
                 if self.cards_action:
                     self.market_card = True
@@ -389,9 +403,52 @@ class CustomPaginator(Paginator):
                     await self._message.delete()
         
         if original_buttons:
+            if self.page_image is not None:
+                # drawing the page can take a moment: acknowledge first, then edit
+                await ctx.defer(edit_origin=True)
+                page_file = await self._page_file(self.page_index)
+                if page_file is not None:
+                    await ctx.edit_origin(**self.to_dict(), file=page_file)
+                else:
+                    await ctx.edit_origin(**self.to_dict())
+                self._prefetch_page_image(self.page_index + 1)
+                return None
             await ctx.edit_origin(**self.to_dict())
             return None
 
+
+    async def _page_file(self, index):
+        """The picture for page ``index`` as a File, or None (never raises)."""
+        if self.page_image is None:
+            return None
+        try:
+            data = await self.page_image(index)
+        except Exception as ex:
+            custom_logging.debug(ex)
+            return None
+        if not data:
+            return None
+        from io import BytesIO
+        return File(file_name=self.page_image_name, file=BytesIO(data))
+
+    def _prefetch_page_image(self, index):
+        """Warm the art for a neighbouring page so flipping feels instant."""
+        if self.page_image is None or not (0 <= index < len(self.pages)):
+            return
+        async def warm():
+            try:
+                await self.page_image(index)
+            except Exception:
+                pass
+        asyncio.create_task(warm())
+
+    async def send(self, ctx, **kwargs):
+        if self.page_image is not None and "file" not in kwargs and "files" not in kwargs:
+            page_file = await self._page_file(self.page_index)
+            if page_file is not None:
+                kwargs["file"] = page_file
+            self._prefetch_page_image(self.page_index + 1)
+        return await super().send(ctx, **kwargs)
 
     def _add_custom_buttons(self, custom_buttons):
         buttons = []
