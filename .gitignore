@@ -9,3 +9,5 @@ _backup_before_overhaul/
 tools/.card_art_state.json*
 tools/card_art_report.csv
 assets/card_overlays/*.png
+assets/card_overlays/contact_sheet.jpg
+.deploy/

@@ -1,0 +1,11 @@
+.git
+.venv
+.env
+.cursor
+__pycache__
+*.pyc
+.DS_Store
+assets/card_overlays
+tools/.card_art_state.json
+tools/.card_art_state.json.*
+tools/card_art_report.csv
