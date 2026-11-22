@@ -755,7 +755,11 @@ class Family(Extension):
                 power = (summon_bond * summon_lvl) + int(summon_ability_power)
                 summon_path = summon_object['PATH']
                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                summon_file = await render_cache.render_async(crown_utilities.showsummon, summon_path, summon_name, crown_utilities.element_mapping[summon_type], summon_lvl, summon_bond)
+                summon_file = await render_cache.render_async(
+                    crown_utilities.showsummon, summon_path, summon_name,
+                    crown_utilities.element_mapping.get(summon_type, ""), summon_lvl, summon_bond,
+                    universe=universe, ability=summon_ability, ability_type=summon_type, power=summon_ability_power,
+                )
 
                 universe = family['UNIVERSE']
                 universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': universe})

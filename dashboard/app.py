@@ -14,6 +14,7 @@ CARD_ART. Card pictures are drawn by the bot's own renderer, so they match Disco
 
 import copy
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -41,10 +42,16 @@ from dashboard.catalogs import (  # noqa: E402
     ELEMENT_STYLES, ELEMENTS, ENHANCER_TYPES, SUMMON_TYPES, TITLE_ABILITIES, element_style,
     field_map, get_catalog,
 )
-from dashboard.images import host_card_art, rows_from_pairs, storage  # noqa: E402
+from dashboard.images import host_card_art, rows_from_pairs, save_card_art_link, storage  # noqa: E402
+from decouple import config as env_config  # noqa: E402
+from werkzeug.middleware.proxy_fix import ProxyFix  # noqa: E402
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("DASHBOARD_SECRET") or secrets.token_hex(32)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+app.secret_key = env_config("DASHBOARD_SECRET", default="") or secrets.token_hex(32)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = env_config("DASHBOARD_HTTPS", default="").lower() in ("1", "true", "yes")
 PER_PAGE = 36
 FONT_DIR = ROOT / "fonts"
 WEB_FONTS = {"KomikaTitle.ttf", "KomikaTitle-Paint.ttf", "Roboto-Black.ttf", "Roboto-Bold.ttf",
@@ -68,6 +75,70 @@ def require_csrf():
     sent = request.form.get("csrf") or request.headers.get("X-CSRF")
     if not sent or sent != session.get("csrf"):
         abort(400, "This form expired. Reload the page and try again.")
+
+
+def dashboard_password():
+    return env_config("DASHBOARD_PASSWORD", default="")
+
+
+def _auth_marker(password):
+    return hashlib.sha256(f"{app.secret_key}:{password}".encode()).hexdigest()
+
+
+def _same(left, right):
+    if len(left) != len(right):
+        return False
+    return hmac.compare_digest(left, right)
+
+
+def signed_in():
+    password = dashboard_password()
+    if not password:
+        return True
+    return _same(session.get("auth") or "", _auth_marker(password))
+
+
+@app.before_request
+def require_sign_in():
+    if signed_in():
+        return None
+    if request.endpoint in ("login", "health", "static") or request.path in ("/login", "/health"):
+        return None
+    nxt = request.path if request.path.startswith("/") and not request.path.startswith("//") else "/"
+    if request.query_string:
+        nxt = nxt + "?" + request.query_string.decode()
+    return redirect(url_for("login", next=nxt))
+
+
+@app.get("/health")
+def health():
+    return "ok"
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    password = dashboard_password()
+    if not password:
+        return redirect(url_for("home"))
+    nxt = request.values.get("next") or "/"
+    if not nxt.startswith("/") or nxt.startswith("//"):
+        nxt = "/"
+    if request.method == "POST":
+        require_csrf()
+        if _same(request.form.get("password") or "", password):
+            session["auth"] = _auth_marker(password)
+            return redirect(nxt)
+        flash("That password is wrong.", "error")
+    if signed_in():
+        return redirect(nxt)
+    return render_template("login.html", next=nxt)
+
+
+@app.post("/logout")
+def logout():
+    require_csrf()
+    session.pop("auth", None)
+    return redirect(url_for("login"))
 
 
 _universe_cache = {"at": 0.0, "names": []}
@@ -360,9 +431,17 @@ def tile(catalog_key, catalog, doc):
         if catalog_key == "arms" and not element:
             first = (doc.get("ABILITIES") or [{}])[0]
             element = next(iter(first), "") if isinstance(first, dict) else ""
+        if catalog_key == "summons":
+            first = (doc.get("ABILITIES") or [{}])[0]
+            if isinstance(first, dict) and first.get("TYPE"):
+                element = first.get("TYPE")
         style = element_style(element)
         item["type"] = style
         item["abilities"] = ability_summary(catalog_key, doc)
+        if catalog_key == "summons":
+            version = cardviz.summon_key(doc)
+            item["render"] = url_for("summon_render_img", doc_id=doc_id, w=480, v=version)
+            item["render_full"] = url_for("summon_render_img", doc_id=doc_id, v=version)
         image_field = catalog.get("image")
         if image_field and doc.get(image_field):
             version = hashlib.sha1(str(doc.get(image_field)).encode()).hexdigest()[:10]
@@ -410,7 +489,8 @@ def builder_options():
 @app.context_processor
 def inject():
     return {"csrf": csrf_token(), "catalogs": CATALOGS, "database": db.use_database,
-            "builder": builder_options(), "element_style": element_style, "all_universes": universe_names()}
+            "builder": builder_options(), "element_style": element_style, "all_universes": universe_names(),
+            "locked": bool(dashboard_password())}
 
 
 @app.template_filter("short")
@@ -464,6 +544,29 @@ def card_preview_img(doc_id):
         data = cardviz.render_card(draft, 540)
     except RuntimeError as exc:
         abort(503, str(exc))
+    return _image_response(data, immutable=False)
+
+
+@app.get("/summons/<doc_id>/render.jpg")
+def summon_render_img(doc_id):
+    doc = find_doc(CATALOGS["summons"], doc_id)
+    width = request.args.get("w", type=int)
+    width = max(120, min(width, 720)) if width else None
+    data = cardviz.render_summon(doc, width)
+    return _image_response(data, immutable=request.args.get("v") == cardviz.summon_key(doc))
+
+
+@app.post("/summons/<doc_id>/preview.jpg")
+def summon_preview_img(doc_id):
+    """Render the summon as the editor form currently describes it, without saving."""
+    require_csrf()
+    catalog = CATALOGS["summons"]
+    doc = find_doc(catalog, doc_id)
+    draft = dict(doc)
+    draft.update(doc_from_form("summons", catalog, doc, request.form, strict=False))
+    if request.form.get("PET"):
+        draft["PET"] = request.form.get("PET")
+    data = cardviz.render_summon(draft, 540)
     return _image_response(data, immutable=False)
 
 
@@ -753,17 +856,22 @@ def save(catalog_key, doc_id):
                 raise ValueError("The name cannot be blank.")
             if name_taken(catalog, new_name, exclude_id=doc["_id"]):
                 raise ValueError(f"Another record is already called {new_name}.")
+        host_note = None
         if catalog_key == "cards" and request.form.get("host_art") == "on":
             link = update.get("CARD_ART") or doc.get("CARD_ART")
             if not link:
                 raise ValueError("Add a card art link before hosting it.")
             store, problem = storage()
             if problem:
-                raise ValueError(problem)
-            hosted = host_card_art(collection(catalog), {**doc, "NAME": update.get("NAME", doc["NAME"]),
-                                                         "UNIVERSE": update.get("UNIVERSE", doc.get("UNIVERSE"))}, link, store)
-            update["CARD_ART"] = hosted
-            update.pop("CARD_ART_CROP", None)
+                host_note = problem
+            else:
+                try:
+                    hosted = host_card_art(collection(catalog), {**doc, "NAME": update.get("NAME", doc["NAME"]),
+                                                                 "UNIVERSE": update.get("UNIVERSE", doc.get("UNIVERSE"))}, link, store)
+                    update["CARD_ART"] = hosted
+                    update.pop("CARD_ART_CROP", None)
+                except Exception as exc:
+                    host_note = f"Could not copy the image to Supabase ({exc}). The link you entered was saved on the card."
     except ValueError as exc:
         flash(str(exc), "error")
         posted = dict(doc)
@@ -789,6 +897,8 @@ def save(catalog_key, doc_id):
 
     collection(catalog).update_one({"_id": doc["_id"]}, {"$set": update})
     _stats_cache.clear()
+    if host_note:
+        flash(host_note, "error")
     flash(f"Saved {update.get(catalog['name'], doc.get(catalog['name']))}.", "ok")
     return redirect(url_for("edit", catalog_key=catalog_key, doc_id=doc_id))
 
@@ -1019,28 +1129,33 @@ def images_apply():
     rows, errors = rows_from_pairs(request.form.getlist("name"), request.form.getlist("url"))
     preview = match_rows(rows, errors, universe)
     store, problem = storage()
-    if problem:
-        flash(problem, "error")
-        return render_images(universe, entries, preview=preview, storage_ready=False, storage_problem=problem)
-    try:
-        store.ensure_bucket()
-    except RuntimeError as exc:
-        flash(str(exc), "error")
-        return render_images(universe, entries, preview=preview, storage_ready=False, storage_problem=str(exc))
+    if store:
+        try:
+            store.ensure_bucket()
+        except RuntimeError as exc:
+            store, problem = None, str(exc)
     results = []
     saved = 0
     for item in preview["matched"]:
         try:
-            link = host_card_art(db.cards_col, item["card"], item["url"], store)
+            if store:
+                link = host_card_art(db.cards_col, item["card"], item["url"], store)
+            else:
+                link = save_card_art_link(db.cards_col, item["card"], item["url"])
             saved += 1
             results.append({"name": item["card"]["NAME"], "status": "saved", "link": link, "source": item["url"]})
         except Exception as exc:
             results.append({"name": item["card"]["NAME"], "status": "failed", "link": "", "source": item["url"],
                             "error": str(exc)[:240]})
-    flash(f"Saved art for {saved} of {len(preview['matched'])} matched cards.", "ok" if saved else "error")
+    if store:
+        flash(f"Hosted and saved art for {saved} of {len(preview['matched'])} matched cards.", "ok" if saved else "error")
+    else:
+        flash(f"Saved the image link on {saved} of {len(preview['matched'])} matched cards.", "ok" if saved else "error")
     return render_images(
         universe, entries, preview=preview, results=results,
-        storage_ready=True, storage_problem=None, bucket=store.bucket,
+        storage_ready=store is not None,
+        storage_problem=None if store else problem,
+        bucket=store.bucket if store else "card-art",
     )
 
 

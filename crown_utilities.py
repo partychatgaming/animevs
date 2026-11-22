@@ -568,64 +568,13 @@ def getTime(hgame, mgame, sgame, hnow, mnow, snow):
 
 
 
-def showsummon(url, summon, message, lvl, bond):
-    """Render a summon card as an in-memory PNG (rewound BytesIO).
-
-    Uses the shared render cache, so the art, fonts and emoji are not downloaded
-    or re-read on every call, and always returns an image even if the art is
-    unreachable.
-    """
-    # Card Name can be 16 Characters before going off Card
-    # Lower Card Name Font once after 16 characters
-    try:
-        summon = str(summon)
-        im = render_cache.load_image(url, fallback_label=summon)
-
-        with render_cache.RENDER_LOCK:
-            draw = ImageDraw.Draw(im)
-
-            # Font Size Adjustments
-            # Name not go over Card
-            name_font_size = 80
-            if len(summon) >= 10:
-                name_font_size = 45
-            if len(summon) >= 14:
-                name_font_size = 36
-
-            header = render_cache.get_font("YesevaOne-Regular.ttf", name_font_size)
-            lvl_font = render_cache.get_font("Neuton-Bold.ttf", 68)
-            moveset_font = render_cache.get_font("antonio.regular.ttf", 40)
-
-            draw.text((600, 160), summon, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
-
-            # Level
-            lvl_sizing = (89, 70)
-            try:
-                if int(lvl) > 9:
-                    lvl_sizing = (75, 70)
-            except (TypeError, ValueError):
-                pass
-
-            draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
-            draw.text((1096, 65), f"{bond}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
-
-            lines = textwrap.wrap(str(message or ""), width=28)
-            y_text = 330
-            with Pilmoji(im, source=render_cache.EMOJI_SOURCE, cache=False) as pilmoji:
-                for line in lines:
-                    bbox = draw.textbbox((0, 0), line, font=moveset_font)
-                    width = bbox[2] - bbox[0]
-                    height = bbox[3] - bbox[1]
-                    x_position = round((1730 - width) / 2)
-                    pilmoji.text((x_position, y_text), line, (255, 255, 255), font=moveset_font, stroke_width=2, stroke_fill=(0, 0, 0))
-                    y_text += height
-
-        return render_cache.encode_png(im)
-
-    except Exception as ex:
-        loggy.critical(ex)
-        custom_logging.debug(ex)
-        return render_cache.encode_png(render_cache.placeholder_image(label=summon))
+def showsummon(url, summon, message, lvl, bond, universe="", ability="", ability_type="", power=None):
+    """Render a summon as the portrait companion card (rewound BytesIO)."""
+    import summon_render
+    return summon_render.render(
+        url, summon, message, lvl, bond,
+        universe=universe, ability=ability, ability_type=ability_type, power=power,
+    )
 
 
 def check_affinities(player, card, basic_element, super_element, ultimate_element):

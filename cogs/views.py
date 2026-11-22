@@ -956,7 +956,11 @@ async def viewsummon(self, ctx, data):
             s = crown_utilities.create_summon_from_data(pet)
             # s.set_messages()
 
-            image_binary = await render_cache.render_async(crown_utilities.showsummon, s.path, s.name, s.value, 0, 0)
+            image_binary = await render_cache.render_async(
+                crown_utilities.showsummon, s.path, s.name,
+                crown_utilities.element_mapping.get(s.ability_type, s.value), s.level, s.bond,
+                universe=s.universe, ability=s.ability, ability_type=s.ability_type, power=s.passive_value,
+            )
             image_binary.seek(0)
             summon_file = File(file_name="summon.png", file=image_binary)
             embedVar = Embed(title=f"Summon".format(self), color=000000)

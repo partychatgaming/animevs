@@ -4,7 +4,7 @@
 {% set slot_names = ['Basic', 'Special', 'Ultimate', 'Enhancer'] %}
 
 {% macro render_field(field) %}
-  {% set wide = field.type in ('list', 'json', 'elements', 'roster') or field.type == 'url' %}
+  {% set wide = field.type in ('list', 'json', 'elements', 'roster') or field.type == 'url' or field.key == 'CARD_ART_CROP' %}
   <div class="field {% if wide %}wide{% endif %}">
     {% if field.type == "bool" %}
       <label class="toggle"><input type="checkbox" name="{{ field.key }}" {% if field.value %}checked{% endif %}><span class="sw"></span>{{ field.label }}</label>
@@ -52,6 +52,19 @@
           </label>
           <div class="roster-results" hidden></div>
         </div>
+      {% elif field.key == "CARD_ART_CROP" %}
+        <div class="cropper" data-cropper data-fallback="{{ art }}">
+          <div class="crop-stage">
+            <img class="crop-image" alt="Card image to crop" draggable="false" referrerpolicy="no-referrer">
+            <div class="crop-frame" hidden></div>
+            <span class="crop-readout"></span>
+          </div>
+          <p class="crop-empty hint">Add a card image above to frame it.</p>
+          <input type="hidden" name="{{ field.key }}" value="{{ field.value }}">
+          <div class="crop-bar">
+            <button type="button" class="small ghost" data-crop-reset>Automatic framing</button>
+          </div>
+        </div>
       {% elif field.type in ("list", "json") %}
         <textarea name="{{ field.key }}" rows="{% if field.type == 'json' %}7{% else %}5{% endif %}">{{ field.value }}</textarea>
       {% elif field.type in ('int', 'float') and field.max is defined %}
@@ -87,7 +100,7 @@
 
   <div class="editor-layout">
     <aside class="preview-col">
-      {% if catalog_key == 'cards' and tile %}
+      {% if catalog_key in ('cards', 'summons') and tile %}
         <div class="preview-card" id="preview-card" data-tilt style="--glow: {{ tile.type.glow }}">
           <img id="preview-img" src="{{ tile.render_full }}" alt="{{ tile.name }} as Discord shows it" width="720" height="1080">
           <span class="busy pill">Rendering…</span>
@@ -116,7 +129,7 @@
       {% endif %}
     </aside>
 
-    <form method="post" class="editor" id="editor-form" novalidate data-catalog="{{ catalog_key }}" data-preview="{% if catalog_key == 'cards' %}{{ url_for('card_preview_img', doc_id=doc_id) }}{% endif %}">
+    <form method="post" class="editor" id="editor-form" novalidate data-catalog="{{ catalog_key }}" data-preview="{% if catalog_key == 'cards' %}{{ url_for('card_preview_img', doc_id=doc_id) }}{% elif catalog_key == 'summons' %}{{ url_for('summon_preview_img', doc_id=doc_id) }}{% endif %}">
       <input type="hidden" name="csrf" value="{{ csrf }}">
       {% for group in groups %}
         <section class="panel group">

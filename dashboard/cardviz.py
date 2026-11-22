@@ -1,8 +1,7 @@
 """Pictures for the dashboard.
 
-Cards are drawn by the bot's own renderer (crown_utilities.create_card_from_data
-+ card_render.render), so a card on the dashboard is the same image Discord shows.
-Other records (summons, universes, bosses, scenarios) have a plain image link;
+Cards and summons are drawn by the bot's own renderers, so the dashboard
+shows the same portrait Discord does. Other records have a plain image link;
 those are fetched through here so the browser gets them from the same origin,
 which three.js needs for textures.
 """
@@ -118,6 +117,35 @@ def render_card(doc, width=None):
                 attack=doc.get("ATK", 0), defense=doc.get("DEF", 0)))
         else:
             png = card_render.render(card)
+        full = _encode(Image.open(png))
+        _store(full_key, full)
+    if not width:
+        return full
+    small = _encode(Image.open(io.BytesIO(full)), width=width, quality=84)
+    _store(key, small)
+    return small
+
+
+SUMMON_KEYS = ("PET", "NAME", "UNIVERSE", "PATH", "LVL", "BOND", "ABILITIES")
+
+
+def summon_key(doc):
+    relevant = {key: doc.get(key) for key in SUMMON_KEYS}
+    raw = json.dumps(relevant, sort_keys=True, default=str).encode()
+    return hashlib.sha1(raw).hexdigest()[:16]
+
+
+def render_summon(doc, width=None):
+    """JPEG bytes of the Discord summon portrait for ``doc``."""
+    key = f"summon:{summon_key(doc)}:{width or 0}"
+    hit = _cached(key)
+    if hit is not None:
+        return hit
+    full_key = f"summon:{summon_key(doc)}:0"
+    full = _cached(full_key)
+    if full is None:
+        import summon_render
+        png = summon_render.render(**summon_render.parts_from_doc(doc))
         full = _encode(Image.open(png))
         _store(full_key, full)
     if not width:

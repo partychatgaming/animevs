@@ -122,7 +122,7 @@ CATALOGS = {
             _f("ABSORB", "Absorbs", "elements", group="Affinities"),
             _f("CARD_ART", "Card image", "url", group="Art",
                hint="The one picture this card uses, including while focused or resolved. A blank box shows the image already saved on the card."),
-            _f("CARD_ART_CROP", "Art crop", "str", group="Art", hint="Focal point as x,y from 0 to 1, for example 0.5,0.3. Blank uses automatic framing."),
+            _f("CARD_ART_CROP", "Art crop", "str", group="Art", hint="Drag the frame over the part that should fill the card. Automatic framing is used until you move it."),
             _f("GIF", "GIF", "url", group="Art"),
             _f("PASS", "Passive", "json", group="Advanced"),
             _f("DESCRIPTIONS", "Descriptions", "json", group="Advanced"),

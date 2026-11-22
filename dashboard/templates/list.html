@@ -80,7 +80,7 @@
   </form>
 
   {% if view == 'grid' %}
-    {% if catalog_key == 'cards' %}
+    {% if catalog_key == 'cards' or catalog_key == 'summons' %}
       <div class="gallery" id="gallery">
         {% for t in tiles %}
           <article class="tile {% if not t.available %}off{% endif %}" data-id="{{ t.id }}" data-tilt style="--glow: {{ t.type.glow }}">

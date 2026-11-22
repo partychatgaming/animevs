@@ -279,6 +279,124 @@
       editor.addEventListener("input", schedule);
       editor.addEventListener("change", schedule);
     }
+
+    $$("[data-cropper]", editor).forEach(mountCropper);
+  }
+
+  /* Drag the portrait window on the card image. The saved value is its centre. */
+  function mountCropper(root) {
+    const ASPECT = 500 / 580;
+    const img = $(".crop-image", root);
+    const frame = $(".crop-frame", root);
+    const input = $("input[name=CARD_ART_CROP]", root);
+    const readout = $(".crop-readout", root);
+    const artInput = $("#editor-form input[name=CARD_ART]");
+    let focus = parseFocus(input.value);
+    let dragged = false;
+
+    function parseFocus(value) {
+      const parts = String(value || "").trim().split(/[,\s]+/);
+      if (parts.length < 2) return null;
+      let x = Number(parts[0]);
+      let y = Number(parts[1]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+      if (x > 1 || y > 1) { x /= 100; y /= 100; }
+      return { x: Math.min(1, Math.max(0, x)), y: Math.min(1, Math.max(0, y)) };
+    }
+
+    function metrics() {
+      const nw = img.naturalWidth;
+      const nh = img.naturalHeight;
+      if (!nw || !nh) return null;
+      const imageAspect = nw / nh;
+      const cw = imageAspect > ASPECT ? nh * ASPECT : nw;
+      const ch = imageAspect > ASPECT ? nh : nw / ASPECT;
+      return { nw, nh, cw, ch, sx: img.clientWidth / nw, sy: img.clientHeight / nh };
+    }
+
+    function paint() {
+      const m = metrics();
+      if (!m || root.classList.contains("is-empty")) { frame.hidden = true; return; }
+      const point = focus || { x: 0.5, y: 0.38 };
+      let x = point.x * m.nw - m.cw / 2;
+      let y = point.y * m.nh - m.ch / 2;
+      x = Math.min(Math.max(0, x), Math.max(0, m.nw - m.cw));
+      y = Math.min(Math.max(0, y), Math.max(0, m.nh - m.ch));
+      frame.hidden = false;
+      frame.style.left = `${x * m.sx}px`;
+      frame.style.top = `${y * m.sy}px`;
+      frame.style.width = `${m.cw * m.sx}px`;
+      frame.style.height = `${m.ch * m.sy}px`;
+      readout.textContent = focus ? `${focus.x.toFixed(3)}, ${focus.y.toFixed(3)}` : "Automatic until you drag";
+    }
+
+    function commit(clientX, clientY) {
+      const m = metrics();
+      const stage = img.parentElement.getBoundingClientRect();
+      if (!m) return;
+      let left = (clientX - stage.left) - (m.cw * m.sx) / 2;
+      let top = (clientY - stage.top) - (m.ch * m.sy) / 2;
+      left = Math.min(Math.max(0, left), Math.max(0, img.clientWidth - m.cw * m.sx));
+      top = Math.min(Math.max(0, top), Math.max(0, img.clientHeight - m.ch * m.sy));
+      const cx = (left + (m.cw * m.sx) / 2) / m.sx / m.nw;
+      const cy = (top + (m.ch * m.sy) / 2) / m.sy / m.nh;
+      focus = { x: Math.min(1, Math.max(0, cx)), y: Math.min(1, Math.max(0, cy)) };
+      input.value = `${focus.x.toFixed(3)},${focus.y.toFixed(3)}`;
+      paint();
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function load() {
+      const typed = artInput && artInput.value.trim();
+      const src = typed || root.dataset.fallback || "";
+      root.classList.toggle("is-empty", !src);
+      if (!src) { frame.hidden = true; readout.textContent = ""; return; }
+      if (img.getAttribute("src") !== src) img.src = src;
+      else paint();
+    }
+
+    img.addEventListener("load", paint);
+    img.addEventListener("error", () => { readout.textContent = "This image could not be shown here."; frame.hidden = true; });
+    const stage = $(".crop-stage", root);
+    stage.addEventListener("pointerdown", (e) => {
+      if (root.classList.contains("is-empty") || !metrics()) return;
+      dragged = false;
+      stage.classList.add("is-dragging");
+      stage.setPointerCapture(e.pointerId);
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const move = (ev) => {
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > 3) dragged = true;
+        const m = metrics();
+        if (!m) return;
+        let left = (ev.clientX - stage.getBoundingClientRect().left) - (m.cw * m.sx) / 2;
+        let top = (ev.clientY - stage.getBoundingClientRect().top) - (m.ch * m.sy) / 2;
+        left = Math.min(Math.max(0, left), Math.max(0, img.clientWidth - m.cw * m.sx));
+        top = Math.min(Math.max(0, top), Math.max(0, img.clientHeight - m.ch * m.sy));
+        frame.hidden = false;
+        frame.style.left = `${left}px`;
+        frame.style.top = `${top}px`;
+        frame.style.width = `${m.cw * m.sx}px`;
+        frame.style.height = `${m.ch * m.sy}px`;
+      };
+      const up = (ev) => {
+        stage.removeEventListener("pointermove", move);
+        stage.removeEventListener("pointerup", up);
+        stage.classList.remove("is-dragging");
+        if (dragged || !focus) commit(ev.clientX, ev.clientY);
+      };
+      stage.addEventListener("pointermove", move);
+      stage.addEventListener("pointerup", up);
+    });
+    $("[data-crop-reset]", root).addEventListener("click", () => {
+      focus = null;
+      input.value = "";
+      paint();
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    if (typeof ResizeObserver !== "undefined") new ResizeObserver(paint).observe(img);
+    if (artInput) artInput.addEventListener("input", load);
+    load();
   }
 
   /* ---------------------------------------------------------------- quick edit sheet */

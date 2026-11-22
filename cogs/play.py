@@ -1358,7 +1358,11 @@ async def player_use_summon_ability(battle_config, private_channel, button_ctx, 
     if turn_player.performance or battle_config.is_auto_battle_game_mode:
         return
 
-    image_binary = await render_cache.render_async(crown_utilities.showsummon, turn_card.summon_image, turn_card.summon_name, summon_response['MESSAGE'], turn_card.summon_lvl, turn_card.summon_bond)
+    image_binary = await render_cache.render_async(
+        crown_utilities.showsummon, turn_card.summon_image, turn_card.summon_name, summon_response['MESSAGE'],
+        turn_card.summon_lvl, turn_card.summon_bond, universe=turn_card.summon_universe,
+        ability=turn_card.summon_ability_name, ability_type=turn_card.summon_type, power=turn_card.summon_power,
+    )
     try:
         image_bytes = image_binary.getvalue()
     finally:

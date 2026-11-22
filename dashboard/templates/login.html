@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Sign in · Anime VS+</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}?v=8">
+</head>
+<body class="login-page">
+  <form class="login-card" method="post" action="{{ url_for('login') }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="next" value="{{ next }}">
+    <h1>Anime VS+</h1>
+    <p>This editor saves to the live game. Sign in to continue.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p class="flash {{ category }}" role="status">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+    <label>Password
+      <input type="password" name="password" autocomplete="current-password" required autofocus>
+    </label>
+    <button type="submit">Sign in</button>
+  </form>
+</body>
+</html>

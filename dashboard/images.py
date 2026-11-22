@@ -23,13 +23,15 @@ def storage():
 
 def _key_problem(key):
     if key.startswith("sb_publishable"):
-        return ("Image hosting needs the secret key, not the publishable key. In Supabase open "
+        return ("Supabase hosting is off because SUPABASE_SERVICE_KEY is the publishable key. "
+                "The image link you paste is still saved on the card. To store a copy, open "
                 "Project Settings → API Keys, copy the secret key (sb_secret_…), and put it in "
-                "SUPABASE_SERVICE_KEY. Editing gameplay data still works.")
+                "SUPABASE_SERVICE_KEY.")
     if key.startswith("eyJ"):
         role = _jwt_role(key)
         if role and role != "service_role":
-            return ("SUPABASE_SERVICE_KEY is a " + role + " key. Image hosting needs the "
+            return ("Supabase hosting is off because SUPABASE_SERVICE_KEY is a " + role + " key. "
+                    "The image link you paste is still saved on the card. Hosting needs the "
                     "service_role secret from Project Settings → API Keys.")
     return None
 
@@ -123,6 +125,26 @@ def download_image(url):
     image = Image.open(io.BytesIO(data))
     image.seek(0)
     return to_jpeg(image)[0]
+
+
+def save_card_art_link(cards_col, card, source_url):
+    """Point the card at an image link without uploading a copy."""
+    link = (source_url or "").strip()
+    if not link.lower().startswith(("http://", "https://")):
+        raise ValueError("Image link must start with http:// or https://")
+    previous = card.get("CARD_ART")
+    update = {
+        "CARD_ART": link,
+        "CARD_ART_SOURCE": link,
+        "CARD_ART_UPDATED": datetime.datetime.utcnow().isoformat(timespec="seconds"),
+    }
+    if previous and previous != link:
+        update["CARD_ART_PREV"] = previous
+    cards_col.update_one(
+        {"_id": card["_id"]},
+        {"$set": update, "$unset": {"CARD_ART_CROP": ""}},
+    )
+    return link
 
 
 def host_card_art(cards_col, card, source_url, store):
